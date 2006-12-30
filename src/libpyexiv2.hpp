@@ -22,6 +22,7 @@
   File:      libpyexiv2.hpp
   Author(s): Olivier Tilloy <olivier@tilloy.net>
   History:   28-Dec-06, Olivier Tilloy: created
+             30-Dec-06, Olivier Tilloy: added IPTC-related methods
  */
 // *****************************************************************************
 
@@ -83,11 +84,19 @@ namespace LibPyExiv2
 		// image.
 		boost::python::list getAvailableIptcTags();
 
-		// TODO
-		//boost::python::tuple getIptcTag(std::string key);
-		//std::string getIptcTagToString(std::string key);
-		//boost::python::tuple setIptcTag(std::string key, std::string value);
-		//boost::python::tuple deleteIptcTag(std::string key);
+		// Returns a tuple containing the type (as a string) and the value
+		// (as a string as well) of the required IPTC tag, empty strings if
+		// the tag does not exist.
+		boost::python::tuple getIptcTag(std::string key);
+
+		// Sets the IPTC tag's value and returns a tuple containing the
+		// type and previous value of the tag. If the tag was not set
+		// before, it is created.
+		boost::python::tuple setIptcTag(std::string key, std::string value);
+
+		// Deletes the required IPTC tag and returns a tuple containing the
+		// type and previous value if it existed, empty strings otherwise.
+		boost::python::tuple deleteIptcTag(std::string key);
 
 	private:
 		std::string _filename;

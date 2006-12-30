@@ -22,6 +22,7 @@
   File:      libpyexiv2.cpp
   Author(s): Olivier Tilloy <olivier@tilloy.net>
   History:   28-Dec-06, Olivier Tilloy: created
+             30-Dec-06, Olivier Tilloy: implemented IPTC-related methods
  */
 // *****************************************************************************
 
@@ -118,7 +119,6 @@ namespace LibPyExiv2
 
 	boost::python::tuple Image::getExifTag(std::string key)
 	{
-		boost::python::tuple returnValue;
 		if(_dataRead)
 		{
 			try
@@ -128,8 +128,7 @@ namespace LibPyExiv2
 				if(i != _exifData.end())
 				{
 					Exiv2::Exifdatum exifDatum = _exifData[key];
-					returnValue = boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
-					return returnValue;
+					return boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
 				}
 				else
 				{
@@ -284,6 +283,116 @@ namespace LibPyExiv2
 			std::cerr << ">>> Image::getAvailableIptcTags(): metadata not read yet, call Image::readMetadata() first" << std::endl;
 			// The returned list is empty
 			return list;
+		}
+	}
+
+	boost::python::tuple Image::getIptcTag(std::string key)
+	{
+		if(_dataRead)
+		{
+			try
+			{
+				Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
+				Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
+				if(i != _iptcData.end())
+				{
+					Exiv2::Iptcdatum iptcDatum = _iptcData[key];
+					return boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
+				}
+				else
+				{
+					// The key was not found
+					std::cerr << ">>> Image::getIptcTag(): tag '" << key << "' not found" << std::endl;
+					return boost::python::make_tuple(std::string(""), std::string(""));
+				}
+			}
+			catch(Exiv2::Error & e)
+			{
+				// The key is not a valid Iptc tag key
+				std::cerr << ">>> Image::getIptcTag(): unknown key '" << key << "'" << std::endl;
+				return boost::python::make_tuple(std::string(""), std::string(""));
+			}
+		}
+		else
+		{
+			std::cerr << ">>> Image::getIptcTag(): metadata not read yet, call Image::readMetadata() first" << std::endl;
+			return boost::python::make_tuple(std::string(""), std::string(""));
+		}
+	}
+
+	boost::python::tuple Image::setIptcTag(std::string key, std::string value)
+	{
+		boost::python::tuple returnValue;
+		if(_dataRead)
+		{
+			try
+			{
+				Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
+				Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
+				if(i != _iptcData.end())
+				{
+					Exiv2::Iptcdatum iptcDatum = _iptcData[key];
+					returnValue = boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
+					// First erase the existing tag
+					_iptcData.erase(i);
+				}
+				else
+				{
+					// The key was not found
+					std::cerr << ">>> Image::setIptcTag(): tag '" << key << "' not found" << std::endl;
+					returnValue = boost::python::make_tuple(std::string(""), std::string(""));
+				}
+				_iptcData[key] = value;
+				return returnValue;
+			}
+			catch(Exiv2::Error & e)
+			{
+				// The key is not a valid Iptc tag key
+				std::cerr << ">>> Image::setIptcTag(): unknown key '" << key << "'" << std::endl;
+				return boost::python::make_tuple(std::string(""), std::string(""));
+			}
+		}
+		else
+		{
+			std::cerr << ">>> Image::setIptcTag(): metadata not read yet, call Image::readMetadata() first" << std::endl;
+			return boost::python::make_tuple(std::string(""), std::string(""));
+		}
+	}
+
+	boost::python::tuple Image::deleteIptcTag(std::string key)
+	{
+		boost::python::tuple returnValue;
+		if(_dataRead)
+		{
+			try
+			{
+				Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
+				Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
+				if(i != _iptcData.end())
+				{
+					Exiv2::Iptcdatum iptcDatum = _iptcData[key];
+					returnValue = boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
+					_iptcData.erase(i);
+				}
+				else
+				{
+					// The key was not found
+					std::cerr << ">>> Image::deleteIptcTag(): tag '" << key << "' not found" << std::endl;
+					returnValue = boost::python::make_tuple(std::string(""), std::string(""));
+				}
+				return returnValue;
+			}
+			catch(Exiv2::Error & e)
+			{
+				// The key is not a valid Iptc tag key
+				std::cerr << ">>> Image::deleteIptcTag(): unknown key '" << key << "'" << std::endl;
+				return boost::python::make_tuple(std::string(""), std::string(""));
+			}
+		}
+		else
+		{
+			std::cerr << ">>> Image::deleteIptcTag(): metadata not read yet, call Image::readMetadata() first" << std::endl;
+			return boost::python::make_tuple(std::string(""), std::string(""));
 		}
 	}
 

@@ -22,6 +22,7 @@
   File:      libpyexiv2_wrapper.cpp
   Author(s): Olivier Tilloy <olivier@tilloy.net>
   History:   28-Dec-06, Olivier Tilloy: created
+             30-Dec-06, Olivier Tilloy: added IPTC-related methods
  */
 // *****************************************************************************
 
@@ -44,5 +45,8 @@ BOOST_PYTHON_MODULE(libpyexiv2)
 		.def("setExifTag", &Image::setExifTag)
 		.def("deleteExifTag", &Image::deleteExifTag)
 		.def("getAvailableIptcTags", &Image::getAvailableIptcTags)
+		.def("getIptcTag", &Image::getIptcTag)
+		.def("setIptcTag", &Image::setIptcTag)
+		.def("deleteIptcTag", &Image::deleteIptcTag)
 	;
 }
