@@ -1,0 +1,59 @@
+pyexiv2
+*******
+
+Welcome to pyexiv2, a Python binding to the excellent C++ library Exiv2
+(http://www.exiv2.org/).
+
+Point your browser to http://exiv2.org/metadata.html for the complete metadata
+tag reference.
+
+
+Dependencies
+============
+
+pyexiv2 depends on the following libraries:
+
+	* boost.python (http://www.boost.org/libs/python/doc/index.html)
+	* exiv2 (http://www.exiv2.org/)
+
+Of course it needs a Python interpreter to run.
+
+
+Building and using
+=======================
+
+You will need scons (http://www.scons.org/) to build the library.
+To do so, simply cd to the src directory, and run scons:
+
+	$ scons
+
+The result is a dynamic library, libpyexiv2.so, that is a Python module called
+libpyexiv2. This module is a low-level binding. It is in turn used in a higher
+level module, pyexiv2.
+
+To use pyexiv2 in your scripts, simply include the following line:
+
+	import pyexiv2
+
+It provides a single class, pyexiv2.Image, with all convenient methods for the
+manipulation of EXIF and IPTC metadata.
+
+
+License
+=======
+
+Copyright (C) 2006 Olivier Tilloy <olivier@tilloy.net>
+
+pyexiv2 is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your
+option) any later version.
+
+pyexiv2 is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with pyexiv2; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
