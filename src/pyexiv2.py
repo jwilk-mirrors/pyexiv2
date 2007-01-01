@@ -194,3 +194,11 @@ class Image(libpyexiv2.Image):
 			# StringToUndefined().
 			strVal = value
 		self.setExifTag(key, strVal)
+
+def _test():
+	print 'testing library pyexiv2...'
+	# TODO: various tests
+	print 'done.'
+
+if __name__ == '__main__':
+	_test()
