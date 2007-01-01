@@ -1,9 +1,0 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-env = Environment()
-
-env.Append(LIBS = ['boost_python', 'exiv2'])
-env.Append(CPPPATH = ['/usr/include/python2.4'])
-
-env.SharedLibrary('libpyexiv2', ['libpyexiv2.cpp', 'libpyexiv2_wrapper.cpp'])
