@@ -14,4 +14,10 @@ env.Append(CPPPATH=[pythonIncPath])
 
 cppSources = ['libpyexiv2.cpp', 'libpyexiv2_wrapper.cpp']
 
-env.SharedLibrary('libpyexiv2', cppSources)
+# Build shared library libpyexiv2
+libpyexiv2 = env.SharedLibrary('libpyexiv2', cppSources)
+
+pythonLibPath = os.path.join(sys.prefix, 'lib', 'python' + sys.version[:3])
+# install the Python module, invoked using 'scons install'
+env.Alias(target='install', source=env.Install(pythonLibPath, libpyexiv2))
+env.Alias(target='install', source=env.Install(pythonLibPath, 'pyexiv2.py'))
