@@ -396,4 +396,16 @@ namespace LibPyExiv2
 		}
 	}
 
+	boost::python::tuple Image::getThumbnailData()
+	{
+		//TODO
+		return boost::python::make_tuple(std::string(""), std::string(""));
+	}
+
+	bool Image::setThumbnailData(boost::python::tuple data)
+	{
+		//TODO
+		return true;
+	}
+
 } // End of namespace LibPyExiv2

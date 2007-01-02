@@ -98,6 +98,18 @@ namespace LibPyExiv2
 		// type and previous value if it existed, empty strings otherwise.
 		boost::python::tuple deleteIptcTag(std::string key);
 
+		// Read and write access to the thumbnail embedded in the image.
+
+		// Returns a tuple containing the format of the thumbnail ("TIFF" or
+		// "JPEG") and the thumbnail raw data as a string buffer.
+		boost::python::tuple getThumbnailData();
+
+		// Sets the thumbnail of the image. The first element of the tuple is
+		// the format of the thumbnail ("TIFF" or "JPEG") and the second element
+		// is the thumbnail raw data as a string buffer.
+		// Returns true if successful, false otherwise.
+		bool setThumbnailData(boost::python::tuple data);
+
 	private:
 		std::string _filename;
 		Exiv2::Image::AutoPtr _image;
