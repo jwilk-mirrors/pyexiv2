@@ -23,6 +23,7 @@
   Author(s): Olivier Tilloy <olivier@tilloy.net>
   History:   28-Dec-06, Olivier Tilloy: created
              30-Dec-06, Olivier Tilloy: added IPTC-related methods
+             03-Jan-07, Olivier Tilloy: added thumbnail-related methods
  */
 // *****************************************************************************
 
@@ -108,6 +109,15 @@ namespace LibPyExiv2
 		// jpeg data as a string buffer.
 		// Returns true if successful, false otherwise.
 		bool setThumbnailData(std::string data);
+
+		// Deletes the thumbnail embedded in the image.
+		void deleteThumbnail();
+
+		// Writes the thumbnail to an image file.
+		// A filename extension is appended to the given path according to the
+		// image type of the thumbnail, so it should not include an extension.
+		// Returns true if successful, false otherwise.
+		bool dumpThumbnailToFile(const std::string path);
 
 	private:
 		std::string _filename;

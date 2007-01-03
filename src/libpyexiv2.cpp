@@ -41,9 +41,9 @@ namespace LibPyExiv2
 			_image = Exiv2::ImageFactory::open(filename);
 			assert(_image.get() != 0);
 		}
-		catch(Exiv2::AnyError & e)
+		catch(Exiv2::AnyError& e)
 		{
-			std::cerr << ">>> Image::Image(): caught Exiv2 exception '" << e << "'!";
+			std::cerr << ">>> Image::Image(): caught Exiv2 exception '" << e << "'";
 		}
 		_dataRead = false;
 	}
@@ -57,9 +57,9 @@ namespace LibPyExiv2
 			_image = Exiv2::ImageFactory::open(_filename);
 			assert(_image.get() != 0);
 		}
-		catch(Exiv2::AnyError & e)
+		catch(Exiv2::AnyError& e)
 		{
-			std::cerr << ">>> Image::Image(): caught Exiv2 exception '" << e << "'!";
+			std::cerr << ">>> Image::Image(): caught Exiv2 exception '" << e << "'";
 		}
 		_dataRead = false;
 	}
@@ -73,11 +73,11 @@ namespace LibPyExiv2
 			_iptcData = _image->iptcData();
 			_dataRead = true;
 		}
-		catch(Exiv2::Error & e)
+		catch(Exiv2::Error& e)
 		{
 			// An error occured while reading the metadata
 			_dataRead = false;
-			std::cerr << ">>> Image::readMetadata(): caught Exiv2 exception '" << e << "'!";
+			std::cerr << ">>> Image::readMetadata(): caught Exiv2 exception '" << e << "'";
 		}
 	}
 
@@ -91,10 +91,10 @@ namespace LibPyExiv2
 				_image->setIptcData(_iptcData);
 				_image->writeMetadata();
 			}
-			catch(Exiv2::Error & e)
+			catch(Exiv2::Error& e)
 			{
 				// An error occured while writing the metadata
-				std::cerr << ">>> Image::writeMetadata(): caught Exiv2 exception '" << e << "'!";
+				std::cerr << ">>> Image::writeMetadata(): caught Exiv2 exception '" << e << "'";
 			}
 		}
 	}
@@ -138,7 +138,7 @@ namespace LibPyExiv2
 					return boost::python::make_tuple(std::string(""), std::string(""));
 				}
 			}
-			catch(Exiv2::Error & e)
+			catch(Exiv2::Error& e)
 			{
 				// The key is not a valid Exif tag key
 				std::cerr << ">>> Image::getExifTag(): unknown key '" << key << "'" << std::endl;
@@ -174,7 +174,7 @@ namespace LibPyExiv2
 					return std::string("");
 				}
 			}
-			catch(Exiv2::Error & e)
+			catch(Exiv2::Error& e)
 			{
 				// The key is not a valid Exif tag key
 				std::cerr << ">>> Image::getExifTagToString(): unknown key '" << key << "'" << std::endl;
@@ -215,7 +215,7 @@ namespace LibPyExiv2
 				_exifData[key] = value;
 				return returnValue;
 			}
-			catch(Exiv2::Error & e)
+			catch(Exiv2::Error& e)
 			{
 				// The key is not a valid Exif tag key
 				std::cerr << ">>> Image::setExifTag(): unknown key '" << key << "'" << std::endl;
@@ -252,7 +252,7 @@ namespace LibPyExiv2
 				}
 				return returnValue;
 			}
-			catch(Exiv2::Error & e)
+			catch(Exiv2::Error& e)
 			{
 				// The key is not a valid Exif tag key
 				std::cerr << ">>> Image::deleteExifTag(): unknown key '" << key << "'" << std::endl;
@@ -307,7 +307,7 @@ namespace LibPyExiv2
 					return boost::python::make_tuple(std::string(""), std::string(""));
 				}
 			}
-			catch(Exiv2::Error & e)
+			catch(Exiv2::Error& e)
 			{
 				// The key is not a valid Iptc tag key
 				std::cerr << ">>> Image::getIptcTag(): unknown key '" << key << "'" << std::endl;
@@ -346,7 +346,7 @@ namespace LibPyExiv2
 				_iptcData[key] = value;
 				return returnValue;
 			}
-			catch(Exiv2::Error & e)
+			catch(Exiv2::Error& e)
 			{
 				// The key is not a valid Iptc tag key
 				std::cerr << ">>> Image::setIptcTag(): unknown key '" << key << "'" << std::endl;
@@ -383,7 +383,7 @@ namespace LibPyExiv2
 				}
 				return returnValue;
 			}
-			catch(Exiv2::Error & e)
+			catch(Exiv2::Error& e)
 			{
 				// The key is not a valid Iptc tag key
 				std::cerr << ">>> Image::deleteIptcTag(): unknown key '" << key << "'" << std::endl;
@@ -445,6 +445,48 @@ namespace LibPyExiv2
 		else
 		{
 			std::cerr << ">>> Image::setThumbnailData(): metadata not read yet, call Image::readMetadata() first" << std::endl;
+			return false;
+		}
+	}
+
+	void Image::deleteThumbnail()
+	{
+		if(_dataRead)
+		{
+			_exifData.eraseThumbnail();
+		}
+		else
+		{
+			std::cerr << ">>> Image::deleteThumbnail(): metadata not read yet, call Image::readMetadata() first" << std::endl;
+		}
+	}
+
+	bool Image::dumpThumbnailToFile(const std::string path)
+	{
+		if(_dataRead)
+		{
+			try
+			{
+				int result = _exifData.writeThumbnail(path);
+				if (result == 0)
+				{
+					return true;
+				}
+				else if (result == 8)
+				{
+					std::cerr << ">>> Image::dumpThumbnailToFile(): the EXIF data does not contain a thumbnail";
+					return false;
+				}
+			}
+			catch(Exiv2::Error& e)
+			{
+				std::cerr << ">>> Image::dumpThumbnailToFile(): caught Exiv2 exception '" << e << "'";
+				return false;
+			}
+		}
+		else
+		{
+			std::cerr << ">>> Image::dumpThumbnailToFile(): metadata not read yet, call Image::readMetadata() first" << std::endl;
 			return false;
 		}
 	}
