@@ -104,11 +104,10 @@ namespace LibPyExiv2
 		// "JPEG") and the thumbnail raw data as a string buffer.
 		boost::python::tuple getThumbnailData();
 
-		// Sets the thumbnail of the image. The first element of the tuple is
-		// the format of the thumbnail ("TIFF" or "JPEG") and the second element
-		// is the thumbnail raw data as a string buffer.
+		// Sets the thumbnail of the image. The parameter is the thumbnail raw
+		// jpeg data as a string buffer.
 		// Returns true if successful, false otherwise.
-		bool setThumbnailData(boost::python::tuple data);
+		bool setThumbnailData(std::string data);
 
 	private:
 		std::string _filename;

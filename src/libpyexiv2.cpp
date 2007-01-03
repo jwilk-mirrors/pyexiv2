@@ -23,7 +23,7 @@
   Author(s): Olivier Tilloy <olivier@tilloy.net>
   History:   28-Dec-06, Olivier Tilloy: created
              30-Dec-06, Olivier Tilloy: implemented IPTC-related methods
-             03-Jan-07, Olivier Tilloy: implemented getThumbnailData()
+             03-Jan-07, Olivier Tilloy: implemented thumbnail-related methods
  */
 // *****************************************************************************
 
@@ -434,10 +434,19 @@ namespace LibPyExiv2
 		}
 	}
 
-	bool Image::setThumbnailData(boost::python::tuple data)
+	bool Image::setThumbnailData(std::string data)
 	{
-		//TODO
-		return true;
+		if(_dataRead)
+		{
+			const Exiv2::byte* dataBuf = (const Exiv2::byte*) data.c_str();
+			_exifData.setJpegThumbnail(dataBuf, data.size());
+			return true;
+		}
+		else
+		{
+			std::cerr << ">>> Image::setThumbnailData(): metadata not read yet, call Image::readMetadata() first" << std::endl;
+			return false;
+		}
 	}
 
 } // End of namespace LibPyExiv2
