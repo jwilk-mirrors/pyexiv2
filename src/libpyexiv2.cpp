@@ -23,6 +23,7 @@
   Author(s): Olivier Tilloy <olivier@tilloy.net>
   History:   28-Dec-06, Olivier Tilloy: created
              30-Dec-06, Olivier Tilloy: implemented IPTC-related methods
+             03-Jan-07, Olivier Tilloy: implemented getThumbnailData()
  */
 // *****************************************************************************
 
@@ -398,8 +399,39 @@ namespace LibPyExiv2
 
 	boost::python::tuple Image::getThumbnailData()
 	{
-		//TODO
-		return boost::python::make_tuple(std::string(""), std::string(""));
+		if(_dataRead)
+		{
+			Exiv2::Thumbnail::AutoPtr thumbnail = _exifData.getThumbnail();
+			if (thumbnail.get() != 0)
+			{
+				std::string format(_exifData.thumbnailFormat());
+				// Copy the data buffer in a string. Since the data buffer can
+				// contain null char ('\x00'), the string cannot be simply
+				// constructed like that:
+				//     std::string data((char*) dataBuffer.pData_);
+				// because it would be truncated after the first occurence of a
+				// null char. Therefore, it has to be copied char by char.
+				Exiv2::DataBuf dataBuffer = _exifData.copyThumbnail();
+				char* charData = (char*) dataBuffer.pData_;
+				long dataLen = dataBuffer.size_;
+				std::string data;
+				for(long i = 0; i < dataLen; ++i)
+				{
+					data.append(1, charData[i]);
+				}
+				return boost::python::make_tuple(format, data);
+			}
+			else
+			{
+				std::cerr << ">>> Image::getThumbnailData(): cannot access thumbnail" << std::endl;
+				return boost::python::make_tuple(std::string(""), std::string(""));
+			}
+		}
+		else
+		{
+			std::cerr << ">>> Image::getThumbnailData(): metadata not read yet, call Image::readMetadata() first" << std::endl;
+			return boost::python::make_tuple(std::string(""), std::string(""));
+		}
 	}
 
 	bool Image::setThumbnailData(boost::python::tuple data)
