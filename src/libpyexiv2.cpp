@@ -414,10 +414,12 @@ namespace LibPyExiv2
 				Exiv2::DataBuf dataBuffer = _exifData.copyThumbnail();
 				char* charData = (char*) dataBuffer.pData_;
 				long dataLen = dataBuffer.size_;
-				std::string data;
+				// First allocate the memory for the whole string...
+				std::string data(dataLen, ' ');
+				// ... then fill it with the raw jpeg data.
 				for(long i = 0; i < dataLen; ++i)
 				{
-					data.append(1, charData[i]);
+					data[i] = charData[i];
 				}
 				return boost::python::make_tuple(format, data);
 			}
