@@ -493,4 +493,26 @@ namespace LibPyExiv2
 		}
 	}
 
+	bool Image::setThumbnailFromJpegFile(const std::string path)
+	{
+		if(_dataRead)
+		{
+			try
+			{
+				_exifData.setJpegThumbnail(path);
+				return true;
+			}
+			catch(Exiv2::Error& e)
+			{
+				std::cerr << ">>> Image::setThumbnailFromJpegFile(): caught Exiv2 exception '" << e << "'";
+				return false;
+			}
+		}
+		else
+		{
+			std::cerr << ">>> Image::setThumbnailFromJpegFile(): metadata not read yet, call Image::readMetadata() first" << std::endl;
+			return false;
+		}
+	}
+
 } // End of namespace LibPyExiv2

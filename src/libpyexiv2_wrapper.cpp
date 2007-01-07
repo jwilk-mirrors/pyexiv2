@@ -52,5 +52,6 @@ BOOST_PYTHON_MODULE(libpyexiv2)
 		.def("setThumbnailData", &Image::setThumbnailData)
 		.def("deleteThumbnail", &Image::deleteThumbnail)
 		.def("dumpThumbnailToFile", &Image::dumpThumbnailToFile)
+		.def("setThumbnailFromJpegFile", &Image::setThumbnailFromJpegFile)
 	;
 }

@@ -119,6 +119,11 @@ namespace LibPyExiv2
 		// Returns true if successful, false otherwise.
 		bool dumpThumbnailToFile(const std::string path);
 
+		// Sets the image contained in the jpeg file passed as a parameter as
+		// the thumbnail of the image.
+		// Returns true if successful, false otherwise.
+		bool setThumbnailFromJpegFile(const std::string path);
+
 	private:
 		std::string _filename;
 		Exiv2::Image::AutoPtr _image;

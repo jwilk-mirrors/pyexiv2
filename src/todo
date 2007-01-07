@@ -1,5 +1,6 @@
 todo list
 
-- Add support for thumbnail extraction
 - Add extensive unit tests
 - Document the binding
+- Provide examples on how to use the thumbnail extraction features with pygtk
+   and pyqt
