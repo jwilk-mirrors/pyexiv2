@@ -1,4 +1,5 @@
 todo list
 
+- High-level (Python types) IPTC tags handling (same as EXIF but easier :))
 - Add extensive unit tests
 - Document the binding

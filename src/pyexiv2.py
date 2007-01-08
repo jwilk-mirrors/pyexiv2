@@ -26,6 +26,7 @@
 # Author(s): Olivier Tilloy <olivier@tilloy.net>
 # History:   28-Dec-06, Olivier Tilloy: created
 #            30-Dec-06, Olivier Tilloy: documentation using doc strings
+#            08-Jan-07, Olivier Tilloy: improved the datetime conversion algo
 #
 # ******************************************************************************
 
@@ -61,8 +62,9 @@ A typical use of this binding is as follows:
 
 import libpyexiv2
 
-import re
+import time
 import datetime
+import re
 
 def UndefinedToString(undefined):
 	"""
@@ -91,6 +93,37 @@ def StringToUndefined(sequence):
 	sequence -- the string containing the sequence of bytes
 	"""
 	return ''.join(map(lambda x: '%d ' % ord(x), sequence))
+
+def StringToDateTime(string):
+	"""
+	Try to convert a string containing a date and time to a datetime object.
+
+	Try to convert a string containing a date and time to the corresponding
+	datetime object. The conversion is done by trying several patterns for
+	regular expression matching.
+	If no pattern matches, the string is returned with its leading and trailing
+	spaces stripped.
+
+	Keyword arguments:
+	string -- the string potentially containing a date and time
+	"""
+	# Possible formats to try
+	# According to the EXIF specification [http://www.exif.org/Exif2-2.PDF], the
+	# only accepted format for a string field representing a date time is
+	# '%Y-%m-%d %H:%M:%S', but it seems that others formats can be found in the
+	# wild, so this list could be extended to include new exotic formats.
+	formats = ['%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%SZ']
+
+	for format in formats:
+		try:
+			t = time.strptime(string, format)
+			return datetime.datetime(*t[:6])
+		except ValueError:
+			# the tested format does not match, do nothing
+			pass
+
+	# none of the tested formats matched, return the original string stripped
+	return string.strip()
 
 class Image(libpyexiv2.Image):
 
@@ -123,13 +156,7 @@ class Image(libpyexiv2.Image):
 			return tagValue
 		elif tagType == 'Ascii':
 			# try to guess if the value is a datetime
-			pattern = re.compile("([0-9]{4}):([0-9]{2}):([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})")
-			match = pattern.match(tagValue)
-			if match == None:
-				return tagValue.strip()
-			else:
-				v = map(int, match.groups())
-				return datetime.datetime(v[0], v[1], v[2], v[3], v[4], v[5])
+			return StringToDateTime(tagValue)
 		elif tagType == 'Short':
 			return int(tagValue)
 		elif tagType == 'Long' or tagType == 'SLong':
