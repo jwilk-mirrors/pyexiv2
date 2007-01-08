@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2006 Olivier Tilloy <olivier@tilloy.net>
 #
-# This program is part of the pyexiv2 distribution.
+# This file is part of the pyexiv2 distribution.
 #
 # pyexiv2 is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
