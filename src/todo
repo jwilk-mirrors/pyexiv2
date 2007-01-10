@@ -1,5 +1,5 @@
 todo list
 
-- High-level (Python types) IPTC tags handling (same as EXIF but easier :))
+- High-level (Python types) IPTC tags handling: implement method setIptcTagValue()
 - Add extensive unit tests
 - Document the binding

@@ -18,6 +18,8 @@ pyexiv2 depends on the following libraries:
 
 Of course it needs a Python interpreter to run.
 
+Optionally, you can use pygtk or pyqt to easily take advantage of the thumbnail
+manipulation methods proposed by pyexiv2 to display those thumbnails.
 
 Building and installing
 =======================
@@ -27,7 +29,7 @@ To do so, while in the top-level directory (e.g. '/home/johndoe/pyexiv2', which
 should contain a file named 'SConstruct'), run the following commands:
 
 	$ scons
-	$ scons install # as administrator, e.g. sudo scons install
+	$ scons install # as administrator, e.g. `sudo scons install`
 
 The result of the build is a dynamic library, libpyexiv2.so, that is a Python
 module called libpyexiv2. This module is a low-level binding. It is in turn used
