@@ -27,6 +27,7 @@
 # History:   28-Dec-06, Olivier Tilloy: created
 #            30-Dec-06, Olivier Tilloy: documentation using doc strings
 #            08-Jan-07, Olivier Tilloy: improved the datetime conversion algo
+#            10-Jan-07, Olivier Tilloy: added method getIptcTagValue
 #
 # ******************************************************************************
 
@@ -101,15 +102,14 @@ def StringToDateTime(string):
 	Try to convert a string containing a date and time to the corresponding
 	datetime object. The conversion is done by trying several patterns for
 	regular expression matching.
-	If no pattern matches, the string is returned with its leading and trailing
-	spaces stripped.
+	If no pattern matches, the string is returned unchanged.
 
 	Keyword arguments:
 	string -- the string potentially containing a date and time
 	"""
 	# Possible formats to try
 	# According to the EXIF specification [http://www.exif.org/Exif2-2.PDF], the
-	# only accepted format for a string field representing a date time is
+	# only accepted format for a string field representing a datetime is
 	# '%Y-%m-%d %H:%M:%S', but it seems that others formats can be found in the
 	# wild, so this list could be extended to include new exotic formats.
 	formats = ['%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%SZ']
@@ -122,8 +122,64 @@ def StringToDateTime(string):
 			# the tested format does not match, do nothing
 			pass
 
-	# none of the tested formats matched, return the original string stripped
-	return string.strip()
+	# none of the tested formats matched, return the original string unchanged
+	return string
+
+def StringToDate(string):
+	"""
+	Try to convert a string containing a date to a date object.
+
+	Try to convert a string containing a date to the corresponding date object.
+	The conversion is done by trying several patterns for regular expression
+	matching.
+	If no pattern matches, the string is returned unchanged.
+
+	Keyword arguments:
+	string -- the string potentially containing a date
+	"""
+	# Possible formats to try
+	# According to the IPTC specification
+	# [http://www.iptc.org/std/IIM/4.1/specification/IIMV4.1.pdf], the only
+	# accepted format for a string field representing a date is
+	# '%Y%m%d', but it seems that others formats can be found in the wild, so
+	# this list could be extended to include new exotic formats.
+	formats = ['%Y%m%d', '%Y-%m-%d']
+
+	for format in formats:
+		try:
+			t = time.strptime(string, format)
+			return datetime.date(*t[:3])
+		except ValueError:
+			# the tested format does not match, do nothing
+			pass
+
+	# none of the tested formats matched, return the original string unchanged
+	return string
+
+def StringToTime(string):
+	"""
+	Try to convert a string containing a time to a time object.
+
+	Try to convert a string containing a time to the corresponding time object.
+	The conversion is done by trying several patterns for regular expression
+	matching.
+	If no pattern matches, the string is returned unchanged.
+
+	Keyword arguments:
+	string -- the string potentially containing a time
+	"""
+	# Possible formats to try
+	# According to the IPTC specification
+	# [http://www.iptc.org/std/IIM/4.1/specification/IIMV4.1.pdf], the only
+	# accepted format for a string field representing a time is
+	# '%H%M%S±%H%M', but it seems that others formats can be found in the wild,
+	# so this list could be extended to include new exotic formats.
+
+	# TODO: a little bit trickier, since time.strptime() does not support
+	# the second part of the time format (difference with UTC timezone).
+
+	# none of the tested formats matched, return the original string unchanged
+	return string
 
 class Image(libpyexiv2.Image):
 
@@ -221,6 +277,33 @@ class Image(libpyexiv2.Image):
 			# StringToUndefined().
 			strVal = value
 		self.setExifTag(key, strVal)
+
+	def getIptcTagValue(self, key):
+		"""
+		Get the value associated to a key in IPTC metadata.
+
+		Get the value associated to a key in IPTC metadata.
+		Whenever possible, the value is typed using Python's built-in types or
+		modules such as date when the value represents a date (e.g. the IPTC tag
+		'Iptc.Application2.DateCreated').
+
+		Keyword arguments:
+		key -- the IPTC key of the requested metadata tag
+		"""
+		tagType, tagValue = self.getIptcTag(key)
+		if tagType == 'Short':
+			return int(tagValue)
+		elif tagType == 'String':
+			return tagValue
+		elif tagType == 'Date':
+			return StringToDate(tagValue)
+		elif tagType == 'Time':
+			return StringToTime(tagValue)
+		elif tagType == 'Undefined':
+			return tagValue
+		else:
+			# empty type and value
+			return
 
 def _test():
 	print 'testing library pyexiv2...'
