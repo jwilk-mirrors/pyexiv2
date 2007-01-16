@@ -168,15 +168,59 @@ def StringToTime(string):
 	Keyword arguments:
 	string -- the string potentially containing a time
 	"""
+
+	# TODO: for now, and if the function manages to correctly parse a time,
+	# the returned result is a list of 3 elements
+	# (localTime, offsetSign, offsetTime).
+	# A more elegant solution would be to use a tzinfo object for the
+	# representation of the offset
+	# (http://docs.python.org/lib/datetime-tzinfo.html).
+	# A minimal tzinfo concrete subclass must be implemented...
+
+	# First pass: process the offset (value added to the local time to arrive
+	# at UTC) separately.
+	p = string.rfind('+')
+	if p != -1:
+		# the timezone is west of the Prime Meridian (Greenwich)
+		localtime = string[:p]
+		offset = string[(p + 1):]
+		offsetSign = '+'
+	else:
+		p = string.rfind('-')
+		if p != -1:
+			# the timezone is east of the Prime Meridian
+			localtime = string[:p]
+			offset = string[(p + 1):]
+			offsetSign = '-'
+		else:
+			# no offset found, assume it is nil
+			localtime = string
+			offset = '0000'
+			offsetSign = '+'
+	if len(offset) != 4:
+		# the format of the offset is unknown, assume it is nil
+		offsetTime = datetime.time(0, 0)
+	else:
+		offsetTime = datetime.time(int(offset[:2]), int(offset[2:]))
+
+	# Second pass: process the local time.
+
 	# Possible formats to try
 	# According to the IPTC specification
 	# [http://www.iptc.org/std/IIM/4.1/specification/IIMV4.1.pdf], the only
 	# accepted format for a string field representing a time is
-	# '%H%M%S±%H%M', but it seems that others formats can be found in the wild,
+	# '%H%M%S' (not taking into account the offset since it has been already
+	# processed), but it seems that others formats can be found in the wild,
 	# so this list could be extended to include new exotic formats.
+	formats = ['%H%M%S', '%H:%M:%S']
 
-	# TODO: a little bit trickier, since time.strptime() does not support
-	# the second part of the time format (difference with UTC timezone).
+	for format in formats:
+		try:
+			t = time.strptime(localtime, format)
+			return datetime.time(*t[3:6]), offsetSign, offsetTime
+		except ValueError:
+			# the tested format does not match, do nothing
+			pass
 
 	# none of the tested formats matched, return the original string unchanged
 	return string

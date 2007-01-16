@@ -1,5 +1,10 @@
 todo list
 
-- High-level (Python types) IPTC tags handling: implement method setIptcTagValue()
-- Add extensive unit tests
-- Document the binding
+- Investigate on how the IPTC date and time formats are handled by exiv2: it
+   seems that they use an specific internal format (that would be, namely,
+   '%Y-%m-%d' and '%H:%M:%S[±%H:%M]'). It would, in a way, make the parsing of
+   dates and times much simpler.
+- High-level (Python types) IPTC tags handling: implement method
+   setIptcTagValue().
+- Add extensive unit tests.
+- Document the binding.
