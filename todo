@@ -1,7 +1,7 @@
 todo list
 
-- High-level (Python types) IPTC tags handling: implement method
-   setIptcTagValue().
+- High-level (Python types) IPTC tags handling: finish the implementation of
+   method setIptcTagValue().
 - Convert exiv2 C++ exceptions to python exceptions (if that is possible?)
    instead of returning empty strings.
 - Add extensive unit tests.

@@ -29,6 +29,7 @@
 #            08-Jan-07, Olivier Tilloy: improved the datetime conversion algo
 #            10-Jan-07, Olivier Tilloy: added method getIptcTagValue
 #            17-Jan-07, Olivier Tilloy: improved date and time conversion algos
+#                                       added method setIptcTagValue
 #
 # ******************************************************************************
 
@@ -301,7 +302,7 @@ class Image(libpyexiv2.Image):
 			# of bytes (type 'Undefined'), in which case value must be passed as
 			# a string correctly formatted, using utility function
 			# StringToUndefined().
-			strVal = value
+			strVal = str(value)
 		self.setExifTag(key, strVal)
 
 	def getIptcTagValue(self, key):
@@ -330,6 +331,40 @@ class Image(libpyexiv2.Image):
 		else:
 			# empty type and value
 			return
+
+	def setIptcTagValue(self, key, value):
+		"""
+		Set the value associated to a key in IPTC metadata.
+
+		Set the value associated to a key in IPTC metadata.
+		The new value passed should be typed using Python's built-in types or
+		modules such as datetime when the value contains a date or a time
+		(e.g. the IPTC tags 'Iptc.Application2.DateCreated' and
+		'Iptc.Application2.TimeCreated'), the method takes care
+		of converting it before setting the internal IPTC tag value.
+
+		Keyword arguments:
+		key -- the IPTC key of the requested metadata tag
+		value -- the new value for the requested metadata tag
+		"""
+		valueType = value.__class__
+		if valueType == int or valueType == long:
+			strVal = str(value)
+		elif valueType == datetime.date:
+			strVal = value.strftime('%Y-%m-%d')
+		elif valueType == datetime.time:
+			# TODO: two distinct cases
+			# The only legal format for a time is '%H:%M:%S±%H:%M',
+			# but if the UTC offset is absent (format '%H:%M:%S'), the time can
+			# still be set (exiv2 is permissive).
+			strVal = value
+		else:
+			# Value must already be a string.
+			# Warning: no distinction is possible between values that really are
+			# strings (type 'String') and those that are of type 'Undefined'...
+			# TODO: handle this correctly
+			strVal = str(value)
+		self.setIptcTag(key, strVal)
 
 def _test():
 	print 'testing library pyexiv2...'
