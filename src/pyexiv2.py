@@ -28,6 +28,7 @@
 #            30-Dec-06, Olivier Tilloy: documentation using doc strings
 #            08-Jan-07, Olivier Tilloy: improved the datetime conversion algo
 #            10-Jan-07, Olivier Tilloy: added method getIptcTagValue
+#            17-Jan-07, Olivier Tilloy: improved date and time conversion algos
 #
 # ******************************************************************************
 
@@ -130,44 +131,41 @@ def StringToDate(string):
 	Try to convert a string containing a date to a date object.
 
 	Try to convert a string containing a date to the corresponding date object.
-	The conversion is done by trying several patterns for regular expression
-	matching.
-	If no pattern matches, the string is returned unchanged.
+	The conversion is done by matching a regular expression.
+	If the pattern does not match, the string is returned unchanged.
 
 	Keyword arguments:
 	string -- the string potentially containing a date
 	"""
-	# Possible formats to try
 	# According to the IPTC specification
-	# [http://www.iptc.org/std/IIM/4.1/specification/IIMV4.1.pdf], the only
-	# accepted format for a string field representing a date is
-	# '%Y%m%d', but it seems that others formats can be found in the wild, so
-	# this list could be extended to include new exotic formats.
-	formats = ['%Y%m%d', '%Y-%m-%d']
-
-	for format in formats:
-		try:
-			t = time.strptime(string, format)
-			return datetime.date(*t[:3])
-		except ValueError:
-			# the tested format does not match, do nothing
-			pass
-
-	# none of the tested formats matched, return the original string unchanged
-	return string
+	# [http://www.iptc.org/std/IIM/4.1/specification/IIMV4.1.pdf], the format
+	# for a string field representing a date is '%Y%m%d'.
+	# However, the string returned by exiv2 using method DateValue::toString()
+	# is formatted using pattern '%Y-%m-%d'.
+	format = '%Y-%m-%d'
+	try:
+		t = time.strptime(string, format)
+		return datetime.date(*t[:3])
+	except ValueError:
+		# the tested format does not match, do nothing
+		return string
 
 def StringToTime(string):
 	"""
 	Try to convert a string containing a time to a time object.
 
 	Try to convert a string containing a time to the corresponding time object.
-	The conversion is done by trying several patterns for regular expression
-	matching.
-	If no pattern matches, the string is returned unchanged.
+	The conversion is done by matching a regular expression.
+	If the pattern does not match, the string is returned unchanged.
 
 	Keyword arguments:
 	string -- the string potentially containing a time
 	"""
+	# According to the IPTC specification
+	# [http://www.iptc.org/std/IIM/4.1/specification/IIMV4.1.pdf], the format
+	# for a string field representing a time is '%H%M%S±%H%M'.
+	# However, the string returned by exiv2 using method TimeValue::toString()
+	# is formatted using pattern '%H:%M:%S±%H:%M'.
 
 	# TODO: for now, and if the function manages to correctly parse a time,
 	# the returned result is a list of 3 elements
@@ -177,53 +175,37 @@ def StringToTime(string):
 	# (http://docs.python.org/lib/datetime-tzinfo.html).
 	# A minimal tzinfo concrete subclass must be implemented...
 
-	# First pass: process the offset (value added to the local time to arrive
-	# at UTC) separately.
-	p = string.rfind('+')
-	if p != -1:
-		# the timezone is west of the Prime Meridian (Greenwich)
-		localtime = string[:p]
-		offset = string[(p + 1):]
-		offsetSign = '+'
-	else:
-		p = string.rfind('-')
-		if p != -1:
-			# the timezone is east of the Prime Meridian
-			localtime = string[:p]
-			offset = string[(p + 1):]
-			offsetSign = '-'
-		else:
-			# no offset found, assume it is nil
-			localtime = string
-			offset = '0000'
-			offsetSign = '+'
-	if len(offset) != 4:
-		# the format of the offset is unknown, assume it is nil
-		offsetTime = datetime.time(0, 0)
-	else:
-		offsetTime = datetime.time(int(offset[:2]), int(offset[2:]))
+	if len(string) != 14:
+		# the string is not correctly formatted, do nothing
+		return string
 
-	# Second pass: process the local time.
+	if (string[2] != ':') or (string[5] != ':') or (string[11] != ':'):
+		# the string is not correctly formatted, do nothing
+		return string
 
-	# Possible formats to try
-	# According to the IPTC specification
-	# [http://www.iptc.org/std/IIM/4.1/specification/IIMV4.1.pdf], the only
-	# accepted format for a string field representing a time is
-	# '%H%M%S' (not taking into account the offset since it has been already
-	# processed), but it seems that others formats can be found in the wild,
-	# so this list could be extended to include new exotic formats.
-	formats = ['%H%M%S', '%H:%M:%S']
+	offsetSign = string[8]
+	if (offsetSign != '+') and (offsetSign != '-'):
+		# the string is not correctly formatted, do nothing
+		return string
 
-	for format in formats:
-		try:
-			t = time.strptime(localtime, format)
-			return datetime.time(*t[3:6]), offsetSign, offsetTime
-		except ValueError:
-			# the tested format does not match, do nothing
-			pass
+	try:
+		hours = int(string[:2])
+		minutes = int(string[3:5])
+		seconds = int(string[6:8])
+		offsetHours = int(string[9:11])
+		offsetMinutes = int(string[12:])
+	except ValueError:
+		# the string is not correctly formatted, do nothing
+		return string
 
-	# none of the tested formats matched, return the original string unchanged
-	return string
+	try:
+		localTime = datetime.time(hours, minutes, seconds)
+		offsetTime = datetime.time(offsetHours, offsetMinutes)
+	except ValueError:
+		# the values are out of range, do nothing
+		return string
+
+	return localTime, offsetSign, offsetTime
 
 class Image(libpyexiv2.Image):
 

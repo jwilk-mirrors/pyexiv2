@@ -1,10 +1,8 @@
 todo list
 
-- Investigate on how the IPTC date and time formats are handled by exiv2: it
-   seems that they use an specific internal format (that would be, namely,
-   '%Y-%m-%d' and '%H:%M:%S[±%H:%M]'). It would, in a way, make the parsing of
-   dates and times much simpler.
 - High-level (Python types) IPTC tags handling: implement method
    setIptcTagValue().
+- Convert exiv2 C++ exceptions to python exceptions (if that is possible?)
+   instead of returning empty strings.
 - Add extensive unit tests.
 - Document the binding.
