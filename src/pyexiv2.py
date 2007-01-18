@@ -129,13 +129,13 @@ class FixedOffset(datetime.tzinfo):
 		"""
 		Return a string representation of the offset.
 
-		Return a string representation of the offset with format '±%H%M'.
+		Return a string representation of the offset with format '±%H:%M'.
 
 		Keyword arguments:
 		dt -- the datetime.time object representing the local time
 		"""
 		string = self.offsetSign
-		string = string + ('%02d' % self.offsetHours)
+		string = string + ('%02d' % self.offsetHours) + ':'
 		string = string + ('%02d' % self.offsetMinutes)
 		return string
 
@@ -238,14 +238,6 @@ def StringToTime(string):
 	# However, the string returned by exiv2 using method TimeValue::toString()
 	# is formatted using pattern '%H:%M:%S±%H:%M'.
 
-	# TODO: for now, and if the function manages to correctly parse a time,
-	# the returned result is a list of 3 elements
-	# (localTime, offsetSign, offsetTime).
-	# A more elegant solution would be to use a tzinfo object for the
-	# representation of the offset
-	# (http://docs.python.org/lib/datetime-tzinfo.html).
-	# A minimal tzinfo concrete subclass must be implemented...
-
 	if len(string) != 14:
 		# the string is not correctly formatted, do nothing
 		return string
@@ -270,13 +262,13 @@ def StringToTime(string):
 		return string
 
 	try:
-		localTime = datetime.time(hours, minutes, seconds)
-		offsetTime = datetime.time(offsetHours, offsetMinutes)
+		offset = FixedOffset(offsetSign, offsetHours, offsetMinutes)
+		localTime = datetime.time(hours, minutes, seconds, tzinfo=offset)
 	except ValueError:
 		# the values are out of range, do nothing
 		return string
 
-	return localTime, offsetSign, offsetTime
+	return localTime
 
 class Image(libpyexiv2.Image):
 
@@ -425,11 +417,10 @@ class Image(libpyexiv2.Image):
 		elif valueType == datetime.date:
 			strVal = value.strftime('%Y-%m-%d')
 		elif valueType == datetime.time:
-			# TODO: two distinct cases
 			# The only legal format for a time is '%H:%M:%S±%H:%M',
 			# but if the UTC offset is absent (format '%H:%M:%S'), the time can
 			# still be set (exiv2 is permissive).
-			strVal = value
+			strVal = value.strftime('%H:%M:%S%Z')
 		else:
 			# Value must already be a string.
 			# Warning: no distinction is possible between values that really are
