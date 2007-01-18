@@ -69,6 +69,82 @@ import time
 import datetime
 import re
 
+class FixedOffset(datetime.tzinfo):
+
+	"""
+	Fixed offset from a local time east from UTC.
+
+	Represent a fixed (positive or negative) offset from a local time in hours
+	and minutes.
+
+	Public methods:
+	utcoffset -- return offset of local time from UTC, in minutes east of UTC
+	dst -- return the daylight saving time (DST) adjustment, here always 0
+	tzname -- return a string representation of the offset with format '±%H%M'
+	"""
+
+	def __init__(self, offsetSign='+', offsetHours=0, offsetMinutes=0):
+		"""
+		Constructor.
+
+		Construct a FixedOffset object from an offset sign ('+' or '-') and an
+		offset absolute value expressed in hours and minutes.
+		No check on the validity of those values is performed, it is the
+		responsibility of the caller to pass correct values to the constructor.
+
+		Keyword arguments:
+		offsetSign -- the sign of the offset ('+' or '-')
+		offsetHours -- the absolute number of hours of the offset
+		offsetMinutes -- the absolute number of minutes of the offset
+		"""
+		self.offsetSign = offsetSign
+		self.offsetHours = offsetHours
+		self.offsetMinutes = offsetMinutes
+
+	def utcoffset(self, dt):
+		"""
+		Return offset of local time from UTC, in minutes east of UTC.
+
+		Return offset of local time from UTC, in minutes east of UTC.
+		If local time is west of UTC, this should be negative.
+		The value returned is a datetime.timedelta object specifying a whole
+		number of minutes in the range -1439 to 1439 inclusive.
+
+		Keyword arguments:
+		dt -- the datetime.time object representing the local time
+		"""
+		totalOffsetMinutes = self.offsetHours * 60 + self.offsetMinutes
+		if self.offsetSign == '-':
+			totalOffsetMinutes = -totalOffsetMinutes
+		return datetime.timedelta(minutes = totalOffsetMinutes)
+
+	def dst(self, dt):
+		"""
+		Return the daylight saving time (DST) adjustment.
+
+		Return the daylight saving time (DST) adjustment.
+		In this implementation, it is always nil, and the method return
+		datetime.timedelta(0).
+
+		Keyword arguments:
+		dt -- the datetime.time object representing the local time
+		"""
+		return datetime.timedelta(0)
+
+	def tzname(self, dt):
+		"""
+		Return a string representation of the offset.
+
+		Return a string representation of the offset with format '±%H%M'.
+
+		Keyword arguments:
+		dt -- the datetime.time object representing the local time
+		"""
+		string = self.offsetSign
+		string = string + ('%02d' % self.offsetHours)
+		string = string + ('%02d' % self.offsetMinutes)
+		return string
+
 def UndefinedToString(undefined):
 	"""
 	Convert an undefined string into its corresponding sequence of bytes.
@@ -220,6 +296,8 @@ class Image(libpyexiv2.Image):
 	Public methods:
 	getExifTagValue -- get the value associated to a key in EXIF metadata
 	setExifTagValue -- set the value associated to a key in EXIF metadata
+	getIptcTagValue -- get the value associated to a key in IPTC metadata
+	setIptcTagValue -- set the value associated to a key in IPTC metadata
 	"""
 
 	def getExifTagValue(self, key):
