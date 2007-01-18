@@ -24,12 +24,6 @@
 #
 # File:      pyexiv2.py
 # Author(s): Olivier Tilloy <olivier@tilloy.net>
-# History:   28-Dec-06, Olivier Tilloy: created
-#            30-Dec-06, Olivier Tilloy: documentation using doc strings
-#            08-Jan-07, Olivier Tilloy: improved the datetime conversion algo
-#            10-Jan-07, Olivier Tilloy: added method getIptcTagValue
-#            17-Jan-07, Olivier Tilloy: improved date and time conversion algos
-#                                       added method setIptcTagValue
 #
 # ******************************************************************************
 

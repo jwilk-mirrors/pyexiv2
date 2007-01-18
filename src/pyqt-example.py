@@ -24,7 +24,6 @@
 #
 # File:      pyqt-example.py
 # Author(s): Olivier Tilloy <olivier@tilloy.net>
-# History:   07-Jan-06, Olivier Tilloy: created
 #
 # ******************************************************************************
 

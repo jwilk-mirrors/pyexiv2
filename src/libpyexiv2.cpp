@@ -21,9 +21,6 @@
 /*
   File:      libpyexiv2.cpp
   Author(s): Olivier Tilloy <olivier@tilloy.net>
-  History:   28-Dec-06, Olivier Tilloy: created
-             30-Dec-06, Olivier Tilloy: implemented IPTC-related methods
-             03-Jan-07, Olivier Tilloy: implemented thumbnail-related methods
  */
 // *****************************************************************************
 

@@ -21,8 +21,6 @@
 /*
   File:      libpyexiv2_wrapper.cpp
   Author(s): Olivier Tilloy <olivier@tilloy.net>
-  History:   28-Dec-06, Olivier Tilloy: created
-             30-Dec-06, Olivier Tilloy: added IPTC-related methods
  */
 // *****************************************************************************
 
