@@ -56,6 +56,9 @@ namespace LibPyExiv2
 		// image.
 		boost::python::list getAvailableExifTags();
 
+		// Return true if the required EXIF tag is set, false otherwise.
+		bool isExifTagSet(std::string key);
+
 		// Returns a tuple containing the type (as a string) and the value
 		// (as a string as well) of the required EXIF tag, empty strings if
 		// the tag does not exist.
@@ -81,6 +84,9 @@ namespace LibPyExiv2
 		// Returns a list of all the keys of available IPTC tags set in the
 		// image.
 		boost::python::list getAvailableIptcTags();
+
+		// Return true if the required IPTC tag is set, false otherwise.
+		bool isIptcTagSet(std::string key);
 
 		// Returns a tuple containing the type (as a string) and the value
 		// (as a string as well) of the required IPTC tag, empty strings if
