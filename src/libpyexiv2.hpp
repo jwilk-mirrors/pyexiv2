@@ -52,29 +52,31 @@ namespace LibPyExiv2
 		// For a complete list of the available EXIF tags, see
 		// libexiv2's documentation (http://exiv2.org/tags.html).
 
-		// Returns a list of all the keys of available EXIF tags set in the
+		// Return a list of all the keys of available EXIF tags set in the
 		// image.
 		boost::python::list getAvailableExifTags();
 
 		// Return true if the required EXIF tag is set, false otherwise.
 		bool isExifTagSet(std::string key);
 
-		// Returns a tuple containing the type (as a string) and the value
-		// (as a string as well) of the required EXIF tag, empty strings if
-		// the tag does not exist.
+		// Return a tuple containing the type (as a string) and the value
+		// (as a string as well) of the required EXIF tag.
+		// Throw an exception if the tag is not set.
 		boost::python::tuple getExifTag(std::string key);
 
-		// Returns a human-readable string containing the value of the
-		// required EXIF tag, empty if the tag does not exist.
+		// Return a human-readable string containing the value of the
+		// required EXIF tag.
+		// Throw an exception if the tag is not set.
 		std::string getExifTagToString(std::string key);
 
-		// Sets the EXIF tag's value and returns a tuple containing the
-		// type and previous value of the tag. If the tag was not set
-		// before, it is created.
+		// Set the EXIF tag's value and return a tuple containing the
+		// type and previous value of the tag (empty strings if not previously
+		// set). If the tag was not previously set, it is created.
 		boost::python::tuple setExifTag(std::string key, std::string value);
 
-		// Deletes the required EXIF tag and returns a tuple containing the
-		// type and previous value if it existed, empty strings otherwise.
+		// Delete the required EXIF tag and return a tuple containing the
+		// type and previous value.
+		// Throw an exception if the tag was not set.
 		boost::python::tuple deleteExifTag(std::string key);
 
 		// Read and write access to the IPTC tags.
@@ -88,39 +90,42 @@ namespace LibPyExiv2
 		// Return true if the required IPTC tag is set, false otherwise.
 		bool isIptcTagSet(std::string key);
 
-		// Returns a tuple containing the type (as a string) and the value
-		// (as a string as well) of the required IPTC tag, empty strings if
-		// the tag does not exist.
+		// Return a tuple containing the type (as a string) and the value
+		// (as a string as well) of the required IPTC tag.
+		// Throw an exception if the tag is not set.
 		boost::python::tuple getIptcTag(std::string key);
 
-		// Sets the IPTC tag's value and returns a tuple containing the
-		// type and previous value of the tag. If the tag was not set
-		// before, it is created.
+		// Set the IPTC tag's value and return a tuple containing the
+		// type and previous value of the tag (empty strings if not previously
+		// set). If the tag was not previously set, it is created.
 		boost::python::tuple setIptcTag(std::string key, std::string value);
 
-		// Deletes the required IPTC tag and returns a tuple containing the
-		// type and previous value if it existed, empty strings otherwise.
+		// Delete the required IPTC tag and return a tuple containing the
+		// type and previous value.
+		// Throw an exception if the tag was not set.
 		boost::python::tuple deleteIptcTag(std::string key);
 
 		// Read and write access to the thumbnail embedded in the image.
 
-		// Returns a tuple containing the format of the thumbnail ("TIFF" or
+		// Return a tuple containing the format of the thumbnail ("TIFF" or
 		// "JPEG") and the thumbnail raw data as a string buffer.
+		// Throw an exception if the thumbnail data cannot be accessed.
 		boost::python::tuple getThumbnailData();
 
-		// Sets the thumbnail of the image. The parameter is the thumbnail raw
+		// Set the thumbnail of the image. The parameter is the thumbnail raw
 		// jpeg data as a string buffer.
 		void setThumbnailData(std::string data);
 
-		// Deletes the thumbnail embedded in the image.
+		// Delete the thumbnail embedded in the image.
 		void deleteThumbnail();
 
-		// Writes the thumbnail to an image file.
+		// Write the thumbnail to an image file.
 		// A filename extension is appended to the given path according to the
 		// image type of the thumbnail, so it should not include an extension.
+		// Throw an exception if the image does not contain a thumbnail.
 		void dumpThumbnailToFile(const std::string path);
 
-		// Sets the image contained in the jpeg file passed as a parameter as
+		// Set the image contained in the jpeg file passed as a parameter as
 		// the thumbnail of the image.
 		void setThumbnailFromJpegFile(const std::string path);
 
