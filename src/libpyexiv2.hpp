@@ -104,8 +104,7 @@ namespace LibPyExiv2
 
 		// Sets the thumbnail of the image. The parameter is the thumbnail raw
 		// jpeg data as a string buffer.
-		// Returns true if successful, false otherwise.
-		bool setThumbnailData(std::string data);
+		void setThumbnailData(std::string data);
 
 		// Deletes the thumbnail embedded in the image.
 		void deleteThumbnail();
@@ -113,13 +112,11 @@ namespace LibPyExiv2
 		// Writes the thumbnail to an image file.
 		// A filename extension is appended to the given path according to the
 		// image type of the thumbnail, so it should not include an extension.
-		// Returns true if successful, false otherwise.
-		bool dumpThumbnailToFile(const std::string path);
+		void dumpThumbnailToFile(const std::string path);
 
 		// Sets the image contained in the jpeg file passed as a parameter as
 		// the thumbnail of the image.
-		// Returns true if successful, false otherwise.
-		bool setThumbnailFromJpegFile(const std::string path);
+		void setThumbnailFromJpegFile(const std::string path);
 
 	private:
 		std::string _filename;

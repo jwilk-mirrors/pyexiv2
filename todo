@@ -1,6 +1,4 @@
 todo list
 
-- Convert exiv2 C++ exceptions to python exceptions (if that is possible?)
-   instead of returning empty strings.
 - Write unit tests.
 - Write a complete documentation for the binding and it uses.

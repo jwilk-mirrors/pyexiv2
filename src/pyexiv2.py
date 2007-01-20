@@ -334,9 +334,6 @@ class Image(libpyexiv2.Image):
 			# call method getExifTagToString() to obtain directly the value as a
 			# human-readable string.
 			return UndefinedToString(tagValue)
-		else:
-			# empty type and value
-			return
 
 	def setExifTagValue(self, key, value):
 		"""
@@ -392,9 +389,6 @@ class Image(libpyexiv2.Image):
 			return StringToTime(tagValue)
 		elif tagType == 'Undefined':
 			return tagValue
-		else:
-			# empty type and value
-			return
 
 	def setIptcTagValue(self, key, value):
 		"""

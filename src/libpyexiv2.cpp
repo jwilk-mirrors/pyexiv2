@@ -26,7 +26,11 @@
 
 #include "libpyexiv2.hpp"
 
-#define METADATA_NOT_READ_CODE 101
+// Custom error codes for Exiv2 exceptions
+#define METADATA_NOT_READ 101
+#define KEY_NOT_FOUND 102
+#define THUMB_ACCESS 103
+#define NO_THUMBNAIL 104
 
 namespace LibPyExiv2
 {
@@ -66,7 +70,7 @@ namespace LibPyExiv2
 			_image->writeMetadata();
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	boost::python::list Image::getAvailableExifTags()
@@ -81,7 +85,7 @@ namespace LibPyExiv2
 			return list;
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	boost::python::tuple Image::getExifTag(std::string key)
@@ -96,14 +100,10 @@ namespace LibPyExiv2
 				return boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
 			}
 			else
-			{
-				// The key was not found
-				std::cerr << ">>> Image::getExifTag(): tag '" << key << "' not found" << std::endl;
-				return boost::python::make_tuple(std::string(""), std::string(""));
-			}
+				throw Exiv2::Error(KEY_NOT_FOUND, key);
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	std::string Image::getExifTagToString(std::string key)
@@ -120,14 +120,10 @@ namespace LibPyExiv2
 				return buffer.str();
 			}
 			else
-			{
-				// The key was not found
-				std::cerr << ">>> Image::getExifTagToString(): tag '" << key << "' not found" << std::endl;
-				return std::string("");
-			}
+				throw Exiv2::Error(KEY_NOT_FOUND, key);
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	boost::python::tuple Image::setExifTag(std::string key, std::string value)
@@ -149,14 +145,13 @@ namespace LibPyExiv2
 			else
 			{
 				// The key was not found
-				std::cerr << ">>> Image::setExifTag(): tag '" << key << "' not found" << std::endl;
 				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
 			}
 			_exifData[key] = value;
 			return returnValue;
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	boost::python::tuple Image::deleteExifTag(std::string key)
@@ -171,17 +166,13 @@ namespace LibPyExiv2
 				Exiv2::Exifdatum exifDatum = _exifData[key];
 				returnValue = boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
 				_exifData.erase(i);
+				return returnValue;
 			}
 			else
-			{
-				// The key was not found
-				std::cerr << ">>> Image::deleteExifTag(): tag '" << key << "' not found" << std::endl;
-				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
-			}
-			return returnValue;
+				throw Exiv2::Error(KEY_NOT_FOUND, key);
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	// returns a list containing the keys of all the IPTC tags available in
@@ -198,7 +189,7 @@ namespace LibPyExiv2
 			return list;
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	boost::python::tuple Image::getIptcTag(std::string key)
@@ -213,14 +204,10 @@ namespace LibPyExiv2
 				return boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
 			}
 			else
-			{
-				// The key was not found
-				std::cerr << ">>> Image::getIptcTag(): tag '" << key << "' not found" << std::endl;
-				return boost::python::make_tuple(std::string(""), std::string(""));
-			}
+				throw Exiv2::Error(KEY_NOT_FOUND, key);
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	boost::python::tuple Image::setIptcTag(std::string key, std::string value)
@@ -240,14 +227,13 @@ namespace LibPyExiv2
 			else
 			{
 				// The key was not found
-				std::cerr << ">>> Image::setIptcTag(): tag '" << key << "' not found" << std::endl;
 				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
 			}
 			_iptcData[key] = value;
 			return returnValue;
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	boost::python::tuple Image::deleteIptcTag(std::string key)
@@ -262,17 +248,13 @@ namespace LibPyExiv2
 				Exiv2::Iptcdatum iptcDatum = _iptcData[key];
 				returnValue = boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
 				_iptcData.erase(i);
+				return returnValue;
 			}
 			else
-			{
-				// The key was not found
-				std::cerr << ">>> Image::deleteIptcTag(): tag '" << key << "' not found" << std::endl;
-				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
-			}
-			return returnValue;
+				throw Exiv2::Error(KEY_NOT_FOUND, key);
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	boost::python::tuple Image::getThumbnailData()
@@ -302,24 +284,21 @@ namespace LibPyExiv2
 				return boost::python::make_tuple(format, data);
 			}
 			else
-			{
-				std::cerr << ">>> Image::getThumbnailData(): cannot access thumbnail" << std::endl;
-				return boost::python::make_tuple(std::string(""), std::string(""));
-			}
+				throw Exiv2::Error(THUMB_ACCESS);
 		}
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+		else
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	bool Image::setThumbnailData(std::string data)
+	void Image::setThumbnailData(std::string data)
 	{
 		if(_dataRead)
 		{
 			const Exiv2::byte* dataBuf = (const Exiv2::byte*) data.c_str();
 			_exifData.setJpegThumbnail(dataBuf, data.size());
-			return true;
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	void Image::deleteThumbnail()
@@ -327,37 +306,29 @@ namespace LibPyExiv2
 		if(_dataRead)
 			_exifData.eraseThumbnail();
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	bool Image::dumpThumbnailToFile(const std::string path)
+	void Image::dumpThumbnailToFile(const std::string path)
 	{
 		if(_dataRead)
 		{
 			int result = _exifData.writeThumbnail(path);
-			if (result == 0)
-			{
-				return true;
-			}
-			else if (result == 8)
-			{
-				std::cerr << ">>> Image::dumpThumbnailToFile(): the EXIF data does not contain a thumbnail";
-				return false;
-			}
+			if (result == 8)
+				throw Exiv2::Error(NO_THUMBNAIL);
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	bool Image::setThumbnailFromJpegFile(const std::string path)
+	void Image::setThumbnailFromJpegFile(const std::string path)
 	{
 		if(_dataRead)
 		{
 			_exifData.setJpegThumbnail(path);
-			return true;
 		}
 		else
-			throw Exiv2::Error(METADATA_NOT_READ_CODE);
+			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
 	void translateExiv2Error(Exiv2::Error const& e)
@@ -419,9 +390,18 @@ namespace LibPyExiv2
 				PyErr_SetString(PyExc_MemoryError, message);
 				break;
 
-			// custom defined error codes
-			case METADATA_NOT_READ_CODE:
+			// custom error codes
+			case METADATA_NOT_READ:
 				PyErr_SetString(PyExc_IOError, "Image metadata has not been read yet");
+				break;
+			case KEY_NOT_FOUND:
+				PyErr_SetString(PyExc_ValueError, "Tag not set");
+				break;
+			case THUMB_ACCESS:
+				PyErr_SetString(PyExc_IOError, "Cannot access image thumbnail");
+				break;
+			case NO_THUMBNAIL:
+				PyErr_SetString(PyExc_IOError, "The EXIF data does not contain a thumbnail");
 				break;
 
 			default:
