@@ -424,8 +424,8 @@ class Image(libpyexiv2.Image):
 		else:
 			# Value must already be a string.
 			# Warning: no distinction is possible between values that really are
-			# strings (type 'String') and those that are of type 'Undefined'...
-			# TODO: handle this correctly
+			# strings (type 'String') and those that are of type 'Undefined'.
+			# FIXME: for tags of type 'Undefined', this does not seem to work...
 			strVal = str(value)
 		self.setIptcTag(key, strVal)
 
