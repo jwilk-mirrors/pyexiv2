@@ -33,15 +33,8 @@ namespace LibPyExiv2
 	Image::Image(std::string filename)
 	{
 		_filename = filename;
-		try
-		{
-			_image = Exiv2::ImageFactory::open(filename);
-			assert(_image.get() != 0);
-		}
-		catch(Exiv2::AnyError& e)
-		{
-			std::cerr << ">>> Image::Image(): caught Exiv2 exception '" << e << "'";
-		}
+		_image = Exiv2::ImageFactory::open(filename);
+		assert(_image.get() != 0);
 		_dataRead = false;
 	}
 
@@ -49,50 +42,26 @@ namespace LibPyExiv2
 	Image::Image(const Image & image)
 	{
 		_filename = image._filename;
-		try
-		{
-			_image = Exiv2::ImageFactory::open(_filename);
-			assert(_image.get() != 0);
-		}
-		catch(Exiv2::AnyError& e)
-		{
-			std::cerr << ">>> Image::Image(): caught Exiv2 exception '" << e << "'";
-		}
+		_image = Exiv2::ImageFactory::open(_filename);
+		assert(_image.get() != 0);
 		_dataRead = false;
 	}
 
 	void Image::readMetadata()
 	{
-		try
-		{
-			_image->readMetadata();
-			_exifData = _image->exifData();
-			_iptcData = _image->iptcData();
-			_dataRead = true;
-		}
-		catch(Exiv2::Error& e)
-		{
-			// An error occured while reading the metadata
-			_dataRead = false;
-			std::cerr << ">>> Image::readMetadata(): caught Exiv2 exception '" << e << "'";
-		}
+		_image->readMetadata();
+		_exifData = _image->exifData();
+		_iptcData = _image->iptcData();
+		_dataRead = true;
 	}
 
 	void Image::writeMetadata()
 	{
 		if(_dataRead)
 		{
-			try
-			{
-				_image->setExifData(_exifData);
-				_image->setIptcData(_iptcData);
-				_image->writeMetadata();
-			}
-			catch(Exiv2::Error& e)
-			{
-				// An error occured while writing the metadata
-				std::cerr << ">>> Image::writeMetadata(): caught Exiv2 exception '" << e << "'";
-			}
+			_image->setExifData(_exifData);
+			_image->setIptcData(_iptcData);
+			_image->writeMetadata();
 		}
 	}
 
@@ -119,26 +88,17 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			try
+			Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
+			Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
+			if(i != _exifData.end())
 			{
-				Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-				Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-				if(i != _exifData.end())
-				{
-					Exiv2::Exifdatum exifDatum = _exifData[key];
-					return boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
-				}
-				else
-				{
-					// The key was not found
-					std::cerr << ">>> Image::getExifTag(): tag '" << key << "' not found" << std::endl;
-					return boost::python::make_tuple(std::string(""), std::string(""));
-				}
+				Exiv2::Exifdatum exifDatum = _exifData[key];
+				return boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
 			}
-			catch(Exiv2::Error& e)
+			else
 			{
-				// The key is not a valid Exif tag key
-				std::cerr << ">>> Image::getExifTag(): unknown key '" << key << "'" << std::endl;
+				// The key was not found
+				std::cerr << ">>> Image::getExifTag(): tag '" << key << "' not found" << std::endl;
 				return boost::python::make_tuple(std::string(""), std::string(""));
 			}
 		}
@@ -153,28 +113,19 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			try
+			Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
+			Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
+			if(i != _exifData.end())
 			{
-				Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-				Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-				if(i != _exifData.end())
-				{
-					Exiv2::Exifdatum exifDatum = _exifData[key];
-					std::ostringstream buffer;
-					buffer << exifDatum;
-					return buffer.str();
-				}
-				else
-				{
-					// The key was not found
-					std::cerr << ">>> Image::getExifTagToString(): tag '" << key << "' not found" << std::endl;
-					return std::string("");
-				}
+				Exiv2::Exifdatum exifDatum = _exifData[key];
+				std::ostringstream buffer;
+				buffer << exifDatum;
+				return buffer.str();
 			}
-			catch(Exiv2::Error& e)
+			else
 			{
-				// The key is not a valid Exif tag key
-				std::cerr << ">>> Image::getExifTagToString(): unknown key '" << key << "'" << std::endl;
+				// The key was not found
+				std::cerr << ">>> Image::getExifTagToString(): tag '" << key << "' not found" << std::endl;
 				return std::string("");
 			}
 		}
@@ -190,34 +141,25 @@ namespace LibPyExiv2
 		boost::python::tuple returnValue;
 		if(_dataRead)
 		{
-			try
+			Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
+			Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
+			if(i != _exifData.end())
 			{
-				Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-				Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-				if(i != _exifData.end())
-				{
-					Exiv2::Exifdatum exifDatum = _exifData[key];
-					returnValue = boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
-					// First erase the existing tag: in some case (and
-					// I don't know why), the new value won't replace
-					// the old one if not previously erased...
-					_exifData.erase(i);
-				}
-				else
-				{
-					// The key was not found
-					std::cerr << ">>> Image::setExifTag(): tag '" << key << "' not found" << std::endl;
-					returnValue = boost::python::make_tuple(std::string(""), std::string(""));
-				}
-				_exifData[key] = value;
-				return returnValue;
+				Exiv2::Exifdatum exifDatum = _exifData[key];
+				returnValue = boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
+				// First erase the existing tag: in some case (and
+				// I don't know why), the new value won't replace
+				// the old one if not previously erased...
+				_exifData.erase(i);
 			}
-			catch(Exiv2::Error& e)
+			else
 			{
-				// The key is not a valid Exif tag key
-				std::cerr << ">>> Image::setExifTag(): unknown key '" << key << "'" << std::endl;
-				return boost::python::make_tuple(std::string(""), std::string(""));
+				// The key was not found
+				std::cerr << ">>> Image::setExifTag(): tag '" << key << "' not found" << std::endl;
+				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
 			}
+			_exifData[key] = value;
+			return returnValue;
 		}
 		else
 		{
@@ -231,30 +173,21 @@ namespace LibPyExiv2
 		boost::python::tuple returnValue;
 		if(_dataRead)
 		{
-			try
+			Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
+			Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
+			if(i != _exifData.end())
 			{
-				Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-				Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-				if(i != _exifData.end())
-				{
-					Exiv2::Exifdatum exifDatum = _exifData[key];
-					returnValue = boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
-					_exifData.erase(i);
-				}
-				else
-				{
-					// The key was not found
-					std::cerr << ">>> Image::deleteExifTag(): tag '" << key << "' not found" << std::endl;
-					returnValue = boost::python::make_tuple(std::string(""), std::string(""));
-				}
-				return returnValue;
+				Exiv2::Exifdatum exifDatum = _exifData[key];
+				returnValue = boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
+				_exifData.erase(i);
 			}
-			catch(Exiv2::Error& e)
+			else
 			{
-				// The key is not a valid Exif tag key
-				std::cerr << ">>> Image::deleteExifTag(): unknown key '" << key << "'" << std::endl;
-				return boost::python::make_tuple(std::string(""), std::string(""));
+				// The key was not found
+				std::cerr << ">>> Image::deleteExifTag(): tag '" << key << "' not found" << std::endl;
+				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
 			}
+			return returnValue;
 		}
 		else
 		{
@@ -288,26 +221,17 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			try
+			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
+			Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
+			if(i != _iptcData.end())
 			{
-				Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-				Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
-				if(i != _iptcData.end())
-				{
-					Exiv2::Iptcdatum iptcDatum = _iptcData[key];
-					return boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
-				}
-				else
-				{
-					// The key was not found
-					std::cerr << ">>> Image::getIptcTag(): tag '" << key << "' not found" << std::endl;
-					return boost::python::make_tuple(std::string(""), std::string(""));
-				}
+				Exiv2::Iptcdatum iptcDatum = _iptcData[key];
+				return boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
 			}
-			catch(Exiv2::Error& e)
+			else
 			{
-				// The key is not a valid Iptc tag key
-				std::cerr << ">>> Image::getIptcTag(): unknown key '" << key << "'" << std::endl;
+				// The key was not found
+				std::cerr << ">>> Image::getIptcTag(): tag '" << key << "' not found" << std::endl;
 				return boost::python::make_tuple(std::string(""), std::string(""));
 			}
 		}
@@ -323,32 +247,23 @@ namespace LibPyExiv2
 		boost::python::tuple returnValue;
 		if(_dataRead)
 		{
-			try
+			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
+			Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
+			if(i != _iptcData.end())
 			{
-				Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-				Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
-				if(i != _iptcData.end())
-				{
-					Exiv2::Iptcdatum iptcDatum = _iptcData[key];
-					returnValue = boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
-					// First erase the existing tag
-					_iptcData.erase(i);
-				}
-				else
-				{
-					// The key was not found
-					std::cerr << ">>> Image::setIptcTag(): tag '" << key << "' not found" << std::endl;
-					returnValue = boost::python::make_tuple(std::string(""), std::string(""));
-				}
-				_iptcData[key] = value;
-				return returnValue;
+				Exiv2::Iptcdatum iptcDatum = _iptcData[key];
+				returnValue = boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
+				// First erase the existing tag
+				_iptcData.erase(i);
 			}
-			catch(Exiv2::Error& e)
+			else
 			{
-				// The key is not a valid Iptc tag key
-				std::cerr << ">>> Image::setIptcTag(): unknown key '" << key << "'" << std::endl;
-				return boost::python::make_tuple(std::string(""), std::string(""));
+				// The key was not found
+				std::cerr << ">>> Image::setIptcTag(): tag '" << key << "' not found" << std::endl;
+				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
 			}
+			_iptcData[key] = value;
+			return returnValue;
 		}
 		else
 		{
@@ -362,30 +277,21 @@ namespace LibPyExiv2
 		boost::python::tuple returnValue;
 		if(_dataRead)
 		{
-			try
+			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
+			Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
+			if(i != _iptcData.end())
 			{
-				Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-				Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
-				if(i != _iptcData.end())
-				{
-					Exiv2::Iptcdatum iptcDatum = _iptcData[key];
-					returnValue = boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
-					_iptcData.erase(i);
-				}
-				else
-				{
-					// The key was not found
-					std::cerr << ">>> Image::deleteIptcTag(): tag '" << key << "' not found" << std::endl;
-					returnValue = boost::python::make_tuple(std::string(""), std::string(""));
-				}
-				return returnValue;
+				Exiv2::Iptcdatum iptcDatum = _iptcData[key];
+				returnValue = boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
+				_iptcData.erase(i);
 			}
-			catch(Exiv2::Error& e)
+			else
 			{
-				// The key is not a valid Iptc tag key
-				std::cerr << ">>> Image::deleteIptcTag(): unknown key '" << key << "'" << std::endl;
-				return boost::python::make_tuple(std::string(""), std::string(""));
+				// The key was not found
+				std::cerr << ">>> Image::deleteIptcTag(): tag '" << key << "' not found" << std::endl;
+				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
 			}
+			return returnValue;
 		}
 		else
 		{
@@ -464,22 +370,14 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			try
+			int result = _exifData.writeThumbnail(path);
+			if (result == 0)
 			{
-				int result = _exifData.writeThumbnail(path);
-				if (result == 0)
-				{
-					return true;
-				}
-				else if (result == 8)
-				{
-					std::cerr << ">>> Image::dumpThumbnailToFile(): the EXIF data does not contain a thumbnail";
-					return false;
-				}
+				return true;
 			}
-			catch(Exiv2::Error& e)
+			else if (result == 8)
 			{
-				std::cerr << ">>> Image::dumpThumbnailToFile(): caught Exiv2 exception '" << e << "'";
+				std::cerr << ">>> Image::dumpThumbnailToFile(): the EXIF data does not contain a thumbnail";
 				return false;
 			}
 		}
@@ -494,21 +392,76 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			try
-			{
-				_exifData.setJpegThumbnail(path);
-				return true;
-			}
-			catch(Exiv2::Error& e)
-			{
-				std::cerr << ">>> Image::setThumbnailFromJpegFile(): caught Exiv2 exception '" << e << "'";
-				return false;
-			}
+			_exifData.setJpegThumbnail(path);
+			return true;
 		}
 		else
 		{
 			std::cerr << ">>> Image::setThumbnailFromJpegFile(): metadata not read yet, call Image::readMetadata() first" << std::endl;
 			return false;
+		}
+	}
+
+	void translateExiv2Error(Exiv2::Error const& e)
+	{
+		// Use the Python 'C' API to set up an exception object
+		const char* message = e.what().c_str();
+		// The type of the Python exception depends on the error code
+		// Warning: this piece of code should be updated in case the error codes
+		// defined by Exiv2 (file 'src/error.cpp') are changed
+		switch (e.code())
+		{
+			case -2:
+			case -1:
+			case 1:
+			case 2:
+				PyErr_SetString(PyExc_RuntimeError, message);
+				break;
+			case 3:
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+			case 15:
+			case 17:
+			case 18:
+			case 20:
+			case 21:
+			case 23:
+			case 31:
+			case 32:
+			case 33:
+			case 36:
+			case 37:
+				PyErr_SetString(PyExc_IOError, message);
+				break;
+			case 6:
+			case 7:
+				PyErr_SetString(PyExc_KeyError, message);
+				break;
+			case 4:
+			case 5:
+			case 8:
+			case 22:
+			case 24:
+			case 25:
+			case 26:
+			case 27:
+			case 28:
+			case 29:
+			case 30:
+			case 34:
+				PyErr_SetString(PyExc_ValueError, message);
+				break;
+			case 16:
+			case 19:
+			case 35:
+				PyErr_SetString(PyExc_MemoryError, message);
+				break;
+			default:
+				PyErr_SetString(PyExc_RuntimeError, message);
 		}
 	}
 

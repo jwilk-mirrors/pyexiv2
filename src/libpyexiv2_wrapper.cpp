@@ -34,6 +34,8 @@ using namespace LibPyExiv2;
 
 BOOST_PYTHON_MODULE(libpyexiv2)
 {
+	register_exception_translator<Exiv2::Error>(&translateExiv2Error);
+
 	class_<Image>("Image", init<std::string>())
 		.def("readMetadata", &Image::readMetadata)
 		.def("writeMetadata", &Image::writeMetadata)

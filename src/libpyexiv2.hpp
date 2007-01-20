@@ -132,6 +132,9 @@ namespace LibPyExiv2
 		bool _dataRead;
 	};
 
+	// Translate an Exiv2 generic exception into a Python exception
+	void translateExiv2Error(Exiv2::Error const& e);
+
 } // End of namespace LibPyExiv2
 
 #endif
