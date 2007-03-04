@@ -184,7 +184,7 @@ def StringToDateTime(string):
 	# only accepted format for a string field representing a datetime is
 	# '%Y-%m-%d %H:%M:%S', but it seems that others formats can be found in the
 	# wild, so this list could be extended to include new exotic formats.
-	formats = ['%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%SZ']
+	formats = ['%Y-%m-%d %H:%M:%S', '%Y:%m:%d %H:%M:%S', '%Y-%m-%dT%H:%M:%SZ']
 
 	for format in formats:
 		try:
