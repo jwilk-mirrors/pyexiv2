@@ -1,4 +1,7 @@
 todo list
 
+- For IPTC tags, what to do with multiple occurences of a key ? (eg 'Iptc.Application2.Keywords') -> return a list of values ?
+- Allow access to the tag values using the dictionary syntax (read values on the fly when needed, lazy instantiation) -> operator overloading with __getitem__() and __setitem__()
+- Cache already queried values (see dictionary on previous line)
 - Write unit tests.
 - Write a complete documentation for the binding and it uses.
