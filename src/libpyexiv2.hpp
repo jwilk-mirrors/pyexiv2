@@ -84,7 +84,8 @@ namespace LibPyExiv2
 		// libexiv2's documentation (http://exiv2.org/iptc.html).
 
 		// Returns a list of all the keys of available IPTC tags set in the
-		// image.
+		// image. This list has no duplicates: each of its items is unique,
+		// even if a tag is present more than once.
 		boost::python::list getAvailableIptcTags();
 
 		// Return true if the required IPTC tag is set, false otherwise.

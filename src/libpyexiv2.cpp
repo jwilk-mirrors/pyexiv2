@@ -187,8 +187,6 @@ namespace LibPyExiv2
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	// returns a list containing the keys of all the IPTC tags available in
-	// the image
 	boost::python::list Image::getAvailableIptcTags()
 	{
 		boost::python::list list;
@@ -196,7 +194,10 @@ namespace LibPyExiv2
 		{
 			for(Exiv2::IptcMetadata::iterator i = _iptcData.begin() ; i != _iptcData.end() ; i++)
 			{
-				list.append(i->key());
+				// The key is appended to the list if and only if it is not
+				// already present.
+				if (list.count(i->key()) == 0)
+					list.append(i->key());
 			}
 			return list;
 		}
