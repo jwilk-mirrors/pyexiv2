@@ -88,18 +88,23 @@ namespace LibPyExiv2
 		// even if a tag is present more than once.
 		boost::python::list getAvailableIptcTags();
 
-		// Return true if the required IPTC tag is set, false otherwise.
+		// Return true if the required IPTC tag is set at least once, false
+		// otherwise.
 		bool isIptcTagSet(std::string key);
 
-		// Return a tuple containing the type (as a string) and the value
-		// (as a string as well) of the required IPTC tag.
+		// Return a list of tuples, each containing the type (as a string) and
+		// the value (as a string as well) of the required IPTC tag.
 		// Throw an exception if the tag is not set.
-		boost::python::tuple getIptcTag(std::string key);
+		boost::python::list getIptcTag(std::string key);
 
 		// Set the IPTC tag's value and return a tuple containing the
 		// type and previous value of the tag (empty strings if not previously
 		// set). If the tag was not previously set, it is created.
-		boost::python::tuple setIptcTag(std::string key, std::string value);
+		// If the key references a repeatable tag, the parameter index (starting
+		// from 0 like a list index) is used to determine which of the
+		// repetitions is to be set. In case of an index greater than the
+		// highest existing one, adds a repetition of the tag.
+		boost::python::tuple setIptcTag(std::string key, std::string value, unsigned int index);
 
 		// Delete the required IPTC tag and return a tuple containing the
 		// type and previous value.

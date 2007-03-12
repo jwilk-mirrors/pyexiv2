@@ -28,9 +28,10 @@
 
 // Custom error codes for Exiv2 exceptions
 #define METADATA_NOT_READ 101
-#define KEY_NOT_FOUND 102
-#define THUMB_ACCESS 103
-#define NO_THUMBNAIL 104
+#define NON_REPEATABLE 102
+#define KEY_NOT_FOUND 103
+#define THUMB_ACCESS 104
+#define NO_THUMBNAIL 105
 
 namespace LibPyExiv2
 {
@@ -217,17 +218,24 @@ namespace LibPyExiv2
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	boost::python::tuple Image::getIptcTag(std::string key)
+	boost::python::list Image::getIptcTag(std::string key)
 	{
 		if(_dataRead)
 		{
+			boost::python::list valuesList;
+			unsigned int valueOccurences = 0;
 			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-			Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
-			if(i != _iptcData.end())
+			for (Exiv2::IptcMetadata::iterator dataIterator = _iptcData.begin();
+				dataIterator != _iptcData.end(); ++dataIterator)
 			{
-				Exiv2::Iptcdatum iptcDatum = _iptcData[key];
-				return boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
+				if (dataIterator->key() == key)
+				{
+					valuesList.append(boost::python::make_tuple(dataIterator->typeName(), dataIterator->toString()));
+					++valueOccurences;
+				}
 			}
+			if (valueOccurences > 0)
+				return valuesList;
 			else
 				throw Exiv2::Error(KEY_NOT_FOUND, key);
 		}
@@ -235,26 +243,38 @@ namespace LibPyExiv2
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	boost::python::tuple Image::setIptcTag(std::string key, std::string value)
+	boost::python::tuple Image::setIptcTag(std::string key, std::string value, unsigned int index=0)
 	{
-		boost::python::tuple returnValue;
 		if(_dataRead)
 		{
+			boost::python::tuple returnValue;
+			unsigned int indexCounter = index;
 			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-			Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
-			if(i != _iptcData.end())
+			Exiv2::IptcMetadata::iterator dataIterator = _iptcData.findKey(iptcKey);
+			while ((indexCounter > 0) && (dataIterator != _iptcData.end()))
 			{
-				Exiv2::Iptcdatum iptcDatum = _iptcData[key];
-				returnValue = boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
-				// First erase the existing tag
-				_iptcData.erase(i);
+				dataIterator = std::find_if(++dataIterator, _iptcData.end(),
+					Exiv2::FindMetadatumById::FindMetadatumById(iptcKey.tag(), iptcKey.record()));
+				--indexCounter;
+			}
+			if (dataIterator != _iptcData.end())
+			{
+				// The tag at given index already exists, override it
+				returnValue = boost::python::make_tuple(dataIterator->typeName(), dataIterator->toString());
+				dataIterator->setValue(value);
 			}
 			else
 			{
-				// The key was not found
+				// Either index is greater than the index of the last repetition
+				// of the tag, or the tag does not exist yet.
+				// In both cases, it is created.
 				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
+				Exiv2::Iptcdatum iptcDatum(iptcKey);
+				iptcDatum.setValue(value);
+				int state = _iptcData.add(iptcDatum);
+				if (state == 6)
+					throw Exiv2::Error(NON_REPEATABLE);
 			}
-			_iptcData[key] = value;
 			return returnValue;
 		}
 		else
@@ -418,6 +438,9 @@ namespace LibPyExiv2
 			// custom error codes
 			case METADATA_NOT_READ:
 				PyErr_SetString(PyExc_IOError, "Image metadata has not been read yet");
+				break;
+			case NON_REPEATABLE:
+				PyErr_SetString(PyExc_KeyError, "Tag is not repeatable");
 				break;
 			case KEY_NOT_FOUND:
 				PyErr_SetString(PyExc_ValueError, "Tag not set");
