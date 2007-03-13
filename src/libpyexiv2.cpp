@@ -281,18 +281,25 @@ namespace LibPyExiv2
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	boost::python::tuple Image::deleteIptcTag(std::string key)
+	boost::python::tuple Image::deleteIptcTag(std::string key, unsigned int index=0)
 	{
-		boost::python::tuple returnValue;
 		if(_dataRead)
 		{
+			boost::python::tuple returnValue;
+			unsigned int indexCounter = index;
 			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-			Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
-			if(i != _iptcData.end())
+			Exiv2::IptcMetadata::iterator dataIterator = _iptcData.findKey(iptcKey);
+			while ((indexCounter > 0) && (dataIterator != _iptcData.end()))
 			{
-				Exiv2::Iptcdatum iptcDatum = _iptcData[key];
-				returnValue = boost::python::make_tuple(iptcDatum.typeName(), iptcDatum.toString());
-				_iptcData.erase(i);
+				dataIterator = std::find_if(++dataIterator, _iptcData.end(),
+					Exiv2::FindMetadatumById::FindMetadatumById(iptcKey.tag(), iptcKey.record()));
+				--indexCounter;
+			}
+			if (dataIterator != _iptcData.end())
+			{
+				// The tag at given index already exists, delete it
+				returnValue = boost::python::make_tuple(dataIterator->typeName(), dataIterator->toString());
+				_iptcData.erase(dataIterator);
 				return returnValue;
 			}
 			else

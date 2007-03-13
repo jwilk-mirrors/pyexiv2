@@ -108,8 +108,12 @@ namespace LibPyExiv2
 
 		// Delete the required IPTC tag and return a tuple containing the
 		// type and previous value.
-		// Throw an exception if the tag was not set.
-		boost::python::tuple deleteIptcTag(std::string key);
+		// If the key references a repeatable tag, the parameter index (starting
+		// from 0 like a list index) is used to determine which of the
+		// repetitions is to be deleted.
+		// Throw an exception if the tag was not set or if the index is greater
+		// than the highest existing one.
+		boost::python::tuple deleteIptcTag(std::string key, unsigned int index);
 
 		// Read and write access to the thumbnail embedded in the image.
 
