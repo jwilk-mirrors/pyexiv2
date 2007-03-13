@@ -1,6 +1,6 @@
 // *****************************************************************************
 /*
- * Copyright (C) 2006 Olivier Tilloy <olivier@tilloy.net>
+ * Copyright (C) 2006-2007 Olivier Tilloy <olivier@tilloy.net>
  *
  * This file is part of the pyexiv2 distribution.
  *

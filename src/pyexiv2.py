@@ -3,7 +3,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2006 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2006-2007 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -366,19 +366,17 @@ class Image(libpyexiv2.Image):
 			strVal = str(value)
 		self.setExifTag(key, strVal)
 
-	def getIptcTagValue(self, key):
+	def __convertIptcTagValueToPythonType(self, (tagType, tagValue)):
 		"""
-		Get the value associated to a key in IPTC metadata.
+		Types a tag value using Python's built-in types or modules.
 
-		Get the value associated to a key in IPTC metadata.
 		Whenever possible, the value is typed using Python's built-in types or
 		modules such as date when the value represents a date (e.g. the IPTC tag
 		'Iptc.Application2.DateCreated').
 
 		Keyword arguments:
-		key -- the IPTC key of the requested metadata tag
+		(tagType, tagValue) -- the type and the value of the IPTC tag as strings
 		"""
-		tagType, tagValue = self.getIptcTag(key)
 		if tagType == 'Short':
 			return int(tagValue)
 		elif tagType == 'String':
@@ -390,7 +388,25 @@ class Image(libpyexiv2.Image):
 		elif tagType == 'Undefined':
 			return tagValue
 
-	def setIptcTagValue(self, key, value):
+	def getIptcTagValue(self, key):
+		"""
+		Get the value(s) associated to a key in IPTC metadata.
+
+		Get the value associated to a key in IPTC metadata.
+		Whenever possible, the value is typed using Python's built-in types or
+		modules such as date when the value represents a date (e.g. the IPTC tag
+		'Iptc.Application2.DateCreated').
+		If key represents a repeatable tag, a list of several values is
+		returned. If not, or if it has only one repetition, the list simply has
+		one element.
+
+		Keyword arguments:
+		key -- the IPTC key of the requested metadata tag
+		"""
+		typeValuesList = self.getIptcTag(key)
+		return map(self.__convertIptcTagValueToPythonType, typeValuesList)
+
+	def setIptcTagValue(self, key, value, index=0):
 		"""
 		Set the value associated to a key in IPTC metadata.
 
@@ -400,11 +416,19 @@ class Image(libpyexiv2.Image):
 		(e.g. the IPTC tags 'Iptc.Application2.DateCreated' and
 		'Iptc.Application2.TimeCreated'), the method takes care
 		of converting it before setting the internal IPTC tag value.
+		If key references a repeatable tag, the parameter index (starting from
+		0 like a list index) is used to determine which of the repetitions is to
+		be set. In case of an index greater than the highest existing one, adds
+		a repetition of the tag. index defaults to 0 for (the majority of)
+		non-repeatable tags.
 
 		Keyword arguments:
 		key -- the IPTC key of the requested metadata tag
 		value -- the new value for the requested metadata tag
+		index -- the index of the tag repetition to set (default value: 0)
 		"""
+		if (index < 0):
+			raise IndexError('Index must be greater than or equal to zero')
 		valueType = value.__class__
 		if valueType == int or valueType == long:
 			strVal = str(value)
@@ -421,7 +445,7 @@ class Image(libpyexiv2.Image):
 			# strings (type 'String') and those that are of type 'Undefined'.
 			# FIXME: for tags of type 'Undefined', this does not seem to work...
 			strVal = str(value)
-		self.setIptcTag(key, strVal)
+		self.setIptcTag(key, strVal, index)
 
 def _test():
 	print 'testing library pyexiv2...'
