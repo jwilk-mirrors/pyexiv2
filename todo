@@ -2,5 +2,6 @@ todo list
 
 - Allow access to the tag values using the dictionary syntax (read values on the fly when needed, lazy instantiation) -> operator overloading with __getitem__() and __setitem__()
 - Cache already queried values (see dictionary on previous line)
+- Disable the get...() and set...() methods (by making them private) -> metadata is accessible only through the dictionnary metaphor
 - Rewrite the exiv2 command-line tool and the test binaries in Python and (Python) scripts to run the same tests that are run to test exiv2
 - Write a complete documentation for the binding and it uses
