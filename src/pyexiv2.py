@@ -286,6 +286,11 @@ class Image(libpyexiv2.Image):
 	setIptcTagValue -- set the value associated to a key in IPTC metadata
 	"""
 
+	def __init__(self, filename):
+		libpyexiv2.Image.__init__(self, filename)
+		self.__exifTagsDict = {}
+		self.__iptcTagsDict = {}
+
 	def getExifTagValue(self, key):
 		"""
 		Get the value associated to a key in EXIF metadata.
@@ -446,6 +451,27 @@ class Image(libpyexiv2.Image):
 			# FIXME: for tags of type 'Undefined', this does not seem to work...
 			strVal = str(value)
 		self.setIptcTag(key, strVal, index)
+
+	def __getitem__(self, key):
+		tagFamily = key[:4]
+		if tagFamily == 'Exif':
+			try:
+				return self.__exifTagsDict[key]
+			except KeyError:
+				value = self.getExifTagValue(key)
+				self.__exifTagsDict[key] = value
+				return value
+		elif tagFamily == 'Iptc':
+			try:
+				return self.__iptcTagsDict[key]
+			except KeyError:
+				value = self.getIptcTagValue(key)
+				if len(value) == 1:
+					value = value[0]
+				self.__iptcTagsDict[key] = value
+				return value
+		else:
+			raise KeyError('Invalid tag identifier')
 
 def _test():
 	print 'testing library pyexiv2...'
