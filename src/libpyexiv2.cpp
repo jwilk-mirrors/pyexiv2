@@ -450,7 +450,7 @@ namespace LibPyExiv2
 				PyErr_SetString(PyExc_KeyError, "Tag is not repeatable");
 				break;
 			case KEY_NOT_FOUND:
-				PyErr_SetString(PyExc_ValueError, "Tag not set");
+				PyErr_SetString(PyExc_KeyError, "Tag not set");
 				break;
 			case THUMB_ACCESS:
 				PyErr_SetString(PyExc_IOError, "Cannot access image thumbnail");
