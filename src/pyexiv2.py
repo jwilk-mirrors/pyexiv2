@@ -453,6 +453,7 @@ class Image(libpyexiv2.Image):
 		self.setIptcTag(key, strVal, index)
 
 	def __getitem__(self, key):
+		print 'Calling __getitem__(...)'
 		tagFamily = key[:4]
 		if tagFamily == 'Exif':
 			try:
@@ -470,6 +471,59 @@ class Image(libpyexiv2.Image):
 					value = value[0]
 				self.__iptcTagsDict[key] = value
 				return value
+		else:
+			raise KeyError('Invalid tag identifier')
+
+	def __setitem__(self, key, value):
+		print 'Calling __setitem__(...)'
+		tagFamily = key[:4]
+		if tagFamily == 'Exif':
+			if value is not None:
+				self.setExifTagValue(key, value)
+				self.__exifTagsDict[key] = value
+			else:
+				self.deleteExifTag(key)
+				del self.__exifTagsDict[key]
+		elif tagFamily == 'Iptc':
+			# The case of IPTC tags is a bit trickier since some tags are
+			# repeatable. To simplify the process, parameter 'value' is
+			# transformed into a list if it is not already one and then each of
+			# its values is processed (set, that is) in a loop.
+			newValues = value
+			if newValues is None:
+				# Setting the value to None does not really make sense, but can
+				# in a way be seen as equivalent to deleting it, so this
+				# behaviour is simulated by providing an empty list for 'value'.
+				newValues = []
+			if newValues.__class__ is not list:
+				newValues = [newValues]
+			try:
+				oldValues = self.__iptcTagsDict[key]
+				if oldValues.__class__ is not list:
+					oldValues = [oldValues]
+			except KeyError:
+				# The tag is not set yet
+				oldValues = []
+			# This loop processes the values one by one. There are n cases:
+			#   * if the two lists are of the exact same size, each item in
+			#     oldValues is replaced by its new value in newValues;
+			#   * if newValues is longer than oldValues, each item in oldValues
+			#     is replaced by its new value in newValues and the new items
+			#     are appended at the end of oldValues;
+			#   * if newValues is shorter than oldValues, each item in newValues
+			#     replaces the corresponding one in oldValues and the trailing
+			#     extra items in oldValues are deleted.
+			for i in xrange(max(len(oldValues), len(newValues))):
+				try:
+					self.setIptcTagValue(key, newValues[i], i)
+				except IndexError:
+					self.deleteIptcTag(key, min(len(oldValues), len(newValues)))
+			if len(newValues) > 0:
+				if len(newValues) == 1:
+					newValues = newValues[0]
+				self.__iptcTagsDict[key] = newValues
+			else:
+				del self.__iptcTagsDict[key]
 		else:
 			raise KeyError('Invalid tag identifier')
 
