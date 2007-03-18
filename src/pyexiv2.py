@@ -454,6 +454,8 @@ class Image(libpyexiv2.Image):
 
 	def __getitem__(self, key):
 		print 'Calling __getitem__(...)'
+		if key.__class__ is not str:
+			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
 		if tagFamily == 'Exif':
 			try:
@@ -472,10 +474,12 @@ class Image(libpyexiv2.Image):
 				self.__iptcTagsDict[key] = value
 				return value
 		else:
-			raise KeyError('Invalid tag identifier')
+			raise IndexError("'" + key + "': invalid tag identifier")
 
 	def __setitem__(self, key, value):
 		print 'Calling __setitem__(...)'
+		if key.__class__ is not str:
+			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
 		if tagFamily == 'Exif':
 			if value is not None:
@@ -525,7 +529,26 @@ class Image(libpyexiv2.Image):
 			else:
 				del self.__iptcTagsDict[key]
 		else:
-			raise KeyError('Invalid tag identifier')
+			raise IndexError("'" + key + "': invalid tag identifier")
+
+	def __delitem__(self, key):
+		print 'Calling __delitem__(...)'
+		if key.__class__ is not str:
+			raise TypeError('Key must be of type string')
+		tagFamily = key[:4]
+		if tagFamily == 'Exif':
+			self.deleteExifTag(key)
+			del self.__exifTagsDict[key]
+		elif tagFamily == 'Iptc':
+			try:
+				oldValues = self.__iptcTagsDict[key]
+			except KeyError:
+				oldValues = self.getIptcTag(key)
+			for i in xrange(len(oldValues)):
+				self.deleteIptcTag(key, 0)
+			del self.__iptcTagsDict[key]
+		else:
+			raise IndexError("'" + key + "': invalid tag identifier")
 
 def _test():
 	print 'testing library pyexiv2...'
