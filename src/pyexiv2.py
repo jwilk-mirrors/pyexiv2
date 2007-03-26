@@ -471,6 +471,8 @@ class Image(libpyexiv2.Image):
 				value = self.getIptcTagValue(key)
 				if len(value) == 1:
 					value = value[0]
+				elif len(value) > 1:
+					value = tuple(value)
 				self.__iptcTagsDict[key] = value
 				return value
 		else:
