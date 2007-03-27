@@ -493,25 +493,30 @@ class Image(libpyexiv2.Image):
 		elif tagFamily == 'Iptc':
 			# The case of IPTC tags is a bit trickier since some tags are
 			# repeatable. To simplify the process, parameter 'value' is
-			# transformed into a list if it is not already one and then each of
+			# transformed into a tuple if it is not already one and then each of
 			# its values is processed (set, that is) in a loop.
 			newValues = value
 			if newValues is None:
 				# Setting the value to None does not really make sense, but can
 				# in a way be seen as equivalent to deleting it, so this
 				# behaviour is simulated by providing an empty list for 'value'.
-				newValues = []
-			if newValues.__class__ is not list:
-				newValues = [newValues]
+				newValues = ()
+			if newValues.__class__ is not tuple:
+				if newValues.__class__ is list:
+					# For flexibility, passing a list instead of a tuple works
+					newValues = tuple(newValues)
+				else:
+					# Interpret the value as a single element
+					newValues = (newValues,)
 			try:
 				oldValues = self.__iptcTagsDict[key]
-				if oldValues.__class__ is not list:
-					oldValues = [oldValues]
+				if oldValues.__class__ is not tuple:
+					oldValues = (oldValues,)
 			except KeyError:
 				# The tag is not set yet
-				oldValues = []
+				oldValues = ()
 			# This loop processes the values one by one. There are n cases:
-			#   * if the two lists are of the exact same size, each item in
+			#   * if the two tuples are of the exact same size, each item in
 			#     oldValues is replaced by its new value in newValues;
 			#   * if newValues is longer than oldValues, each item in oldValues
 			#     is replaced by its new value in newValues and the new items
