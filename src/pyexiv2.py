@@ -559,6 +559,14 @@ class Image(libpyexiv2.Image):
 		else:
 			raise IndexError("'" + key + "': invalid tag identifier")
 
+	def cacheAllExifTags(self):
+		for key in self.exifKeys():
+			self[key]
+
+	def cacheAllIptcTags(self):
+		for key in self.iptcKeys():
+			self[key]
+
 def _test():
 	print 'testing library pyexiv2...'
 	# TODO: various tests
