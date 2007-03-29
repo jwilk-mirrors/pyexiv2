@@ -1,5 +1,6 @@
 todo list
 
+- Are the methods isExifTagSet() and isIptcTagSet() really useful ? They can be "emulated" by trying to read a tag's value and silently catching the exception if it is not set...
 - Rewrite the exiv2 command-line tool and the test binaries in Python and (Python) scripts to run the same tests that are run to test exiv2
 - Rewrite the docstring documentation of the module using epydoc's syntax (http://epydoc.sourceforge.net/manual-fields.html)
 - Write a complete documentation for the binding and it uses
