@@ -43,7 +43,7 @@ namespace LibPyExiv2
 	public:
 		// Constructors
 		Image(std::string filename);
-		Image(const Image & image);
+		Image(const Image& image);
 
 		void readMetadata();
 		void writeMetadata();

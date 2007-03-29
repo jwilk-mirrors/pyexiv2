@@ -1,6 +1,5 @@
 todo list
 
-- Disable the get...() and set...() methods (by making them private) -> metadata is accessible only through the dictionnary metaphor
 - Write methods cacheAllExifTags() and cacheAllIptcTags() that will read and cache all the tag values (to be used in a separate threads, for applications that need to access all the tags anyway)
 - Rewrite the exiv2 command-line tool and the test binaries in Python and (Python) scripts to run the same tests that are run to test exiv2
 - Rewrite the docstring documentation of the module using epydoc's syntax (http://epydoc.sourceforge.net/manual-fields.html)

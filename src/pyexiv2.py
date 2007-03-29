@@ -44,6 +44,8 @@ libpyexiv2.Image.
 
 A typical use of this binding is as follows:
 
+# TODO: update this documentation!
+
 	import pyexiv2
 	import datetime
 	image = pyexiv2.Image('path/to/imagefile')
@@ -291,7 +293,7 @@ class Image(libpyexiv2.Image):
 		self.__exifTagsDict = {}
 		self.__iptcTagsDict = {}
 
-	def getExifTagValue(self, key):
+	def __getExifTagValue(self, key):
 		"""
 		Get the value associated to a key in EXIF metadata.
 
@@ -303,7 +305,7 @@ class Image(libpyexiv2.Image):
 		Keyword arguments:
 		key -- the EXIF key of the requested metadata tag
 		"""
-		tagType, tagValue = self.getExifTag(key)
+		tagType, tagValue = self.__getExifTag(key)
 		if tagType == 'Byte':
 			return tagValue
 		elif tagType == 'Ascii':
@@ -336,11 +338,11 @@ class Image(libpyexiv2.Image):
 			# string, each code being followed by a blank space (e.g.
 			# "48 50 50 49 " for "0221").
 			# Note: in the case of tag "Exif.Photo.UserComment", it is better to
-			# call method getExifTagToString() to obtain directly the value as a
-			# human-readable string.
+			# call method __getExifTagToString() to obtain directly the value as
+			# a human-readable string.
 			return UndefinedToString(tagValue)
 
-	def setExifTagValue(self, key, value):
+	def __setExifTagValue(self, key, value):
 		"""
 		Set the value associated to a key in EXIF metadata.
 
@@ -369,7 +371,7 @@ class Image(libpyexiv2.Image):
 			# a string correctly formatted, using utility function
 			# StringToUndefined().
 			strVal = str(value)
-		self.setExifTag(key, strVal)
+		self.__setExifTag(key, strVal)
 
 	def __convertIptcTagValueToPythonType(self, (tagType, tagValue)):
 		"""
@@ -393,7 +395,7 @@ class Image(libpyexiv2.Image):
 		elif tagType == 'Undefined':
 			return tagValue
 
-	def getIptcTagValue(self, key):
+	def __getIptcTagValue(self, key):
 		"""
 		Get the value(s) associated to a key in IPTC metadata.
 
@@ -408,10 +410,10 @@ class Image(libpyexiv2.Image):
 		Keyword arguments:
 		key -- the IPTC key of the requested metadata tag
 		"""
-		typeValuesList = self.getIptcTag(key)
+		typeValuesList = self.__getIptcTag(key)
 		return map(self.__convertIptcTagValueToPythonType, typeValuesList)
 
-	def setIptcTagValue(self, key, value, index=0):
+	def __setIptcTagValue(self, key, value, index=0):
 		"""
 		Set the value associated to a key in IPTC metadata.
 
@@ -450,10 +452,10 @@ class Image(libpyexiv2.Image):
 			# strings (type 'String') and those that are of type 'Undefined'.
 			# FIXME: for tags of type 'Undefined', this does not seem to work...
 			strVal = str(value)
-		self.setIptcTag(key, strVal, index)
+		self.__setIptcTag(key, strVal, index)
 
 	def __getitem__(self, key):
-		print 'Calling __getitem__(...)'
+		#print 'Calling __getitem__(...)'
 		if key.__class__ is not str:
 			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
@@ -461,14 +463,14 @@ class Image(libpyexiv2.Image):
 			try:
 				return self.__exifTagsDict[key]
 			except KeyError:
-				value = self.getExifTagValue(key)
+				value = self.__getExifTagValue(key)
 				self.__exifTagsDict[key] = value
 				return value
 		elif tagFamily == 'Iptc':
 			try:
 				return self.__iptcTagsDict[key]
 			except KeyError:
-				value = self.getIptcTagValue(key)
+				value = self.__getIptcTagValue(key)
 				if len(value) == 1:
 					value = value[0]
 				elif len(value) > 1:
@@ -479,16 +481,16 @@ class Image(libpyexiv2.Image):
 			raise IndexError("'" + key + "': invalid tag identifier")
 
 	def __setitem__(self, key, value):
-		print 'Calling __setitem__(...)'
+		#print 'Calling __setitem__(...)'
 		if key.__class__ is not str:
 			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
 		if tagFamily == 'Exif':
 			if value is not None:
-				self.setExifTagValue(key, value)
+				self.__setExifTagValue(key, value)
 				self.__exifTagsDict[key] = value
 			else:
-				self.deleteExifTag(key)
+				self.__deleteExifTag(key)
 				del self.__exifTagsDict[key]
 		elif tagFamily == 'Iptc':
 			# The case of IPTC tags is a bit trickier since some tags are
@@ -526,9 +528,9 @@ class Image(libpyexiv2.Image):
 			#     extra items in oldValues are deleted.
 			for i in xrange(max(len(oldValues), len(newValues))):
 				try:
-					self.setIptcTagValue(key, newValues[i], i)
+					self.__setIptcTagValue(key, newValues[i], i)
 				except IndexError:
-					self.deleteIptcTag(key, min(len(oldValues), len(newValues)))
+					self.__deleteIptcTag(key, min(len(oldValues), len(newValues)))
 			if len(newValues) > 0:
 				if len(newValues) == 1:
 					newValues = newValues[0]
@@ -539,20 +541,20 @@ class Image(libpyexiv2.Image):
 			raise IndexError("'" + key + "': invalid tag identifier")
 
 	def __delitem__(self, key):
-		print 'Calling __delitem__(...)'
+		#print 'Calling __delitem__(...)'
 		if key.__class__ is not str:
 			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
 		if tagFamily == 'Exif':
-			self.deleteExifTag(key)
+			self.__deleteExifTag(key)
 			del self.__exifTagsDict[key]
 		elif tagFamily == 'Iptc':
 			try:
 				oldValues = self.__iptcTagsDict[key]
 			except KeyError:
-				oldValues = self.getIptcTag(key)
+				oldValues = self.__getIptcTag(key)
 			for i in xrange(len(oldValues)):
-				self.deleteIptcTag(key, 0)
+				self.__deleteIptcTag(key, 0)
 			del self.__iptcTagsDict[key]
 		else:
 			raise IndexError("'" + key + "': invalid tag identifier")
