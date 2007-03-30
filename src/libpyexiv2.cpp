@@ -89,18 +89,6 @@ namespace LibPyExiv2
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	bool Image::isExifTagSet(std::string key)
-	{
-		if(_dataRead)
-		{
-			Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-			Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-			return (i != _exifData.end());
-		}
-		else
-			throw Exiv2::Error(METADATA_NOT_READ);
-	}
-
 	boost::python::tuple Image::getExifTag(std::string key)
 	{
 		if(_dataRead)
@@ -201,18 +189,6 @@ namespace LibPyExiv2
 					list.append(i->key());
 			}
 			return list;
-		}
-		else
-			throw Exiv2::Error(METADATA_NOT_READ);
-	}
-
-	bool Image::isIptcTagSet(std::string key)
-	{
-		if(_dataRead)
-		{
-			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-			Exiv2::IptcMetadata::iterator i = _iptcData.findKey(iptcKey);
-			return (i != _iptcData.end());
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
