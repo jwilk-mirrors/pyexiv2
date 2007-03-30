@@ -455,7 +455,6 @@ class Image(libpyexiv2.Image):
 		self.__setIptcTag(key, strVal, index)
 
 	def __getitem__(self, key):
-		#print 'Calling __getitem__(...)'
 		if key.__class__ is not str:
 			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
@@ -478,10 +477,12 @@ class Image(libpyexiv2.Image):
 				self.__iptcTagsDict[key] = value
 				return value
 		else:
-			raise IndexError("'" + key + "': invalid tag identifier")
+			# This is exiv2's standard error message, all futures changes on
+			# exiv2's side should be reflected here.
+			# As a future development, consider i18n for error messages. 
+			raise IndexError("Invalid key `" + key + "'")
 
 	def __setitem__(self, key, value):
-		#print 'Calling __setitem__(...)'
 		if key.__class__ is not str:
 			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
@@ -538,7 +539,7 @@ class Image(libpyexiv2.Image):
 			else:
 				del self.__iptcTagsDict[key]
 		else:
-			raise IndexError("'" + key + "': invalid tag identifier")
+			raise IndexError("Invalid key `" + key + "'")
 
 	def __delitem__(self, key):
 		#print 'Calling __delitem__(...)'
@@ -557,7 +558,7 @@ class Image(libpyexiv2.Image):
 				self.__deleteIptcTag(key, 0)
 			del self.__iptcTagsDict[key]
 		else:
-			raise IndexError("'" + key + "': invalid tag identifier")
+			raise IndexError("Invalid key `" + key + "'")
 
 	def cacheAllExifTags(self):
 		for key in self.exifKeys():

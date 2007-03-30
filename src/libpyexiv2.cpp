@@ -420,7 +420,7 @@ namespace LibPyExiv2
 				break;
 			case 6:
 			case 7:
-				PyErr_SetString(PyExc_KeyError, message);
+				PyErr_SetString(PyExc_IndexError, message);
 				break;
 			case 4:
 			case 5:
