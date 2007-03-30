@@ -74,7 +74,7 @@ namespace LibPyExiv2
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	boost::python::list Image::getAvailableExifTags()
+	boost::python::list Image::exifKeys()
 	{
 		boost::python::list list;
 		if(_dataRead)
@@ -176,7 +176,7 @@ namespace LibPyExiv2
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
-	boost::python::list Image::getAvailableIptcTags()
+	boost::python::list Image::iptcKeys()
 	{
 		boost::python::list list;
 		if(_dataRead)
@@ -394,12 +394,12 @@ namespace LibPyExiv2
 			case 37:
 				PyErr_SetString(PyExc_IOError, message);
 				break;
+			case 4:
+			case 5:
 			case 6:
 			case 7:
 				PyErr_SetString(PyExc_IndexError, message);
 				break;
-			case 4:
-			case 5:
 			case 8:
 			case 22:
 			case 24:

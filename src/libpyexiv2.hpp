@@ -54,7 +54,7 @@ namespace LibPyExiv2
 
 		// Return a list of all the keys of available EXIF tags set in the
 		// image.
-		boost::python::list getAvailableExifTags();
+		boost::python::list exifKeys();
 
 		// Return a tuple containing the type (as a string) and the value
 		// (as a string as well) of the required EXIF tag.
@@ -83,7 +83,7 @@ namespace LibPyExiv2
 		// Returns a list of all the keys of available IPTC tags set in the
 		// image. This list has no duplicates: each of its items is unique,
 		// even if a tag is present more than once.
-		boost::python::list getAvailableIptcTags();
+		boost::python::list iptcKeys();
 
 		// Return a list of tuples, each containing the type (as a string) and
 		// the value (as a string as well) of the required IPTC tag.

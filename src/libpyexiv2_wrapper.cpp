@@ -39,17 +39,21 @@ BOOST_PYTHON_MODULE(libpyexiv2)
 	// Exported method names prefixed by "_Image__" are going to be "private"
 	// and are not meant to be used directly
 	class_<Image>("Image", init<std::string>())
+
 		.def("readMetadata", &Image::readMetadata)
 		.def("writeMetadata", &Image::writeMetadata)
-		.def("exifKeys", &Image::getAvailableExifTags)
+
+		.def("exifKeys", &Image::exifKeys)
 		.def("_Image__getExifTag", &Image::getExifTag)
 		.def("_Image__getExifTagToString", &Image::getExifTagToString)
 		.def("_Image__setExifTag", &Image::setExifTag)
 		.def("_Image__deleteExifTag", &Image::deleteExifTag)
-		.def("iptcKeys", &Image::getAvailableIptcTags)
+
+		.def("iptcKeys", &Image::iptcKeys)
 		.def("_Image__getIptcTag", &Image::getIptcTag)
 		.def("_Image__setIptcTag", &Image::setIptcTag)
 		.def("_Image__deleteIptcTag", &Image::deleteIptcTag)
+
 		.def("getThumbnailData", &Image::getThumbnailData)
 		.def("setThumbnailData", &Image::setThumbnailData)
 		.def("deleteThumbnail", &Image::deleteThumbnail)
