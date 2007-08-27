@@ -42,20 +42,18 @@ types and modules such as datetime.
 These methods should be preferred to the ones directly provided by
 libpyexiv2.Image.
 
-A typical use of this binding is as follows:
+A typical use of this binding would be:
 
-# TODO: update this documentation!
-
-	import pyexiv2
-	import datetime
-	image = pyexiv2.Image('path/to/imagefile')
-	image.readMetadata()
-	print image.getAvailableExifTags()
-	print image.getExifTagValue('Exif.Photo.DateTimeOriginal')
-	today = datetime.datetime.today()
-	image.setExifTagValue('Exif.Photo.DateTimeOriginal', today)
-	image.writeMetadata()
-	...
+>>> import pyexiv2
+>>> import datetime
+>>> image = pyexiv2.Image('test/smiley.jpg')
+>>> image.readMetadata()
+>>> print image.exifKeys()
+['Exif.Image.ImageDescription', 'Exif.Image.XResolution', 'Exif.Image.YResolution', 'Exif.Image.ResolutionUnit', 'Exif.Image.Software', 'Exif.Image.DateTime', 'Exif.Image.Artist', 'Exif.Image.Copyright', 'Exif.Image.ExifTag', 'Exif.Photo.Flash', 'Exif.Photo.PixelXDimension', 'Exif.Photo.PixelYDimension']
+>>> print image['Exif.Image.DateTime']
+2004-07-13 21:23:44
+>>> image['Exif.Image.DateTime'] = datetime.datetime.today()
+>>> image.writeMetadata()
 
 """
 
@@ -455,6 +453,24 @@ class Image(libpyexiv2.Image):
 		self.__setIptcTag(key, strVal, index)
 
 	def __getitem__(self, key):
+		"""
+		Read access implementation of the [] operator on Image objects.
+
+		Get the value associated to a key in EXIF/IPTC metadata.
+		The value is cached in an internal dictionary for later accesses.
+
+		Whenever possible, the value is typed using Python's built-in types or
+		modules such as datetime when the value is composed of a date and a time
+		(e.g. the EXIF tag 'Exif.Photo.DateTimeOriginal') or date when the value
+		represents a date (e.g. the IPTC tag 'Iptc.Application2.DateCreated').
+
+		If key references a repeatable tag (IPTC only), a list of several values
+		is returned. If not, or if it has only one repetition, the list simply
+		has one element.
+
+		Keyword arguments:
+		key -- the [EXIF|IPTC] key of the requested metadata tag
+		"""
 		if key.__class__ is not str:
 			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
@@ -483,6 +499,27 @@ class Image(libpyexiv2.Image):
 			raise IndexError("Invalid key `" + key + "'")
 
 	def __setitem__(self, key, value):
+		"""
+		Write access implementation of the [] operator on Image objects.
+
+		Set the value associated to a key in EXIF/IPTC metadata.
+		The value is cached in an internal dictionary for later accesses.
+
+		The new value passed should be typed using Python's built-in types or
+		modules such as datetime when the value contains a date and a time
+		(e.g. the EXIF tag 'Exif.Photo.DateTimeOriginal' or the IPTC tags
+		'Iptc.Application2.DateCreated' and 'Iptc.Application2.TimeCreated'),
+		the method takes care of converting it before setting the internal tag
+		value.
+
+		If key references a repeatable tag (IPTC only), value can be a list of
+		values (the new values will overwrite the old ones, and an empty list of
+		values will unset the tag).
+
+		Keyword arguments:
+		key -- the [EXIF|IPTC] key of the requested metadata tag
+		value -- the new value for the requested metadata tag
+		"""
 		if key.__class__ is not str:
 			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
@@ -542,7 +579,17 @@ class Image(libpyexiv2.Image):
 			raise IndexError("Invalid key `" + key + "'")
 
 	def __delitem__(self, key):
-		#print 'Calling __delitem__(...)'
+		"""
+		Implementation of the del operator for deletion on Image objects.
+
+		Delete the value associated to a key in EXIF/IPTC metadata.
+
+		If key references a repeatable tag (IPTC only), all the associated
+		values will be deleted.
+
+		Keyword arguments:
+		key -- the [EXIF|IPTC] key of the requested metadata tag
+		"""
 		if key.__class__ is not str:
 			raise TypeError('Key must be of type string')
 		tagFamily = key[:4]
@@ -561,10 +608,22 @@ class Image(libpyexiv2.Image):
 			raise IndexError("Invalid key `" + key + "'")
 
 	def cacheAllExifTags(self):
+		"""
+		Cache the EXIF tag values for faster subsequent access.
+
+		Read the values of all the EXIF tags in the image and cache them in an
+		internal dictionary so as to speed up subsequent accesses.
+		"""
 		for key in self.exifKeys():
 			self[key]
 
 	def cacheAllIptcTags(self):
+		"""
+		Cache the IPTC tag values for faster subsequent access.
+
+		Read the values of all the IPTC tags in the image and cache them in an
+		internal dictionary so as to speed up subsequent accesses.
+		"""
 		for key in self.iptcKeys():
 			self[key]
 
@@ -575,3 +634,4 @@ def _test():
 
 if __name__ == '__main__':
 	_test()
+
