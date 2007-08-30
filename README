@@ -104,4 +104,3 @@ To checkout the latest version of the code, you need to have bazaar installed
     $ bzr branch http://tilloy.net/branches/pyexiv2
 
 Feedback, bug reports and patches are welcome!
-

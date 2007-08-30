@@ -1,0 +1,4 @@
+Initial version 0.1
+-------------------
+
+pyexiv2 is compiled against libexiv2 0.12 with Python 2.5.
