@@ -13,23 +13,24 @@ Dependencies
 
 pyexiv2 depends on the following libraries:
 
-	* boost.python (http://www.boost.org/libs/python/doc/index.html)
-	* exiv2 (http://www.exiv2.org/)
+    * boost.python (http://www.boost.org/libs/python/doc/index.html)
+    * exiv2 (http://www.exiv2.org/)
 
 Of course it needs a Python interpreter to run.
 
 Optionally, you can use pygtk or pyqt to easily take advantage of the thumbnail
 manipulation methods proposed by pyexiv2 to display those thumbnails.
 
+
 Building and installing
 =======================
 
 You will need scons (http://www.scons.org/) to build and install the library.
-To do so, while in the top-level directory (e.g. '/home/johndoe/pyexiv2', which
-should contain a file named 'SConstruct'), run the following commands:
+To do so, while in the top-level directory (e.g. '/home/johndoe/dev/pyexiv2',
+which should contain a file named 'SConstruct'), run the following commands:
 
-	$ scons
-	$ scons install # as administrator, e.g. `sudo scons install`
+    $ scons
+    $ scons install # as administrator, e.g. `sudo scons install`
 
 The result of the build is a dynamic library, libpyexiv2.so, that is a Python
 module called libpyexiv2. This module is a low-level binding. It is in turn used
@@ -39,10 +40,30 @@ Python modules (e.g. '/usr/lib/python2.4/' under Linux).
 
 To use pyexiv2 in your scripts, simply include the following line:
 
-	import pyexiv2
+    import pyexiv2
 
 It provides a single class, pyexiv2.Image, with all convenient methods for the
 manipulation of EXIF and IPTC metadata.
+
+
+Documentation
+=============
+
+Please refer to the internal documentation for a guide on how to use pyexiv2.
+In a python interpreter, type:
+
+    >>> import pyexiv2
+    >>> help(pyexiv2)
+
+Alternatively, you can generate HTML documentation using python's built-in
+module, pydoc:
+
+    $ cd doc/
+    $ pydoc -w ../src/pyexiv2.py
+
+Or using the more complete tool epydoc (http://epydoc.sourceforge.net/):
+
+    $ epydoc --html -o doc src/pyexiv2.py
 
 
 License
@@ -63,3 +84,24 @@ for more details.
 You should have received a copy of the GNU General Public License
 along with pyexiv2; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
+
+
+Developers
+==========
+
+pyexiv2 is free software, meaning that you are encouraged to play with it,
+modify it to suit your needs and contribute.
+
+The bug tracking system and the main bazaar branch mirror are hosted at
+Launchpad:
+
+    https://launchpad.net/pyexiv2
+
+To checkout the latest version of the code, you need to have bazaar installed
+(http://bazaar-vcs.org/):
+
+    $ mkdir dev && cd dev/
+    $ bzr branch http://tilloy.net/branches/pyexiv2
+
+Feedback, bug reports and patches are welcome!
+
