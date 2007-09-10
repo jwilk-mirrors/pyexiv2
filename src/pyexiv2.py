@@ -158,7 +158,7 @@ def StringToUndefined(sequence):
 	Convert a string containing a sequence of bytes into its undefined form.
 
 	Convert a string containing a sequence of bytes into the corresponding
-	sequence of ascii codes, each	followed by a blank space (e.g. "0221" will
+	sequence of ascii codes, each followed by a blank space (e.g. "0221" will
 	be converted into "48 50 50 49 ").
 	The Undefined type is defined in the EXIF specification.
 
@@ -278,12 +278,6 @@ class Image(libpyexiv2.Image):
 	Provide convenient methods for the manipulation of EXIF and IPTC metadata
 	embedded in image files such as JPEG and TIFF files, using Python's built-in
 	types and modules such as datetime.
-
-	Public methods:
-	getExifTagValue -- get the value associated to a key in EXIF metadata
-	setExifTagValue -- set the value associated to a key in EXIF metadata
-	getIptcTagValue -- get the value associated to a key in IPTC metadata
-	setIptcTagValue -- set the value associated to a key in IPTC metadata
 	"""
 
 	def __init__(self, filename):
