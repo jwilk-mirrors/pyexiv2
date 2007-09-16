@@ -519,6 +519,11 @@ class Image(libpyexiv2.Image):
 		tagFamily = key[:4]
 		if tagFamily == 'Exif':
 			if value is not None:
+				# For datetime objects, microseconds are not supported by the
+				# EXIF specification, so truncate them if present.
+				if value.__class__ is datetime.datetime:
+					value = value.replace(microsecond=0)
+
 				self.__setExifTagValue(key, value)
 				self.__exifTagsDict[key] = value
 			else:
@@ -549,6 +554,17 @@ class Image(libpyexiv2.Image):
 			except KeyError:
 				# The tag is not set yet
 				oldValues = ()
+
+			# For time objects, microseconds are not supported by the IPTC
+			# specification, so truncate them if present.
+			tempNewValues = []
+			for newValue in newValues:
+				if newValue.__class__ is datetime.time:
+					tempNewValues.append(newValue.replace(microsecond=0))
+				else:
+					tempNewValues.append(newValue)
+			newValues = tuple(tempNewValues)
+
 			# This loop processes the values one by one. There are n cases:
 			#   * if the two tuples are of the exact same size, each item in
 			#     oldValues is replaced by its new value in newValues;
