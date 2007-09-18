@@ -98,7 +98,7 @@ namespace LibPyExiv2
 			if(i != _exifData.end())
 			{
 				Exiv2::Exifdatum exifDatum = _exifData[key];
-				return boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
+				return boost::python::make_tuple(std::string(exifDatum.typeName()), exifDatum.toString());
 			}
 			else
 				throw Exiv2::Error(KEY_NOT_FOUND, key);
@@ -137,7 +137,7 @@ namespace LibPyExiv2
 			if(i != _exifData.end())
 			{
 				Exiv2::Exifdatum exifDatum = _exifData[key];
-				returnValue = boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
+				returnValue = boost::python::make_tuple(std::string(exifDatum.typeName()), exifDatum.toString());
 				// First erase the existing tag: in some case (and
 				// I don't know why), the new value won't replace
 				// the old one if not previously erased...
@@ -165,7 +165,7 @@ namespace LibPyExiv2
 			if(i != _exifData.end())
 			{
 				Exiv2::Exifdatum exifDatum = _exifData[key];
-				returnValue = boost::python::make_tuple(exifDatum.typeName(), exifDatum.toString());
+				returnValue = boost::python::make_tuple(std::string(exifDatum.typeName()), exifDatum.toString());
 				_exifData.erase(i);
 				return returnValue;
 			}
@@ -206,7 +206,7 @@ namespace LibPyExiv2
 			{
 				if (dataIterator->key() == key)
 				{
-					valuesList.append(boost::python::make_tuple(dataIterator->typeName(), dataIterator->toString()));
+					valuesList.append(boost::python::make_tuple(std::string(dataIterator->typeName()), dataIterator->toString()));
 					++valueOccurences;
 				}
 			}
@@ -236,7 +236,7 @@ namespace LibPyExiv2
 			if (dataIterator != _iptcData.end())
 			{
 				// The tag at given index already exists, override it
-				returnValue = boost::python::make_tuple(dataIterator->typeName(), dataIterator->toString());
+				returnValue = boost::python::make_tuple(std::string(dataIterator->typeName()), dataIterator->toString());
 				dataIterator->setValue(value);
 			}
 			else
@@ -274,7 +274,7 @@ namespace LibPyExiv2
 			if (dataIterator != _iptcData.end())
 			{
 				// The tag at given index already exists, delete it
-				returnValue = boost::python::make_tuple(dataIterator->typeName(), dataIterator->toString());
+				returnValue = boost::python::make_tuple(std::string(dataIterator->typeName()), dataIterator->toString());
 				_iptcData.erase(dataIterator);
 				return returnValue;
 			}
