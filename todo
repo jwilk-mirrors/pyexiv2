@@ -6,5 +6,3 @@ todo list
 - Rewrite the exiv2 command-line tool and the test binaries in Python and (Python) scripts to run the same tests that are run to test exiv2
 - Write a complete documentation for the binding and it uses
 - Write unit tests (http://docs.python.org/lib/module-unittest.html)
-- Use pkgconfig with scons in order to check the dependencies before compiling (http://www.scons.org/wiki/UsingPkgConfig)
-
