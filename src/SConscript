@@ -6,18 +6,27 @@ import os.path
 
 env = Environment()
 
+# Include directories to look for 'Python.h' in
+python_inc_path = os.path.join(sys.prefix, 'include', 'python' + sys.version[:3])
+env.Append(CPPPATH=[python_inc_path])
+
+# Libraries to link against
 libs = ['boost_python', 'exiv2']
 env.Append(LIBS=libs)
 
-pythonIncPath = os.path.join(sys.prefix, 'include', 'python' + sys.version[:3])
-env.Append(CPPPATH=[pythonIncPath])
-
-cppSources = ['libpyexiv2.cpp', 'libpyexiv2_wrapper.cpp']
-
 # Build shared library libpyexiv2
-libpyexiv2 = env.SharedLibrary('libpyexiv2', cppSources)
+cpp_sources = ['libpyexiv2.cpp', 'libpyexiv2_wrapper.cpp']
+libpyexiv2 = env.SharedLibrary('libpyexiv2', cpp_sources)
 
-pythonLibPath = os.path.join(sys.prefix, 'lib', 'python' + sys.version[:3])
-# install the Python module, invoked using 'scons install'
-env.Alias(target='install', source=env.Install(pythonLibPath, libpyexiv2))
-env.Alias(target='install', source=env.Install(pythonLibPath, 'pyexiv2.py'))
+# Install the shared library and the Python module, invoked using
+# 'scons install'. If DESTDIR is specified on the command line when invoking
+# scons, it will be prepended to each installed target file. See
+# http://www.gnu.org/prep/standards/html_node/DESTDIR.html for reference.
+python_lib_path = os.path.join(sys.prefix, 'lib', 'python' + sys.version[:3])
+dest_dir = ARGUMENTS.get('DESTDIR')
+if (dest_dir is None) or (not os.path.isabs(dest_dir)):
+    install_dir = python_lib_path
+else:
+    install_dir = os.path.join(dest_dir, python_lib_path[1:])
+env.Install(install_dir, [libpyexiv2, 'pyexiv2.py'])
+env.Alias('install', install_dir)
