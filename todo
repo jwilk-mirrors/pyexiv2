@@ -1,5 +1,7 @@
 todo list
 
+- Tag getters/setters should support unicode strings as well as regular strings (see bug #146313).
+- What about forcing all strings encoding to UTF in tag values? (see Marc's mail)
 - Add support for JpegComment getters/setters
 - Reflect changes from src/error.cpp in libexiv2 to src/libpyexiv2.cpp: new error messages, error codes changed
 - Add a 'doc' builder to the SConstruct to build the module's documentation

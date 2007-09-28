@@ -281,7 +281,7 @@ class Image(libpyexiv2.Image):
 	"""
 
 	def __init__(self, filename):
-		libpyexiv2.Image.__init__(self, filename)
+		libpyexiv2.Image.__init__(self, str(filename))
 		self.__exifTagsDict = {}
 		self.__iptcTagsDict = {}
 
