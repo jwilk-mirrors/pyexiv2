@@ -304,9 +304,12 @@ class Image(libpyexiv2.Image):
 			# try to guess if the value is a datetime
 			return StringToDateTime(tagValue)
 		elif tagType == 'Short':
-			return int(tagValue)
+			# In case the tag value is malformed, containing several short
+			# values separated by spaces (e.g. "2 3 4 5", see bug #146323),
+			# keep only the first of these values.
+			return int(tagValue.split()[0])
 		elif tagType == 'Long' or tagType == 'SLong':
-			return long(tagValue)
+			return long(tagValue.split()[0])
 		# for Rational and SRational types, we use tuples
 		# TODO: define a rational type?
 		elif tagType == 'Rational':
