@@ -640,6 +640,23 @@ class Image(libpyexiv2.Image):
 		for key in self.iptcKeys():
 			self[key]
 
+	def interpretedExifValue(self, key):
+		"""
+		Get the interpreted value of an EXIF tag as presented by the exiv2 tool.
+
+		For EXIF tags, the exiv2 command-line tool is capable of displaying
+		user-friendly interpreted values, such as 'top, left' for the
+		'Exif.Image.Orientation' tag when it has value '1'. This method always
+		returns a string containing this interpreted value for a given tag.
+		Warning: calling this method will not cache the value in the internal
+		dictionary.
+
+		Keyword arguments:
+		key -- the EXIF key of the requested metadata tag
+		"""
+		# This method was added as a requirement tracked by bug #147534
+		return self.__getExifTagToString(key)
+
 def _test():
 	print 'testing library pyexiv2...'
 	# TODO: various tests
