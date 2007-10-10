@@ -285,6 +285,25 @@ namespace LibPyExiv2
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
+	boost::python::tuple Image::tagDetails(std::string key)
+	{
+		std::string keyFamily = key.substr(0, 4);
+		if (keyFamily == "Exif")
+		{
+			Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
+			std::string tagLabel = exifKey.tagLabel();
+			std::string tagDesc = std::string(Exiv2::ExifTags::tagDesc(exifKey.tag(), exifKey.ifdId()));
+			return boost::python::make_tuple(tagLabel, tagDesc);
+		}
+		else if (keyFamily == "Iptc")
+		{
+			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
+			std::string tagLabel = iptcKey.tagLabel();
+			std::string tagDesc = std::string(Exiv2::IptcDataSets::dataSetDesc(iptcKey.tag(), iptcKey.record()));
+			return boost::python::make_tuple(tagLabel, tagDesc);
+		}
+	}
+
 	boost::python::tuple Image::getThumbnailData()
 	{
 		if(_dataRead)

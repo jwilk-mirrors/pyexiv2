@@ -54,6 +54,8 @@ BOOST_PYTHON_MODULE(libpyexiv2)
 		.def("_Image__setIptcTag", &Image::setIptcTag)
 		.def("_Image__deleteIptcTag", &Image::deleteIptcTag)
 
+		.def("tagDetails", &Image::tagDetails)
+
 		.def("getThumbnailData", &Image::getThumbnailData)
 		.def("setThumbnailData", &Image::setThumbnailData)
 		.def("deleteThumbnail", &Image::deleteThumbnail)

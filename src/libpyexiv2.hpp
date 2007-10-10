@@ -108,6 +108,9 @@ namespace LibPyExiv2
 		// than the highest existing one.
 		boost::python::tuple deleteIptcTag(std::string key, unsigned int index);
 
+		// Return a tuple containing the name of the tag and its description.
+		boost::python::tuple tagDetails(std::string key);
+
 		// Read and write access to the thumbnail embedded in the image.
 
 		// Return a tuple containing the format of the thumbnail ("TIFF" or
