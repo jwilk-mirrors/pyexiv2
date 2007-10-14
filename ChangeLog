@@ -1,3 +1,30 @@
+Version 0.1.1
+-------------
+
+Branch tag: release-0.1.1
+Branch revision: 73
+Released: 2007-10-14
+
+Dependencies:
+* Python 2.5.1
+* libexiv2 0.12
+* boost.python 1.33.1
+
+Changes:
+    - Fixed a bug due to interface changes for exceptions management in
+      libexiv2 0.13 (reported by Damon Lynch).
+    - Added support for DESTDIR in SConscript for installation (feature
+      requested by Michal Čihař).
+    - Fixed bug #146313: passing the filename to the Image constructor as
+      unicode fails (reported by Michal Čihař).
+    - Fixed bug #146323: Multi value fields are broken (reported by Michal
+      Čihař).
+    - Implemented feature request tracked by bug #147534: Provide access to
+      interpreted (translated) data (feature requested by Michal Čihař).
+    - Implemented feature request tracked by bug #149212: Add access to tag
+      labels (feature requested by Michal Čihař).
+
+
 Initial version 0.1
 -------------------
 

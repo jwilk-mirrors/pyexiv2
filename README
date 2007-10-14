@@ -101,6 +101,6 @@ To checkout the latest version of the code, you need to have bazaar installed
 (http://bazaar-vcs.org/):
 
     $ mkdir dev && cd dev/
-    $ bzr branch http://tilloy.net/branches/pyexiv2
+    $ bzr co http://tilloy.net/branches/pyexiv2
 
 Feedback, bug reports and patches are welcome!
