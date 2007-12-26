@@ -22,7 +22,7 @@ libpyexiv2 = env.SharedLibrary('libpyexiv2', cpp_sources)
 # 'scons install'. If DESTDIR is specified on the command line when invoking
 # scons, it will be prepended to each installed target file. See
 # http://www.gnu.org/prep/standards/html_node/DESTDIR.html for reference.
-python_lib_path = os.path.join(sys.prefix, 'lib', 'python' + sys.version[:3])
+python_lib_path = os.path.join(sys.prefix, 'lib', 'python' + sys.version[:3], 'site-packages')
 dest_dir = ARGUMENTS.get('DESTDIR')
 if (dest_dir is None) or (not os.path.isabs(dest_dir)):
     install_dir = python_lib_path
