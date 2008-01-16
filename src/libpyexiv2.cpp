@@ -378,6 +378,36 @@ namespace LibPyExiv2
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
 
+    const std::string Image::getComment() const
+    {
+        if(_dataRead)
+        {
+            return _image->comment();
+        }
+        else
+            throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    void Image::setComment(const std::string& comment)
+    {
+        if(_dataRead)
+        {
+            _image->setComment(comment);
+        }
+        else
+            throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    void Image::clearComment()
+    {
+        if(_dataRead)
+        {
+            _image->clearComment();
+        }
+        else
+            throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
 	void translateExiv2Error(Exiv2::Error const& e)
 	{
 		// Use the Python 'C' API to set up an exception object

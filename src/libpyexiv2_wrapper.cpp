@@ -61,5 +61,10 @@ BOOST_PYTHON_MODULE(libpyexiv2)
 		.def("deleteThumbnail", &Image::deleteThumbnail)
 		.def("dumpThumbnailToFile", &Image::dumpThumbnailToFile)
 		.def("setThumbnailFromJpegFile", &Image::setThumbnailFromJpegFile)
+
+        .def("getComment", &Image::getComment)
+        .def("setComment", &Image::setComment)
+        .def("clearComment", &Image::clearComment)
 	;
 }
+

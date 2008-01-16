@@ -135,6 +135,17 @@ namespace LibPyExiv2
 		// the thumbnail of the image.
 		void setThumbnailFromJpegFile(const std::string path);
 
+        // Read and write access to the JPEG comment embedded in the image.
+
+        // Get the JPEG comment contained in the image as a string.
+        const std::string getComment() const;
+
+        // Set the JPEG comment of the image.
+        void setComment(const std::string& comment);
+
+        // Clear the JPEG comment of the image (set it to an empty string).
+        void clearComment();
+
 	private:
 		std::string _filename;
 		Exiv2::Image::AutoPtr _image;
