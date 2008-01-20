@@ -334,10 +334,14 @@ class Image(libpyexiv2.Image):
 			# tagValue is a sequence of bytes whose codes are written as a
 			# string, each code being followed by a blank space (e.g.
 			# "48 50 50 49 " for "0221").
-			# Note: in the case of tag "Exif.Photo.UserComment", it is better to
-			# call method __getExifTagToString() to obtain directly the value as
-			# a human-readable string.
-			return UndefinedToString(tagValue)
+			try:
+				return UndefinedToString(tagValue)
+			except ValueError:
+				# Some tags such as "Exif.Photo.UserComment" are marked as
+				# Undefined but do not store their value as expected.
+				# This should fix bug #173387. The value will be returned
+				# directly as a human-readable string.
+				return self.__getExifTagToString(key)
 
 	def __setExifTagValue(self, key, value):
 		"""
