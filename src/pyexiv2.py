@@ -537,7 +537,8 @@ class Image(libpyexiv2.Image):
 				self.__exifTagsDict[key] = value
 			else:
 				self.__deleteExifTag(key)
-				del self.__exifTagsDict[key]
+				if self.__exifTagsDict.has_key(key):
+					del self.__exifTagsDict[key]
 		elif tagFamily == 'Iptc':
 			# The case of IPTC tags is a bit trickier since some tags are
 			# repeatable. To simplify the process, parameter 'value' is
@@ -562,7 +563,7 @@ class Image(libpyexiv2.Image):
 					oldValues = (oldValues,)
 			except KeyError:
 				# The tag is not set yet
-				oldValues = ()
+				oldValues = self.__getitem__(key)
 
 			# For time objects, microseconds are not supported by the IPTC
 			# specification, so truncate them if present.
@@ -574,7 +575,7 @@ class Image(libpyexiv2.Image):
 					tempNewValues.append(newValue)
 			newValues = tuple(tempNewValues)
 
-			# This loop processes the values one by one. There are n cases:
+			# This loop processes the values one by one. There are 3 cases:
 			#   * if the two tuples are of the exact same size, each item in
 			#     oldValues is replaced by its new value in newValues;
 			#   * if newValues is longer than oldValues, each item in oldValues
@@ -593,7 +594,8 @@ class Image(libpyexiv2.Image):
 					newValues = newValues[0]
 				self.__iptcTagsDict[key] = newValues
 			else:
-				del self.__iptcTagsDict[key]
+				if self.__iptcTagsDict.has_key(key):
+					del self.__iptcTagsDict[key]
 		else:
 			raise IndexError("Invalid key `" + key + "'")
 
@@ -614,7 +616,8 @@ class Image(libpyexiv2.Image):
 		tagFamily = key[:4]
 		if tagFamily == 'Exif':
 			self.__deleteExifTag(key)
-			del self.__exifTagsDict[key]
+			if self.__exifTagsDict.has_key(key):
+				del self.__exifTagsDict[key]
 		elif tagFamily == 'Iptc':
 			try:
 				oldValues = self.__iptcTagsDict[key]
@@ -622,7 +625,8 @@ class Image(libpyexiv2.Image):
 				oldValues = self.__getIptcTag(key)
 			for i in xrange(len(oldValues)):
 				self.__deleteIptcTag(key, 0)
-			del self.__iptcTagsDict[key]
+			if self.__iptcTagsDict.has_key(key):
+				del self.__iptcTagsDict[key]
 		else:
 			raise IndexError("Invalid key `" + key + "'")
 
