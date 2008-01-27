@@ -286,6 +286,8 @@ class Image(libpyexiv2.Image):
 		libpyexiv2.Image.__init__(self, filename)
 		self.__exifTagsDict = {}
 		self.__iptcTagsDict = {}
+		self.__exifCached = False
+		self.__iptcCached = False
 
 	def __getExifTagValue(self, key):
 		"""
@@ -643,8 +645,10 @@ class Image(libpyexiv2.Image):
 		Read the values of all the EXIF tags in the image and cache them in an
 		internal dictionary so as to speed up subsequent accesses.
 		"""
-		for key in self.exifKeys():
-			self[key]
+		if not self.__exifCached:
+			for key in self.exifKeys():
+				self[key]
+			self.__exifCached = True
 
 	def cacheAllIptcTags(self):
 		"""
@@ -653,8 +657,10 @@ class Image(libpyexiv2.Image):
 		Read the values of all the IPTC tags in the image and cache them in an
 		internal dictionary so as to speed up subsequent accesses.
 		"""
-		for key in self.iptcKeys():
-			self[key]
+		if not self.__iptcCached:
+			for key in self.iptcKeys():
+				self[key]
+			self.__iptcCached = True
 
 	def interpretedExifValue(self, key):
 		"""
