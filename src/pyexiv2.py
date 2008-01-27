@@ -270,6 +270,53 @@ def StringToTime(string):
 
 	return localTime
 
+class Rational:
+
+	"""
+	A class representing a rational number.
+	"""
+
+	def __init__(self, numerator, denominator):
+		"""
+		Constructor.
+
+		Construct a rational number from its numerator and its denominator.
+
+		Keyword arguments:
+		numerator -- the numerator
+		denominator -- the denominator (if zero, will raise a ZeroDivisionError)
+		"""
+		if int(denominator) == 0:
+			raise ZeroDivisionError('Denominator of a rational number cannot be zero')
+		self.numerator = long(numerator)
+		self.denominator = long(denominator)
+
+	def __str__(self):
+		"""
+		Return a string representation of the rational number.
+		"""
+		return str(self.numerator) + '/' + str(self.denominator)
+
+def StringToRational(string):
+	"""
+	Try to convert a string containing a rational number to a Rational object.
+
+	Try to convert a string containing a rational number to the corresponding
+	Rational object.
+	The conversion is done by matching a regular expression.
+	If the pattern does not match, the Rational object with numerator=0 and
+	denominator=1 is returned.
+
+	Keyword arguments:
+	string -- the string potentially containing a rational number
+	"""
+	pattern = re.compile("(-?[0-9]+)/(-?[1-9][0-9]*)")
+	match = pattern.match(string)
+	if match == None:
+		return Rational(0, 1)
+	else:
+		return Rational(*map(long, match.groups()))
+
 class Image(libpyexiv2.Image):
 
 	"""
@@ -319,25 +366,12 @@ class Image(libpyexiv2.Image):
 				return values[0]
 			else:
 				return tuple(values)
-		# for Rational and SRational types, we use tuples
-		# TODO: define a rational type?
 		elif tagType == 'Rational' or tagType == 'SRational':
-			values = tagValue.split()
-			if tagType == 'Rational':
-				pattern = re.compile("([0-9]+)/([1-9][0-9]*)")
-			elif tagType == 'SRational':
-				pattern = re.compile("(-?[0-9]+)/(-?[1-9][0-9]*)")
-			tvalues = []
-			for value in values:
-				match = pattern.match(value)
-				if match == None:
-					tvalues.append((long(0), long(1)))
-				else:
-					tvalues.append(tuple(map(long, match.groups())))
-			if len(tvalues) == 1:
-				return tvalues[0]
+			values = [StringToRational(x) for x in tagValue.split()]
+			if len(values) == 1:
+				return values[0]
 			else:
-				return tuple(tvalues)
+				return tuple(values)
 		elif tagType == 'Undefined':
 			# tagValue is a sequence of bytes whose codes are written as a
 			# string, each code being followed by a blank space (e.g.
