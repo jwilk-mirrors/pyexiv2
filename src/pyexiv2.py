@@ -317,6 +317,57 @@ def StringToRational(string):
 	else:
 		return Rational(*map(long, match.groups()))
 
+def ConvertToPythonType(tagFamily, tagType, tagValue):
+	"""
+	Types a tag value using Python's built-in types or modules.
+
+	Whenever possible, the value is typed using Python's built-in types or
+	modules such as date when the value represents a date (e.g. the IPTC tag
+	'Iptc.Application2.DateCreated').
+	For EXIF rational number, custom type pyexiv2.Rational is used.
+
+	Keyword arguments:
+	tagFamily -- the family of the tag ('Exif' or 'Iptc')
+	tagType -- the type of the tag as defined in the EXIF and IPTC specifications
+	tagValue -- the value of the tag as a raw string
+	"""
+	value = tagValue
+	if tagFamily == 'Exif':
+		if tagType == 'Byte':
+			pass
+		elif tagType == 'Ascii':
+			# try to guess if the value is a datetime
+			value = StringToDateTime(tagValue)
+		elif tagType == 'Short':
+			value = int(tagValue)
+		elif tagType == 'Long' or tagType == 'SLong':
+			value = long(tagValue)
+		elif tagType == 'Rational' or tagType == 'SRational':
+			value = StringToRational(tagValue)
+		elif tagType == 'Undefined':
+			# tagValue is a sequence of bytes whose codes are written as a
+			# string, each code being followed by a blank space (e.g.
+			# "48 50 50 49 " for "0221").
+			try:
+				value = UndefinedToString(tagValue)
+			except ValueError:
+				# Some tags such as "Exif.Photo.UserComment" are marked as
+				# Undefined but do not store their value as expected.
+				# This should fix bug #173387.
+				pass
+	elif tagFamily == 'Iptc':
+		if tagType == 'Short':
+			value = int(tagValue)
+		elif tagType == 'String':
+			pass
+		elif tagType == 'Date':
+			value = StringToDate(tagValue)
+		elif tagType == 'Time':
+			value = StringToTime(tagValue)
+		elif tagType == 'Undefined':
+			pass
+	return value
+
 class Image(libpyexiv2.Image):
 
 	"""
@@ -349,41 +400,14 @@ class Image(libpyexiv2.Image):
 		key -- the EXIF key of the requested metadata tag
 		"""
 		tagType, tagValue = self.__getExifTag(key)
-		if tagType == 'Byte':
-			return tagValue
-		elif tagType == 'Ascii':
-			# try to guess if the value is a datetime
-			return StringToDateTime(tagValue)
-		elif tagType == 'Short':
-			values = [int(x) for x in tagValue.split()]
+		if tagType not in ('Byte', 'Ascii', 'Undefined'):
+			values = [ConvertToPythonType('Exif', tagType, x) for x in tagValue.split()]
 			if len(values) == 1:
 				return values[0]
 			else:
 				return tuple(values)
-		elif tagType == 'Long' or tagType == 'SLong':
-			values = [long(x) for x in tagValue.split()]
-			if len(values) == 1:
-				return values[0]
-			else:
-				return tuple(values)
-		elif tagType == 'Rational' or tagType == 'SRational':
-			values = [StringToRational(x) for x in tagValue.split()]
-			if len(values) == 1:
-				return values[0]
-			else:
-				return tuple(values)
-		elif tagType == 'Undefined':
-			# tagValue is a sequence of bytes whose codes are written as a
-			# string, each code being followed by a blank space (e.g.
-			# "48 50 50 49 " for "0221").
-			try:
-				return UndefinedToString(tagValue)
-			except ValueError:
-				# Some tags such as "Exif.Photo.UserComment" are marked as
-				# Undefined but do not store their value as expected.
-				# This should fix bug #173387. The value will be returned
-				# directly as a human-readable string.
-				return self.__getExifTagToString(key)
+		else:
+			return ConvertToPythonType('Exif', tagType, tagValue)
 
 	def __setExifTagValue(self, key, value):
 		"""
@@ -416,28 +440,6 @@ class Image(libpyexiv2.Image):
 			strVal = str(value)
 		self.__setExifTag(key, strVal)
 
-	def __convertIptcTagValueToPythonType(self, (tagType, tagValue)):
-		"""
-		Types a tag value using Python's built-in types or modules.
-
-		Whenever possible, the value is typed using Python's built-in types or
-		modules such as date when the value represents a date (e.g. the IPTC tag
-		'Iptc.Application2.DateCreated').
-
-		Keyword arguments:
-		(tagType, tagValue) -- the type and the value of the IPTC tag as strings
-		"""
-		if tagType == 'Short':
-			return int(tagValue)
-		elif tagType == 'String':
-			return tagValue
-		elif tagType == 'Date':
-			return StringToDate(tagValue)
-		elif tagType == 'Time':
-			return StringToTime(tagValue)
-		elif tagType == 'Undefined':
-			return tagValue
-
 	def __getIptcTagValue(self, key):
 		"""
 		Get the value(s) associated to a key in IPTC metadata.
@@ -453,8 +455,7 @@ class Image(libpyexiv2.Image):
 		Keyword arguments:
 		key -- the IPTC key of the requested metadata tag
 		"""
-		typeValuesList = self.__getIptcTag(key)
-		return map(self.__convertIptcTagValueToPythonType, typeValuesList)
+		return [ConvertToPythonType('Iptc', *x) for x in self.__getIptcTag(key)]
 
 	def __setIptcTagValue(self, key, value, index=0):
 		"""
