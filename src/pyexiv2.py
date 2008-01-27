@@ -404,8 +404,8 @@ class Image(libpyexiv2.Image):
 			strVal = str(value)
 		elif valueType == datetime.datetime:
 			strVal = value.strftime('%Y:%m:%d %H:%M:%S')
-		elif valueType == tuple:
-			strVal = '%s/%s' % (str(value[0]), str(value[1]))
+		elif valueType == list or valueType == tuple:
+			strVal = ' '.join([str(x) for x in value])
 		else:
 			# Value must already be a string.
 			# Warning: no distinction is possible between values that really are
