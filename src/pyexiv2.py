@@ -306,30 +306,36 @@ class Image(libpyexiv2.Image):
 			# try to guess if the value is a datetime
 			return StringToDateTime(tagValue)
 		elif tagType == 'Short':
-			# In case the tag value is malformed, containing several short
-			# values separated by spaces (e.g. "2 3 4 5", see bug #146323),
-			# keep only the first of these values.
-			return int(tagValue.split()[0])
+			values = [int(x) for x in tagValue.split()]
+			if len(values) == 1:
+				return values[0]
+			else:
+				return tuple(values)
 		elif tagType == 'Long' or tagType == 'SLong':
-			return long(tagValue.split()[0])
+			values = [long(x) for x in tagValue.split()]
+			if len(values) == 1:
+				return values[0]
+			else:
+				return tuple(values)
 		# for Rational and SRational types, we use tuples
 		# TODO: define a rational type?
-		elif tagType == 'Rational':
-			pattern = re.compile("([0-9]+)/([1-9][0-9]*)")
-			match = pattern.match(tagValue)
-			if match == None:
-				return long(0), long(1)
+		elif tagType == 'Rational' or tagType == 'SRational':
+			values = tagValue.split()
+			if tagType == 'Rational':
+				pattern = re.compile("([0-9]+)/([1-9][0-9]*)")
+			elif tagType == 'SRational':
+				pattern = re.compile("(-?[0-9]+)/(-?[1-9][0-9]*)")
+			tvalues = []
+			for value in values:
+				match = pattern.match(value)
+				if match == None:
+					tvalues.append((long(0), long(1)))
+				else:
+					tvalues.append(tuple(map(long, match.groups())))
+			if len(tvalues) == 1:
+				return tvalues[0]
 			else:
-				v = map(long, match.groups())
-				return v[0], v[1]
-		elif tagType == 'SRational':
-			pattern = re.compile("(-?[0-9]+)/(-?[1-9][0-9]*)")
-			match = pattern.match(tagValue)
-			if match == None:
-				return long(0), long(1)
-			else:
-				v = map(long, match.groups())
-				return v[0], v[1]
+				return tuple(tvalues)
 		elif tagType == 'Undefined':
 			# tagValue is a sequence of bytes whose codes are written as a
 			# string, each code being followed by a blank space (e.g.
