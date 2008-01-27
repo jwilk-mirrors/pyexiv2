@@ -570,8 +570,12 @@ class Image(libpyexiv2.Image):
 				if oldValues.__class__ is not tuple:
 					oldValues = (oldValues,)
 			except KeyError:
-				# The tag is not set yet
-				oldValues = self.__getitem__(key)
+				# The tag is not cached yet
+				try:
+					oldValues = self.__getitem__(key)
+				except KeyError:
+					# The tag is not set
+					oldValues = ()
 
 			# For time objects, microseconds are not supported by the IPTC
 			# specification, so truncate them if present.
@@ -596,7 +600,10 @@ class Image(libpyexiv2.Image):
 				try:
 					self.__setIptcTagValue(key, newValues[i], i)
 				except IndexError:
-					self.__deleteIptcTag(key, min(len(oldValues), len(newValues)))
+					try:
+						self.__deleteIptcTag(key, min(len(oldValues), len(newValues)))
+					except KeyError:
+						pass
 			if len(newValues) > 0:
 				if len(newValues) == 1:
 					newValues = newValues[0]
@@ -678,6 +685,22 @@ class Image(libpyexiv2.Image):
 		"""
 		# This method was added as a requirement tracked by bug #147534
 		return self.__getExifTagToString(key)
+
+	def copyMetadataTo(self, destImage):
+		"""
+		Duplicate all the tags and the comment from this image to another one.
+
+		Read all the values of the EXIF and IPTC tags and the comment and write
+		them back to the new image.
+
+		Keyword arguments:
+		destImage -- the destination image to write the copied metadata back to
+		"""
+		for key in self.exifKeys():
+			destImage[key] = self[key]
+		for key in self.iptcKeys():
+			destImage[key] = self[key]
+		destImage.setComment(self.getComment())
 
 def _test():
 	print 'testing library pyexiv2...'
