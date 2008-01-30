@@ -291,6 +291,19 @@ class Rational:
 		self.numerator = long(numerator)
 		self.denominator = long(denominator)
 
+	def __eq__(self, other):
+		"""
+		Compare two rational numbers for equality.
+
+		Two rational numbers are equal if and only if their numerators are equal
+		and their denominators are equal.
+
+		Keyword arguments:
+		other -- the rational number to compare to self for equality
+		"""
+		return ((self.numerator == other.numerator) and
+		        (self.denominator == other.denominator))
+
 	def __str__(self):
 		"""
 		Return a string representation of the rational number.
