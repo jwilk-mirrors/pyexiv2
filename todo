@@ -6,5 +6,4 @@ todo list
 - Add a 'doc' builder to the SConstruct to build the module's documentation
 - Rewrite the exiv2 command-line tool and the test binaries in Python and (Python) scripts to run the same tests that are run to test exiv2
 - Write a complete documentation for the binding and it uses
-- Write unit tests (http://docs.python.org/lib/module-unittest.html)
 - New architecture and support of XMP metadata (see bug #183337)
