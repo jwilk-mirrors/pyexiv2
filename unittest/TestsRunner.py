@@ -33,6 +33,7 @@ import unittest
 from RationalTestCase import RationalTestCase
 from ReadMetadataTestCase import ReadMetadataTestCase
 from Bug146313_TestCase import Bug146313_TestCase
+from Bug173387_TestCase import Bug173387_TestCase
 
 if __name__ == '__main__':
     # Instantiate a test suite containing all the test cases
@@ -40,6 +41,7 @@ if __name__ == '__main__':
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(RationalTestCase))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(ReadMetadataTestCase))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug146313_TestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug173387_TestCase))
     # Run the test suite
     unittest.TextTestRunner(verbosity=2).run(suite)
 
