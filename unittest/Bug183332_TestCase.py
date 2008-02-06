@@ -43,7 +43,25 @@ class Bug183332_TestCase(unittest.TestCase):
     not.
     """
 
-    def testSetTagValue(self):
+    def testSetEXIFTagValue(self):
+        """
+        Test the value type of the internally cached metadata after setting an
+        EXIF tag.
+        """
+        # Check that the reference file is not corrupted
+        filename = os.path.join('data', 'smiley1.jpg')
+        md5sum = 'c066958457c685853293058f9bf129c1'
+        self.assert_(testutils.CheckFileSum(filename, md5sum))
+
+        image = pyexiv2.Image(filename)
+        image.readMetadata()
+        key = 'Exif.Image.Artist'
+        value = 12
+        # EXIF artist is a string, voluntarily pass an integer as argument
+        image[key] = value
+        self.assertEqual(image[key], str(value))
+
+    def testSetIPTCTagValue(self):
         """
         Test the value type of the internally cached metadata after setting an
         IPTC tag.
