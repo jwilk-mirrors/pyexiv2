@@ -129,27 +129,24 @@ namespace LibPyExiv2
 
 	boost::python::tuple Image::setExifTag(std::string key, std::string value)
 	{
-		boost::python::tuple returnValue;
 		if(_dataRead)
 		{
+			std::string typeName;
+			std::string oldValue("");
 			Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
 			Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
 			if(i != _exifData.end())
 			{
 				Exiv2::Exifdatum exifDatum = _exifData[key];
-				returnValue = boost::python::make_tuple(std::string(exifDatum.typeName()), exifDatum.toString());
+				oldValue = exifDatum.toString();
 				// First erase the existing tag: in some case (and
 				// I don't know why), the new value won't replace
 				// the old one if not previously erased...
 				_exifData.erase(i);
 			}
-			else
-			{
-				// The key was not found
-				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
-			}
 			_exifData[key] = value;
-			return returnValue;
+			typeName = std::string(_exifData[key].typeName());
+			return boost::python::make_tuple(typeName, oldValue);
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
@@ -157,7 +154,6 @@ namespace LibPyExiv2
 
 	boost::python::tuple Image::deleteExifTag(std::string key)
 	{
-		boost::python::tuple returnValue;
 		if(_dataRead)
 		{
 			Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
@@ -165,7 +161,8 @@ namespace LibPyExiv2
 			if(i != _exifData.end())
 			{
 				Exiv2::Exifdatum exifDatum = _exifData[key];
-				returnValue = boost::python::make_tuple(std::string(exifDatum.typeName()), exifDatum.toString());
+				boost::python::tuple returnValue =
+					boost::python::make_tuple(std::string(exifDatum.typeName()), exifDatum.toString());
 				_exifData.erase(i);
 				return returnValue;
 			}
@@ -223,7 +220,8 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			boost::python::tuple returnValue;
+			std::string typeName;
+			std::string oldValue("");
 			unsigned int indexCounter = index;
 			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
 			Exiv2::IptcMetadata::iterator dataIterator = _iptcData.findKey(iptcKey);
@@ -236,22 +234,23 @@ namespace LibPyExiv2
 			if (dataIterator != _iptcData.end())
 			{
 				// The tag at given index already exists, override it
-				returnValue = boost::python::make_tuple(std::string(dataIterator->typeName()), dataIterator->toString());
 				dataIterator->setValue(value);
+				typeName = std::string(dataIterator->typeName());
+				oldValue = dataIterator->toString();
 			}
 			else
 			{
 				// Either index is greater than the index of the last repetition
 				// of the tag, or the tag does not exist yet.
 				// In both cases, it is created.
-				returnValue = boost::python::make_tuple(std::string(""), std::string(""));
 				Exiv2::Iptcdatum iptcDatum(iptcKey);
+				typeName = std::string(iptcDatum.typeName());
 				iptcDatum.setValue(value);
 				int state = _iptcData.add(iptcDatum);
 				if (state == 6)
 					throw Exiv2::Error(NON_REPEATABLE);
 			}
-			return returnValue;
+			return boost::python::make_tuple(typeName, oldValue);
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
@@ -261,7 +260,6 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			boost::python::tuple returnValue;
 			unsigned int indexCounter = index;
 			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
 			Exiv2::IptcMetadata::iterator dataIterator = _iptcData.findKey(iptcKey);
@@ -274,7 +272,8 @@ namespace LibPyExiv2
 			if (dataIterator != _iptcData.end())
 			{
 				// The tag at given index already exists, delete it
-				returnValue = boost::python::make_tuple(std::string(dataIterator->typeName()), dataIterator->toString());
+				boost::python::tuple returnValue =
+					boost::python::make_tuple(std::string(dataIterator->typeName()), dataIterator->toString());
 				_iptcData.erase(dataIterator);
 				return returnValue;
 			}
@@ -292,14 +291,16 @@ namespace LibPyExiv2
 		{
 			Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
 			std::string tagLabel = exifKey.tagLabel();
-			std::string tagDesc = std::string(Exiv2::ExifTags::tagDesc(exifKey.tag(), exifKey.ifdId()));
+			std::string tagDesc =
+				std::string(Exiv2::ExifTags::tagDesc(exifKey.tag(), exifKey.ifdId()));
 			return boost::python::make_tuple(tagLabel, tagDesc);
 		}
 		else if (keyFamily == "Iptc")
 		{
 			Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
 			std::string tagLabel = iptcKey.tagLabel();
-			std::string tagDesc = std::string(Exiv2::IptcDataSets::dataSetDesc(iptcKey.tag(), iptcKey.record()));
+			std::string tagDesc =
+				std::string(Exiv2::IptcDataSets::dataSetDesc(iptcKey.tag(), iptcKey.record()));
 			return boost::python::make_tuple(tagLabel, tagDesc);
 		}
 	}

@@ -67,8 +67,9 @@ namespace LibPyExiv2
 		std::string getExifTagToString(std::string key);
 
 		// Set the EXIF tag's value and return a tuple containing the
-		// type and previous value of the tag (empty strings if not previously
-		// set). If the tag was not previously set, it is created.
+		// type and previous value of the tag (an empty string for the value if
+		// not previously set). If the tag was not previously set, it is
+		// created.
 		boost::python::tuple setExifTag(std::string key, std::string value);
 
 		// Delete the required EXIF tag and return a tuple containing the
@@ -91,10 +92,10 @@ namespace LibPyExiv2
 		boost::python::list getIptcTag(std::string key);
 
 		// Set the IPTC tag's value and return a tuple containing the
-		// type and previous value of the tag (empty strings if not previously
-		// set). If the tag was not previously set, it is created.
-		// If the key references a repeatable tag, the parameter index (starting
-		// from 0 like a list index) is used to determine which of the
+		// type and previous value of the tag (an empty string for the value if
+		// not previously set). If the tag was not previously set, it is
+		// created. If the key references a repeatable tag, the parameter index
+		// (starting from 0 like a list index) is used to determine which of the
 		// repetitions is to be set. In case of an index greater than the
 		// highest existing one, adds a repetition of the tag.
 		boost::python::tuple setIptcTag(std::string key, std::string value, unsigned int index);
