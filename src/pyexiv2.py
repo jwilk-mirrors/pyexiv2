@@ -451,7 +451,8 @@ class Image(libpyexiv2.Image):
 			# a string correctly formatted, using utility function
 			# StringToUndefined().
 			strVal = str(value)
-		self.__setExifTag(key, strVal)
+		typeName, oldValue = self.__setExifTag(key, strVal)
+		return typeName
 
 	def __getIptcTagValue(self, key):
 		"""
@@ -509,7 +510,8 @@ class Image(libpyexiv2.Image):
 			# strings (type 'String') and those that are of type 'Undefined'.
 			# FIXME: for tags of type 'Undefined', this does not seem to work...
 			strVal = str(value)
-		self.__setIptcTag(key, strVal, index)
+		typeName, oldValue = self.__setIptcTag(key, strVal, index)
+		return typeName
 
 	def __getitem__(self, key):
 		"""
@@ -589,8 +591,8 @@ class Image(libpyexiv2.Image):
 				if value.__class__ is datetime.datetime:
 					value = value.replace(microsecond=0)
 
-				self.__setExifTagValue(key, value)
-				self.__exifTagsDict[key] = value
+				typeName = self.__setExifTagValue(key, value)
+				self.__exifTagsDict[key] = ConvertToPythonType(tagFamily, typeName, str(value))
 			else:
 				self.__deleteExifTag(key)
 				if self.__exifTagsDict.has_key(key):
@@ -646,7 +648,7 @@ class Image(libpyexiv2.Image):
 			#     extra items in oldValues are deleted.
 			for i in xrange(max(len(oldValues), len(newValues))):
 				try:
-					self.__setIptcTagValue(key, newValues[i], i)
+					typeName = self.__setIptcTagValue(key, newValues[i], i)
 				except IndexError:
 					try:
 						self.__deleteIptcTag(key, min(len(oldValues), len(newValues)))
@@ -655,7 +657,7 @@ class Image(libpyexiv2.Image):
 			if len(newValues) > 0:
 				if len(newValues) == 1:
 					newValues = newValues[0]
-				self.__iptcTagsDict[key] = newValues
+				self.__iptcTagsDict[key] = tuple([ConvertToPythonType(tagFamily, typeName, str(v)) for v in newValues])
 			else:
 				if self.__iptcTagsDict.has_key(key):
 					del self.__iptcTagsDict[key]
