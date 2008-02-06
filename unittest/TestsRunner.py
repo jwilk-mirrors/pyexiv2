@@ -35,6 +35,7 @@ from ReadMetadataTestCase import ReadMetadataTestCase
 from Bug146313_TestCase import Bug146313_TestCase
 from Bug173387_TestCase import Bug173387_TestCase
 from Bug175070_TestCase import Bug175070_TestCase
+from Bug183332_TestCase import Bug183332_TestCase
 from Bug183618_TestCase import Bug183618_TestCase
 
 if __name__ == '__main__':
@@ -45,6 +46,7 @@ if __name__ == '__main__':
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug146313_TestCase))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug173387_TestCase))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug175070_TestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183332_TestCase))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183618_TestCase))
     # Run the test suite
     unittest.TextTestRunner(verbosity=2).run(suite)
