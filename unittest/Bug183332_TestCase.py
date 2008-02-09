@@ -56,6 +56,7 @@ class Bug183332_TestCase(unittest.TestCase):
         image = pyexiv2.Image(filename)
         image.readMetadata()
         key = 'Exif.Image.Artist'
+        self.assert_(key in image.exifKeys())
         value = 12
         # EXIF artist is a string, voluntarily pass an integer as argument
         image[key] = value
@@ -74,8 +75,28 @@ class Bug183332_TestCase(unittest.TestCase):
         image = pyexiv2.Image(filename)
         image.readMetadata()
         key = 'Iptc.Application2.Keywords'
+        self.assert_(key in image.iptcKeys())
         values = (5, 6)
         # IPTC keywords are strings, voluntarily pass integers as arguments
         image[key] = values
         self.assertEqual(image[key], tuple([str(v) for v in values]))
+
+    def testSetNotSetEXIFTagValue(self):
+        """
+        Test the value type of the internally cached metadata after setting an
+        EXIF tag that was not previously set.
+        """
+        # Check that the reference file is not corrupted
+        filename = os.path.join('data', 'smiley1.jpg')
+        md5sum = 'c066958457c685853293058f9bf129c1'
+        self.assert_(testutils.CheckFileSum(filename, md5sum))
+
+        image = pyexiv2.Image(filename)
+        image.readMetadata()
+        key = 'Exif.Image.Model'
+        self.assert_(key not in image.exifKeys())
+        value = 34L
+        # EXIF model is a string, voluntarily pass a long as argument
+        image[key] = value
+        self.assertEqual(image[key], str(value))
 
