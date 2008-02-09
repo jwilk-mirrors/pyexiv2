@@ -69,7 +69,7 @@ Or using the more complete tool epydoc (http://epydoc.sourceforge.net/):
 License
 =======
 
-Copyright (C) 2006 Olivier Tilloy <olivier@tilloy.net>
+Copyright (C) 2006-2008 Olivier Tilloy <olivier@tilloy.net>
 
 pyexiv2 is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free
