@@ -109,7 +109,7 @@ boost::python::tuple Image::getExifTag(std::string key)
             std::ostringstream sTagStringValueBuffer;
             sTagStringValueBuffer << exifDatum;
             std::string sTagStringValue = sTagStringValueBuffer.str();
-            return boost::python::make_tuple(sTagName, sTagLabel, sTagDesc, sTagType, sTagValue, sTagStringValue);
+            return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, sTagValue, sTagStringValue);
         }
         else
         {

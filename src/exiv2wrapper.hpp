@@ -59,6 +59,7 @@ public:
     // Return a tuple containing the type (as a string) and the value
     // (as a string as well) of the required EXIF tag.
     // Throw an exception if the tag is not set.
+    // key
     // tagname
     // taglabel
     // tagdesc
