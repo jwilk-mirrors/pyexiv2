@@ -5,5 +5,6 @@ todo list
 - Reflect changes from src/error.cpp in libexiv2 to src/libpyexiv2.cpp: new error messages, error codes changed
 - Add a 'doc' builder to the SConstruct to build the module's documentation
 - Rewrite the exiv2 command-line tool and the test binaries in Python and (Python) scripts to run the same tests that are run to test exiv2
-- Write a complete documentation for the binding and it uses
+- Write a complete documentation for the binding and it uses (use other tools, maybe pydoctor)
 - New architecture and support of XMP metadata (see bug #183337)
+- Consider upgrading the license to GPL v3
