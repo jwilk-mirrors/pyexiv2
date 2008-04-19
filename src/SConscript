@@ -15,8 +15,8 @@ libs = ['boost_python', 'exiv2']
 env.Append(LIBS=libs)
 
 # Build shared library libpyexiv2
-cpp_sources = ['libpyexiv2.cpp', 'libpyexiv2_wrapper.cpp']
-libpyexiv2 = env.SharedLibrary('libpyexiv2', cpp_sources)
+cpp_sources = ['exiv2wrapper.cpp', 'exiv2wrapper_python.cpp']
+libpyexiv2 = env.SharedLibrary('exiv2python', cpp_sources)
 
 # Install the shared library and the Python module, invoked using
 # 'scons install'. If DESTDIR is specified on the command line when invoking
