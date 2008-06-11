@@ -387,6 +387,9 @@ class MetadataTag(object):
 
     """
     DOCME
+
+    TODO: determine which attributes are common to all types of tags (EXIF,
+          IPTC and XMP), and which are specific.
     """
 
     def __init__(self, key, name, label, description, type, value, svalue):

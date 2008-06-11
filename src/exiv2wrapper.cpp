@@ -58,7 +58,7 @@ void Image::readMetadata()
 {
     _image->readMetadata();
     _exifData = _image->exifData();
-    //_iptcData = _image->iptcData();
+    _iptcData = _image->iptcData();
     _dataRead = true;
 }
 
@@ -122,26 +122,7 @@ boost::python::tuple Image::getExifTag(std::string key)
     }
 }
 
-/*std::string Image::getExifTagToString(std::string key)
-{
-    if(_dataRead)
-    {
-        Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-        Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-        if(i != _exifData.end())
-        {
-            Exiv2::Exifdatum exifDatum = _exifData[key];
-            std::ostringstream buffer;
-            buffer << exifDatum;
-            return buffer.str();
-        }
-        else
-            throw Exiv2::Error(KEY_NOT_FOUND, key);
-    }
-    else
-        throw Exiv2::Error(METADATA_NOT_READ);
-}
-
+/*
 boost::python::tuple Image::setExifTag(std::string key, std::string value)
 {
     boost::python::tuple returnValue;
@@ -189,27 +170,70 @@ boost::python::tuple Image::deleteExifTag(std::string key)
     }
     else
         throw Exiv2::Error(METADATA_NOT_READ);
-}
+}*/
 
 boost::python::list Image::iptcKeys()
 {
-    boost::python::list list;
+    boost::python::list keys;
     if(_dataRead)
     {
-        for(Exiv2::IptcMetadata::iterator i = _iptcData.begin() ; i != _iptcData.end() ; i++)
+        for(Exiv2::IptcMetadata::iterator i = _iptcData.begin();
+            i != _iptcData.end();
+            ++i)
         {
-            // The key is appended to the list if and only if it is not
-            // already present.
-            if (list.count(i->key()) == 0)
-                list.append(i->key());
+            // The key is appended to the list if and only if it is not already
+            // present.
+            if (keys.count(i->key()) == 0)
+            {
+                keys.append(i->key());
+            }
         }
-        return list;
+        return keys;
     }
     else
+    {
         throw Exiv2::Error(METADATA_NOT_READ);
+    }
 }
 
-boost::python::list Image::getIptcTag(std::string key)
+boost::python::tuple Image::getIptcTag(std::string key)
+{
+    if(_dataRead)
+    {
+        Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
+        boost::python::list values;
+        unsigned int occurences = 0;
+        std::string sTagType;
+        for (Exiv2::IptcMetadata::iterator i = _iptcData.begin();
+             i != _iptcData.end();
+             ++i)
+        {
+            if (i->key() == key)
+            {
+                values.append(i->toString());
+                ++occurences;
+                sTagType = i->typeName();
+            }
+        }
+        if (occurences > 0)
+        {
+            std::string sTagName = iptcKey.tagName();
+            std::string sTagLabel = iptcKey.tagLabel();
+            std::string sTagDesc(Exiv2::IptcDataSets::dataSetDesc(iptcKey.tag(), iptcKey.record()));
+            return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, values);
+        }
+        else
+        {
+            throw Exiv2::Error(KEY_NOT_FOUND, key);
+        }
+    }
+    else
+    {
+        throw Exiv2::Error(METADATA_NOT_READ);
+    }
+}
+
+/*boost::python::list Image::getIptcTag(std::string key)
 {
     if(_dataRead)
     {
