@@ -383,18 +383,19 @@ def ConvertToPythonType(tagFamily, tagType, tagValue):
             pass
     return value
 
+
 class MetadataTag(object):
 
     """
-    DOCME
+    A generic metadata tag.
 
     TODO: determine which attributes are common to all types of tags (EXIF,
           IPTC and XMP), and which are specific.
     """
 
-    def __init__(self, key, name, label, description, type, value, svalue):
+    def __init__(self, key, name, label, description, type, value):
         """
-        DOCME
+        Constructor.
         """
         self.key = key
         self.name = name
@@ -402,7 +403,6 @@ class MetadataTag(object):
         self.description = description
         self.type = type
         self.value = value
-        self.svalue = svalue
 
     def __str__(self):
         """
@@ -413,17 +413,49 @@ class MetadataTag(object):
             'Label = ' + self.label + os.linesep + \
             'Description = ' + self.description + os.linesep + \
             'Type = ' + self.type + os.linesep + \
-            'Raw value = ' + self.value + os.linesep + \
-            'Formatted value = ' + self.svalue
+            'Raw value = ' + self.value
         return r
+
 
 class ExifTag(MetadataTag):
 
     """
-    DOCME
+    An EXIF metadata tag has an additional field that contains the value
+    of the tag formatted as a human readable string.
     """
 
-    pass
+    def __init__(self, key, name, label, description, type, value, fvalue):
+        """
+        Constructor.
+        """
+        MetadataTag.__init__(self, key, name, label, description, type, value)
+        self.fvalue = fvalue
+
+    def __str__(self):
+        """
+        Return a string representation of the metadata tag.
+        """
+        r = MetadataTag.__str__(self)
+        r += os.linesep + 'Formatted value = ' + self.fvalue
+        return r
+
+
+class IptcTag(MetadataTag):
+
+    """
+    An IPTC metadata tag can have several values (tags that have the repeatable
+    property).
+    """
+
+    def __str__(self):
+        """
+        Return a string representation of the metadata tag.
+        """
+        values = self.value
+        self.value = str(values)
+        r = MetadataTag.__str__(self)
+        self.value = values
+        return r.replace('Raw value = ', 'Raw values = ')
 
 
 class Image(libexiv2python.Image):
