@@ -122,6 +122,8 @@ public:
     // than the highest existing one.
     //boost::python::tuple deleteIptcTag(std::string key, unsigned int index);
 
+    boost::python::list xmpKeys();
+
     // Return a tuple containing the name of the tag and its description.
     //boost::python::tuple tagDetails(std::string key);
 
@@ -154,6 +156,7 @@ private:
     Exiv2::Image::AutoPtr _image;
     Exiv2::ExifData _exifData;
     Exiv2::IptcData _iptcData;
+    Exiv2::XmpData _xmpData;
 
     // true if the image's internal metadata has already been read,
     // false otherwise

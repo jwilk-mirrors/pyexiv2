@@ -59,6 +59,7 @@ void Image::readMetadata()
     _image->readMetadata();
     _exifData = _image->exifData();
     _iptcData = _image->iptcData();
+    _xmpData = _image->xmpData();
     _dataRead = true;
 }
 
@@ -68,6 +69,7 @@ void Image::readMetadata()
     {
         _image->setExifData(_exifData);
         _image->setIptcData(_iptcData);
+        _image->setXmpData(_xmpData);
         _image->writeMetadata();
     }
     else
@@ -322,9 +324,28 @@ boost::python::tuple Image::deleteIptcTag(std::string key, unsigned int index=0)
     }
     else
         throw Exiv2::Error(METADATA_NOT_READ);
+}*/
+
+boost::python::list Image::xmpKeys()
+{
+    boost::python::list keys;
+    if(_dataRead)
+    {
+        for(Exiv2::XmpMetadata::iterator i = _xmpData.begin();
+            i != _xmpData.end();
+            ++i)
+        {
+            keys.append(i->key());
+        }
+        return keys;
+    }
+    else
+    {
+        throw Exiv2::Error(METADATA_NOT_READ);
+    }
 }
 
-boost::python::tuple Image::tagDetails(std::string key)
+/*boost::python::tuple Image::tagDetails(std::string key)
 {
     std::string keyFamily = key.substr(0, 4);
     if (keyFamily == "Exif")

@@ -54,6 +54,8 @@ BOOST_PYTHON_MODULE(libexiv2python)
 //        .def("_Image__setIptcTag", &Image::setIptcTag)
 //        .def("_Image__deleteIptcTag", &Image::deleteIptcTag)
 
+        .def("xmpKeys", &Image::xmpKeys)
+
 //        .def("tagDetails", &Image::tagDetails)
 
 //        .def("getThumbnailData", &Image::getThumbnailData)
