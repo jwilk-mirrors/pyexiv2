@@ -26,14 +26,24 @@
 
 #include "exiv2wrapper.hpp"
 
+#include "exiv2/exv_conf.h"
+#include "exiv2/version.hpp"
+
 #include <boost/python.hpp>
 
 using namespace boost::python;
 
 using namespace exiv2wrapper;
 
+boost::python::tuple exiv2_version = \
+    boost::python::make_tuple(EXIV2_MAJOR_VERSION,
+                              EXIV2_MINOR_VERSION,
+                              EXIV2_PATCH_VERSION);
+
 BOOST_PYTHON_MODULE(libexiv2python)
 {
+    scope().attr("__exiv2_version__") = exiv2_version;
+
     register_exception_translator<Exiv2::Error>(&translateExiv2Error);
 
     // Exported method names prefixed by "_Image__" are going to be "private"

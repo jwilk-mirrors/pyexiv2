@@ -64,6 +64,12 @@ import time
 import datetime
 import re
 
+
+__version__ =  (0, 2, 1)
+
+__exiv2_version__ = libexiv2python.__exiv2_version__
+
+
 class FixedOffset(datetime.tzinfo):
 
     """
