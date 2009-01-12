@@ -416,7 +416,7 @@ class ExifTag(MetadataTag):
 
     def __str__(self):
         """
-        Return a string representation of the metadata tag.
+        Return a string representation of the EXIF tag.
         """
         r = MetadataTag.__str__(self)
         r += os.linesep + 'Formatted value = ' + self.fvalue
@@ -454,7 +454,35 @@ class IptcTag(MetadataTag):
 
     def __str__(self):
         """
-        Return a string representation of the metadata tag.
+        Return a string representation of the IPTC tag.
+        """
+        r = MetadataTag.__str__(self)
+        return r.replace('Raw value = ', 'Raw values = ')
+
+
+class XmpTag(MetadataTag):
+
+    """
+    An XMP metadata tag can have several values.
+    """
+
+    def __init__(self, key, name, label, description, type, values):
+        """
+        Constructor.
+        """
+        MetadataTag.__init__(self, key, name, label, description, type, values)
+        self.__convert_values_to_python_type()
+
+    def __convert_values_to_python_type(self):
+        """
+        Convert the stored values from strings to the matching Python type.
+        """
+        # TODO!
+        pass
+
+    def __str__(self):
+        """
+        Return a string representation of the XMP tag.
         """
         r = MetadataTag.__str__(self)
         return r.replace('Raw value = ', 'Raw values = ')

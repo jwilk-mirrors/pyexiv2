@@ -65,6 +65,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
 //        .def("_Image__deleteIptcTag", &Image::deleteIptcTag)
 
         .def("xmpKeys", &Image::xmpKeys)
+        .def("_Image__getXmpTag", &Image::getXmpTag)
 
 //        .def("tagDetails", &Image::tagDetails)
 

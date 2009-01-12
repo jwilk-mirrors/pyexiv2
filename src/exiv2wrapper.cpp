@@ -345,6 +345,43 @@ boost::python::list Image::xmpKeys()
     }
 }
 
+boost::python::tuple Image::getXmpTag(std::string key)
+{
+    if(_dataRead)
+    {
+        Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
+        boost::python::list values;
+        unsigned int occurences = 0;
+        std::string sTagType;
+        for (Exiv2::XmpMetadata::iterator i = _xmpData.begin();
+             i != _xmpData.end();
+             ++i)
+        {
+            if (i->key() == key)
+            {
+                values.append(i->toString());
+                ++occurences;
+                sTagType = i->typeName();
+            }
+        }
+        if (occurences > 0)
+        {
+            std::string sTagName = xmpKey.tagName();
+            std::string sTagLabel = xmpKey.tagLabel();
+            std::string sTagDesc(Exiv2::XmpProperties::propertyDesc(xmpKey));
+            return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, values);
+        }
+        else
+        {
+            throw Exiv2::Error(KEY_NOT_FOUND, key);
+        }
+    }
+    else
+    {
+        throw Exiv2::Error(METADATA_NOT_READ);
+    }
+}
+
 /*boost::python::tuple Image::tagDetails(std::string key)
 {
     std::string keyFamily = key.substr(0, 4);

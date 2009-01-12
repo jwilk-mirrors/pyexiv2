@@ -101,7 +101,6 @@ public:
     // tagdesc
     // type
     // tagvalue (list)
-    // tagvalue (human-readable) (list)
     boost::python::tuple getIptcTag(std::string key);
 
     // Set the IPTC tag's value and return a tuple containing the
@@ -123,6 +122,14 @@ public:
     //boost::python::tuple deleteIptcTag(std::string key, unsigned int index);
 
     boost::python::list xmpKeys();
+
+    // key
+    // tagname
+    // taglabel
+    // tagdesc
+    // type
+    // tagvalue (list)
+    boost::python::tuple getXmpTag(std::string key);
 
     // Return a tuple containing the name of the tag and its description.
     //boost::python::tuple tagDetails(std::string key);
