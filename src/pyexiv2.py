@@ -357,6 +357,7 @@ class MetadataTag(object):
         self.label = label
         self.description = description
         self.type = type
+        self._value = value
         self.value = value
 
     def __str__(self):
@@ -368,7 +369,7 @@ class MetadataTag(object):
             'Label = ' + self.label + os.linesep + \
             'Description = ' + self.description + os.linesep + \
             'Type = ' + self.type + os.linesep + \
-            'Raw value = ' + str(self.value)
+            'Raw value = ' + str(self._value)
         return r
 
 
@@ -395,19 +396,19 @@ class ExifTag(MetadataTag):
             pass
         elif self.type == 'Ascii':
             # try to guess if the value is a datetime
-            self.value = StringToDateTime(self.value)
+            self.value = StringToDateTime(self._value)
         elif self.type == 'Short':
-            self.value = int(self.value)
+            self.value = int(self._value)
         elif self.type == 'Long' or self.type == 'SLong':
-            self.value = long(self.value)
+            self.value = long(self._value)
         elif self.type == 'Rational' or self.type == 'SRational':
-            self.value = StringToRational(self.value)
+            self.value = StringToRational(self._value)
         elif self.type == 'Undefined':
             # self.value is a sequence of bytes whose codes are written as a
             # string, each code being followed by a blank space (e.g.
             # "48 50 50 49 " for "0221" in the "Exif.Photo.ExifVersion" tag).
             try:
-                self.value = UndefinedToString(self.value)
+                self.value = UndefinedToString(self._value)
             except ValueError:
                 # Some tags such as "Exif.Photo.UserComment" are marked as
                 # Undefined but do not store their value as expected.
@@ -442,13 +443,13 @@ class IptcTag(MetadataTag):
         Convert the stored values from strings to the matching Python type.
         """
         if self.type == 'Short':
-            self.value = map(int, self.value)
+            self.value = map(int, self._value)
         elif self.type == 'String':
             pass
         elif self.type == 'Date':
-            self.value = map(StringToDate, self.value)
+            self.value = map(StringToDate, self._value)
         elif self.type == 'Time':
-            self.value = map(StringToTime, self.value)
+            self.value = map(StringToTime, self._value)
         elif self.type == 'Undefined':
             pass
 
@@ -466,6 +467,18 @@ class XmpTag(MetadataTag):
     An XMP metadata tag can have several values.
     """
 
+    # Valid dates, to check the correctness of the RE
+    # valid = ('1999', '1999-10', '1999-10-13', '1999-10-13T05:03Z', '1999-10-13T05:03+06:00', '1999-10-13T05:03-06:00', '1999-10-13T05:03:54Z', '1999-10-13T05:03:54+06:00', '1999-10-13T05:03:54-06:00', '1999-10-13T05:03:54.721Z', '1999-10-13T05:03:54.721+06:00', '1999-10-13T05:03:54.721-06:00')
+
+    # strptime is not flexible enough to handle all valid Date formats, we use a
+    # custom regular expression
+    # TODO: restrict the value ranges for year, month, day, hours, minutes, seconds, tzd
+    _time_zone_re = r'Z|((?P<sign>\+|-)(?P<ohours>\d{2}):(?P<ominutes>\d{2}))'
+    _time_re = r'(?P<hours>\d{2}):(?P<minutes>\d{2})(:(?P<seconds>\d{2})(.(?P<decimal>\d+))?)?(?P<tzd>%s)' % _time_zone_re
+    _date_re = re.compile(r'(?P<year>\d{4})(-(?P<month>\d{2})(-(?P<day>\d{2})(T(?P<time>%s))?)?)?' % _time_re)
+
+    #_lang_alt_re = r'lang=".*" .*, '
+
     def __init__(self, key, name, label, description, type, values):
         """
         Constructor.
@@ -477,8 +490,59 @@ class XmpTag(MetadataTag):
         """
         Convert the stored values from strings to the matching Python type.
         """
-        # TODO!
-        pass
+        # TODO: handle sets and bags
+        if self.type == 'Boolean':
+            if self._value == 'True':
+                self.value = True
+            elif self._value == 'False':
+                self.value = False
+        elif self.type == 'Choice':
+            # TODO
+            pass
+        elif self.type == 'Colorant':
+            # TODO
+            pass
+        elif self.type == 'Date':
+            # TODO
+            pass
+        elif self.type == 'Dimensions':
+            # TODO
+            pass
+        elif self.type == 'Font':
+            # TODO
+            pass
+        elif self.type == 'Integer':
+            self.value = int(self._value)
+        elif self.type == 'Lang Alt':
+            # TODO
+            pass
+        elif self.type == 'Locale':
+            # TODO
+            pass
+        elif self.type == 'MIMEType':
+            # TODO
+            pass
+        elif self.type == 'ProperName':
+            # TODO
+            pass
+        elif self.type == 'Real':
+            # TODO
+            pass
+        elif self.type == 'Text':
+            # TODO
+            pass
+        elif self.type == 'Thumbnail':
+            # TODO
+            pass
+        elif self.type == 'URI':
+            # TODO
+            pass
+        elif self.type == 'URL':
+            # TODO
+            pass
+        elif self.type == 'XPath':
+            # TODO
+            pass
 
     def __str__(self):
         """
