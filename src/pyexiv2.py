@@ -81,10 +81,10 @@ class FixedOffset(datetime.tzinfo):
     Public methods:
     utcoffset -- return offset of local time from UTC, in minutes east of UTC
     dst -- return the daylight saving time (DST) adjustment, here always 0
-    tzname -- return a string representation of the offset with format '±%H%M'
+    tzname -- return a string representation of the offset with format '±%H:%M'
     """
 
-    def __init__(self, offsetSign='+', offsetHours=0, offsetMinutes=0):
+    def __init__(self, sign='+', hours=0, minutes=0):
         """
         Constructor.
 
@@ -94,13 +94,13 @@ class FixedOffset(datetime.tzinfo):
         responsibility of the caller to pass correct values to the constructor.
 
         Keyword arguments:
-        offsetSign -- the sign of the offset ('+' or '-')
-        offsetHours -- the absolute number of hours of the offset
-        offsetMinutes -- the absolute number of minutes of the offset
+        sign -- the sign of the offset ('+' or '-')
+        hours -- the absolute number of hours of the offset
+        minutes -- the absolute number of minutes of the offset
         """
-        self.offsetSign = offsetSign
-        self.offsetHours = offsetHours
-        self.offsetMinutes = offsetMinutes
+        self.sign = sign
+        self.hours = hours
+        self.minutes = minutes
 
     def utcoffset(self, dt):
         """
@@ -114,10 +114,10 @@ class FixedOffset(datetime.tzinfo):
         Keyword arguments:
         dt -- the datetime.time object representing the local time
         """
-        totalOffsetMinutes = self.offsetHours * 60 + self.offsetMinutes
-        if self.offsetSign == '-':
-            totalOffsetMinutes = -totalOffsetMinutes
-        return datetime.timedelta(minutes = totalOffsetMinutes)
+        total = self.hours * 60 + self.minutes
+        if self.sign == '-':
+            total = -total
+        return datetime.timedelta(minutes = total)
 
     def dst(self, dt):
         """
@@ -141,10 +141,8 @@ class FixedOffset(datetime.tzinfo):
         Keyword arguments:
         dt -- the datetime.time object representing the local time
         """
-        string = self.offsetSign
-        string = string + ('%02d' % self.offsetHours) + ':'
-        string = string + ('%02d' % self.offsetMinutes)
-        return string
+        r = '%s%02d:%02d' % (self.sign, self.hours, self.minutes)
+        return r
 
 def UndefinedToString(undefined):
     """
@@ -484,65 +482,89 @@ class XmpTag(MetadataTag):
         Constructor.
         """
         MetadataTag.__init__(self, key, name, label, description, type, values)
-        self.__convert_values_to_python_type()
+        # TODO: conversion of values to python types
 
-    def __convert_values_to_python_type(self):
+    def _convert_to_python(self, value, xtype):
         """
-        Convert the stored values from strings to the matching Python type.
+        Convert one single value to its corresponding python type.
+        Do not handle sets and bags.
+        Return the value unchanged if the conversion fails.
         """
-        # TODO: handle sets and bags
-        if self.type == 'Boolean':
-            if self._value == 'True':
-                self.value = True
-            elif self._value == 'False':
-                self.value = False
-        elif self.type == 'Choice':
+        # TODO: use try except blocks and logging to log conversion errors
+        if xtype == 'Boolean':
+            if value == 'True':
+                return True
+            elif value == 'False':
+                return False
+            else:
+                return value
+        elif xtype == 'Choice':
             # TODO
-            pass
-        elif self.type == 'Colorant':
+            return value
+        elif xtype == 'Colorant':
             # TODO
-            pass
-        elif self.type == 'Date':
+            return value
+        elif xtype == 'Date':
+            match = self._date_re.match(value)
+            if match is None:
+                return
+            gd = match.groupdict()
+            if gd['time'] is None:
+                return datetime.date(int(gd['year']), int(gd['month']) or 1,
+                                     int(gd['day']) or 1)
+            else:
+                if gd['decimal'] is not None:
+                    microsecond = int(float('0.%s' % gd['decimal']) * 1E6)
+                else:
+                    microsecond = 0
+                if gd['tzd'] == 'Z':
+                    tzinfo = FixedOffset()
+                else:
+                    tzinfo = FixedOffset(gd['sign'], int(gd['ohours']),
+                                         int(gd['ominutes']))
+                return datetime.datetime(int(gd['year']), int(gd['month']),
+                                         int(gd['day']), int(gd['hours']),
+                                         int(gd['minutes']),
+                                         int(gd['seconds']) or 0,
+                                         microsecond, tzinfo)
+        elif xtype == 'Dimensions':
             # TODO
-            pass
-        elif self.type == 'Dimensions':
+            return value
+        elif xtype == 'Font':
             # TODO
-            pass
-        elif self.type == 'Font':
+            return value
+        elif xtype == 'Integer':
+            return int(value)
+        elif xtype == 'Lang Alt':
             # TODO
-            pass
-        elif self.type == 'Integer':
-            self.value = int(self._value)
-        elif self.type == 'Lang Alt':
+            return value
+        elif xtype == 'Locale':
             # TODO
-            pass
-        elif self.type == 'Locale':
+            return value
+        elif xtype == 'MIMEType':
             # TODO
-            pass
-        elif self.type == 'MIMEType':
+            return value
+        elif xtype == 'ProperName':
             # TODO
-            pass
-        elif self.type == 'ProperName':
+            return value
+        elif xtype == 'Real':
             # TODO
-            pass
-        elif self.type == 'Real':
+            return value
+        elif xtype == 'Text':
             # TODO
-            pass
-        elif self.type == 'Text':
+            return value
+        elif xtype == 'Thumbnail':
             # TODO
-            pass
-        elif self.type == 'Thumbnail':
+            return value
+        elif xtype == 'URI':
             # TODO
-            pass
-        elif self.type == 'URI':
+            return value
+        elif xtype == 'URL':
             # TODO
-            pass
-        elif self.type == 'URL':
+            return value
+        elif xtype == 'XPath':
             # TODO
-            pass
-        elif self.type == 'XPath':
-            # TODO
-            pass
+            return value
 
     def __str__(self):
         """

@@ -1,5 +1,6 @@
 todo list
 
+- Use logging to log, among other things, decoding and type conversion errors
 - The constructor of the Image class should accept a buffered file
 - Tag getters/setters should support unicode strings as well as regular strings (see bug #146313).
 - What about forcing all strings encoding to UTF in tag values? (see Marc's mail)
