@@ -559,8 +559,12 @@ class XmpTag(MetadataTag):
             # TODO
             return value
         elif xtype == 'MIMEType':
-            # TODO
-            return value
+            try:
+                mtype, msubtype = value.split('/', 1)
+            except ValueError:
+                return value
+            else:
+                return {'type': mtype, 'subtype': msubtype}
         elif xtype == 'ProperName':
             # TODO
             return value

@@ -88,4 +88,16 @@ class TestXmpTag(unittest.TestCase):
         # FIXME: the following test should not fail: having hours without minutes is not a valid syntax.
         self.assertEqual(XmpTag._convert_to_python('2009-01-22T21', xtype), '2009-01-22T21')
 
+    def test_convert_to_python_mimetype(self):
+        xtype = 'MIMEType'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_python('image/jpeg', xtype),
+                         {'type': 'image', 'subtype': 'jpeg'})
+        self.assertEqual(XmpTag._convert_to_python('video/ogg', xtype),
+                         {'type': 'video', 'subtype': 'ogg'})
+        # Invalid values
+        self.assertEqual(XmpTag._convert_to_python('invalid', xtype), 'invalid')
+        self.assertEqual(XmpTag._convert_to_python('image-jpeg', xtype), 'image-jpeg')
+        
+
     # TODO: other types
