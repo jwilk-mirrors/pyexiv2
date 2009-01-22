@@ -497,6 +497,7 @@ class XmpTag(MetadataTag):
         Return the value unchanged if the conversion fails.
         """
         # TODO: use try except blocks and logging to log conversion errors
+
         if xtype == 'Boolean':
             if value == 'True':
                 return True
@@ -504,6 +505,7 @@ class XmpTag(MetadataTag):
                 return False
             else:
                 return value
+
         elif xtype == 'Choice':
             # TODO
             return value
@@ -550,14 +552,20 @@ class XmpTag(MetadataTag):
         elif xtype == 'Font':
             # TODO
             return value
+
         elif xtype == 'Integer':
-            return int(value)
+            try:
+                return int(value)
+            except:
+                return value
+
         elif xtype == 'Lang Alt':
             # TODO
             return value
         elif xtype == 'Locale':
             # TODO
             return value
+
         elif xtype == 'MIMEType':
             try:
                 mtype, msubtype = value.split('/', 1)
@@ -565,6 +573,7 @@ class XmpTag(MetadataTag):
                 return value
             else:
                 return {'type': mtype, 'subtype': msubtype}
+
         elif xtype == 'ProperName':
             # TODO
             return value
