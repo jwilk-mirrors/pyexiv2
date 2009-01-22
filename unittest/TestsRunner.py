@@ -3,7 +3,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2008 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2008-2009 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -21,33 +21,33 @@
 # along with pyexiv2; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
 #
-#
-# File:      TestsRunner.py
-# Author(s): Olivier Tilloy <olivier@tilloy.net>
+# Author: Olivier Tilloy <olivier@tilloy.net>
 #
 # ******************************************************************************
 
 import unittest
 
 # Test cases to run
-from RationalTestCase import RationalTestCase
-from ReadMetadataTestCase import ReadMetadataTestCase
-from Bug146313_TestCase import Bug146313_TestCase
-from Bug173387_TestCase import Bug173387_TestCase
-from Bug175070_TestCase import Bug175070_TestCase
-from Bug183332_TestCase import Bug183332_TestCase
-from Bug183618_TestCase import Bug183618_TestCase
+#from RationalTestCase import RationalTestCase
+#from ReadMetadataTestCase import ReadMetadataTestCase
+#from Bug146313_TestCase import Bug146313_TestCase
+#from Bug173387_TestCase import Bug173387_TestCase
+#from Bug175070_TestCase import Bug175070_TestCase
+#from Bug183332_TestCase import Bug183332_TestCase
+#from Bug183618_TestCase import Bug183618_TestCase
+from xmp import TestXmpTag
+
 
 if __name__ == '__main__':
     # Instantiate a test suite containing all the test cases
     suite = unittest.TestSuite()
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(RationalTestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(ReadMetadataTestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug146313_TestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug173387_TestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug175070_TestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183332_TestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183618_TestCase))
+    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(RationalTestCase))
+    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(ReadMetadataTestCase))
+    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug146313_TestCase))
+    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug173387_TestCase))
+    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug175070_TestCase))
+    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183332_TestCase))
+    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183618_TestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpTag))
     # Run the test suite
     unittest.TextTestRunner(verbosity=2).run(suite)
-

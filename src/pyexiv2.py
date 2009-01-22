@@ -144,6 +144,11 @@ class FixedOffset(datetime.tzinfo):
         r = '%s%02d:%02d' % (self.sign, self.hours, self.minutes)
         return r
 
+    def __equal__(self, other):
+        return (self.sign == other.sign) and (self.hours == other.hours) and \
+            (self.minutes == other.minutes)
+
+
 def UndefinedToString(undefined):
     """
     Convert an undefined string into its corresponding sequence of bytes.
@@ -484,7 +489,8 @@ class XmpTag(MetadataTag):
         MetadataTag.__init__(self, key, name, label, description, type, values)
         # TODO: conversion of values to python types
 
-    def _convert_to_python(self, value, xtype):
+    @staticmethod
+    def _convert_to_python(value, xtype):
         """
         Convert one single value to its corresponding python type.
         Do not handle sets and bags.
@@ -504,29 +510,40 @@ class XmpTag(MetadataTag):
         elif xtype == 'Colorant':
             # TODO
             return value
+
         elif xtype == 'Date':
-            match = self._date_re.match(value)
+            match = XmpTag._date_re.match(value)
             if match is None:
-                return
+                return value
             gd = match.groupdict()
-            if gd['time'] is None:
-                return datetime.date(int(gd['year']), int(gd['month']) or 1,
-                                     int(gd['day']) or 1)
+            if gd['month'] is not None:
+                month = int(gd['month'])
             else:
-                if gd['decimal'] is not None:
-                    microsecond = int(float('0.%s' % gd['decimal']) * 1E6)
+                month = 1
+            if gd['day'] is not None:
+                day = int(gd['day'])
+            else:
+                day = 1
+            if gd['time'] is None:
+                return datetime.date(int(gd['year']), month, day)
+            else:
+                if gd['seconds'] is not None:
+                    seconds = int(gd['seconds'])
                 else:
-                    microsecond = 0
+                    seconds = 0
+                if gd['decimal'] is not None:
+                    microseconds = int(float('0.%s' % gd['decimal']) * 1E6)
+                else:
+                    microseconds = 0
                 if gd['tzd'] == 'Z':
                     tzinfo = FixedOffset()
                 else:
                     tzinfo = FixedOffset(gd['sign'], int(gd['ohours']),
                                          int(gd['ominutes']))
-                return datetime.datetime(int(gd['year']), int(gd['month']),
-                                         int(gd['day']), int(gd['hours']),
-                                         int(gd['minutes']),
-                                         int(gd['seconds']) or 0,
-                                         microsecond, tzinfo)
+                return datetime.datetime(int(gd['year']), month, day,
+                                         int(gd['hours']), int(gd['minutes']),
+                                         seconds, microseconds, tzinfo)
+
         elif xtype == 'Dimensions':
             # TODO
             return value
