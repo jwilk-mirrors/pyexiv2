@@ -28,7 +28,6 @@ import unittest
 from pyexiv2 import XmpTag, FixedOffset
 import datetime
 
-
 class TestXmpTag(unittest.TestCase):
 
     def test_convert_to_python_boolean(self):
@@ -140,5 +139,23 @@ class TestXmpTag(unittest.TestCase):
         # Invalid values
         self.assertEqual(XmpTag._convert_to_python(12, xtype), 12)
         self.assertEqual(XmpTag._convert_to_python(3.14, xtype), 3.14)
+
+    def test_convert_to_python_uri(self):
+        xtype = 'URI'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_python('http://example.com', xtype), 'http://example.com')
+        self.assertEqual(XmpTag._convert_to_python('https://example.com', xtype), 'https://example.com')
+        self.assertEqual(XmpTag._convert_to_python('http://localhost:8000/resource', xtype),
+                         'http://localhost:8000/resource')
+        self.assertEqual(XmpTag._convert_to_python('uuid:9A3B7F52214211DAB6308A7391270C13', xtype),
+                         'uuid:9A3B7F52214211DAB6308A7391270C13')
+
+    def test_convert_to_python_url(self):
+        xtype = 'URL'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_python('http://example.com', xtype), 'http://example.com')
+        self.assertEqual(XmpTag._convert_to_python('https://example.com', xtype), 'https://example.com')
+        self.assertEqual(XmpTag._convert_to_python('http://localhost:8000/resource', xtype),
+                         'http://localhost:8000/resource')
 
     # TODO: other types

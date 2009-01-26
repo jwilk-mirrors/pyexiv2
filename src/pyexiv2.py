@@ -604,12 +604,11 @@ class XmpTag(MetadataTag):
         elif xtype == 'Thumbnail':
             # TODO
             return value
-        elif xtype == 'URI':
-            # TODO
+
+        elif xtype in ('URI', 'URL'):
+            # TODO: use urlparse?
             return value
-        elif xtype == 'URL':
-            # TODO
-            return value
+
         elif xtype == 'XPath':
             # TODO
             return value
