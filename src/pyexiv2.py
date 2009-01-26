@@ -594,9 +594,13 @@ class XmpTag(MetadataTag):
         elif xtype == 'Real':
             # TODO
             return value
+
         elif xtype == 'Text':
-            # TODO
-            return value
+            try:
+                return unicode(value, 'utf-8')
+            except TypeError:
+                return value
+
         elif xtype == 'Thumbnail':
             # TODO
             return value
