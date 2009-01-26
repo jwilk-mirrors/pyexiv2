@@ -470,17 +470,12 @@ class XmpTag(MetadataTag):
     An XMP metadata tag can have several values.
     """
 
-    # Valid dates, to check the correctness of the RE
-    # valid = ('1999', '1999-10', '1999-10-13', '1999-10-13T05:03Z', '1999-10-13T05:03+06:00', '1999-10-13T05:03-06:00', '1999-10-13T05:03:54Z', '1999-10-13T05:03:54+06:00', '1999-10-13T05:03:54-06:00', '1999-10-13T05:03:54.721Z', '1999-10-13T05:03:54.721+06:00', '1999-10-13T05:03:54.721-06:00')
-
     # strptime is not flexible enough to handle all valid Date formats, we use a
     # custom regular expression
     # TODO: restrict the value ranges for year, month, day, hours, minutes, seconds, tzd
     _time_zone_re = r'Z|((?P<sign>\+|-)(?P<ohours>\d{2}):(?P<ominutes>\d{2}))'
     _time_re = r'(?P<hours>\d{2}):(?P<minutes>\d{2})(:(?P<seconds>\d{2})(.(?P<decimal>\d+))?)?(?P<tzd>%s)' % _time_zone_re
     _date_re = re.compile(r'(?P<year>\d{4})(-(?P<month>\d{2})(-(?P<day>\d{2})(T(?P<time>%s))?)?)?' % _time_re)
-
-    #_lang_alt_re = r'lang=".*" .*, '
 
     def __init__(self, key, name, label, description, type, values):
         """
@@ -560,8 +555,27 @@ class XmpTag(MetadataTag):
                 return value
 
         elif xtype == 'Lang Alt':
-            # TODO
-            return value
+            matches = value.split('lang="')
+            nb = len(matches)
+            if nb < 2 or matches[0] != '':
+                return value
+            result = {}
+            for i, match in enumerate(matches[1:]):
+                try:
+                    qualifier, text = match.split('" ', 1)
+                except ValueError:
+                    return value
+                else:
+                    if not text.rstrip().endswith(','):
+                        if (i < nb - 2):
+                            # If not the last match, it should end with a comma
+                            return value
+                        else:
+                            result[qualifier] = text
+                    else:
+                        result[qualifier] = text.rstrip()[:-1]
+            return result
+
         elif xtype == 'Locale':
             # TODO
             return value

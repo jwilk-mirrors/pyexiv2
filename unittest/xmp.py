@@ -100,6 +100,23 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('47.0001', xtype), '47.0001')
         self.assertEqual(XmpTag._convert_to_python('1E3', xtype), '1E3')
 
+    def test_convert_to_python_langalt(self):
+        xtype = 'Lang Alt'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_python('lang="x-default" some text', xtype),
+                         {'x-default': 'some text'})
+        self.assertEqual(XmpTag._convert_to_python('lang="x-default" some text, lang="fr-FR" du texte', xtype),
+                         {'x-default': 'some text', 'fr-FR': 'du texte'})
+        self.assertEqual(XmpTag._convert_to_python('lang="x-default" some text   ,    lang="fr-FR"   du texte  ', xtype),
+                         {'x-default': 'some text   ', 'fr-FR': '  du texte  '})
+        self.assertEqual(XmpTag._convert_to_python('lang="x-default" some text, lang="fr-FR" du texte, lang="es-ES" un texto', xtype),
+                         {'x-default': 'some text', 'fr-FR': 'du texte', 'es-ES': 'un texto'})
+        # Invalid values
+        self.assertEqual(XmpTag._convert_to_python('invalid', xtype), 'invalid')
+        self.assertEqual(XmpTag._convert_to_python('lang="malformed', xtype), 'lang="malformed')
+        self.assertEqual(XmpTag._convert_to_python('xlang="x-default" some text', xtype), 'xlang="x-default" some text')
+        self.assertEqual(XmpTag._convert_to_python('lang="x-default" some text, xlang="fr-FR" du texte', xtype), 'lang="x-default" some text, xlang="fr-FR" du texte')
+
     def test_convert_to_python_mimetype(self):
         xtype = 'MIMEType'
         # Valid values
