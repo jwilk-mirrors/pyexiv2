@@ -615,6 +615,21 @@ class XmpTag(MetadataTag):
 
         return value
 
+    @staticmethod
+    def _convert_to_string(value, xtype):
+        """
+        Convert a value to its corresponding string representation.
+        Fallback to str(value) if no standard-compliant conversion can be done.
+        """
+        if xtype == 'Boolean':
+            if value == True:
+                return 'True'
+            elif value == False:
+                return 'False'
+
+        # Default fallback conversion
+        return str(value)
+
     def __str__(self):
         """
         Return a string representation of the XMP tag.

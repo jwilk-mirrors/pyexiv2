@@ -46,6 +46,14 @@ class TestXmpTag(unittest.TestCase):
         # Invalid values: not converted
         self.assertEqual(XmpTag._convert_to_python('invalid', xtype), 'invalid')
 
+    def test_convert_to_string_boolean(self):
+        xtype = 'Boolean'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_string(True, xtype), 'True')
+        self.assertEqual(XmpTag._convert_to_string(False, xtype), 'False')
+        # Invalid values
+        self.assertEqual(XmpTag._convert_to_string('invalid', xtype), 'invalid')
+
     def test_convert_to_python_choice(self):
         pass
 
