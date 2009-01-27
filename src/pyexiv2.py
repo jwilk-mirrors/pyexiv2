@@ -482,7 +482,7 @@ class XmpTag(MetadataTag):
         Constructor.
         """
         MetadataTag.__init__(self, key, name, label, description, type, values)
-        # TODO: conversion of values to python types
+        self.value = map(lambda x: XmpTag._convert_to_python(x, self.type), self.value)
 
     @staticmethod
     def _convert_to_python(value, xtype):
