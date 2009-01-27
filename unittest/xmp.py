@@ -127,6 +127,13 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('invalid', xtype), 'invalid')
         self.assertEqual(XmpTag._convert_to_python('image-jpeg', xtype), 'image-jpeg')
 
+    def test_convert_to_python_propername(self):
+        xtype = 'ProperName'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_python('Gérard', xtype), u'Gérard')
+        self.assertEqual(XmpTag._convert_to_python(u'François Pignon', xtype), u'François Pignon')
+        self.assertEqual(XmpTag._convert_to_python('Python Software Foundation', xtype), u'Python Software Foundation')
+
     def test_convert_to_python_text(self):
         xtype = 'Text'
         # Valid values
@@ -136,9 +143,6 @@ class TestXmpTag(unittest.TestCase):
                          u'Some text with exotic chàräctérʐ.')
         self.assertEqual(XmpTag._convert_to_python(u'Some text with exotic chàräctérʐ.', xtype),
                          u'Some text with exotic chàräctérʐ.')
-        # Invalid values
-        self.assertEqual(XmpTag._convert_to_python(12, xtype), 12)
-        self.assertEqual(XmpTag._convert_to_python(3.14, xtype), 3.14)
 
     def test_convert_to_python_uri(self):
         xtype = 'URI'

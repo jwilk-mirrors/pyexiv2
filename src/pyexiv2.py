@@ -588,14 +588,11 @@ class XmpTag(MetadataTag):
             else:
                 return {'type': mtype, 'subtype': msubtype}
 
-        elif xtype == 'ProperName':
-            # TODO
-            return value
         elif xtype == 'Real':
             # TODO
             return value
 
-        elif xtype == 'Text':
+        elif xtype in ('ProperName', 'Text'):
             try:
                 return unicode(value, 'utf-8')
             except TypeError:
