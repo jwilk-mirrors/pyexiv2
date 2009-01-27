@@ -487,13 +487,16 @@ class XmpTag(MetadataTag):
     @staticmethod
     def _convert_to_python(value, xtype):
         """
-        Convert one single value to its corresponding python type.
-        Do not handle sets and bags.
+        Convert a value to its corresponding python type.
         Return the value unchanged if the conversion fails.
         """
         # TODO: use try except blocks and logging to log conversion errors
 
-        if xtype == 'Boolean':
+        if xtype.startswith('bag '):
+            values = value.split(', ')
+            return map(lambda x: XmpTag._convert_to_python(x, xtype[4:]), values)
+
+        elif xtype == 'Boolean':
             if value == 'True':
                 return True
             elif value == 'False':
@@ -609,6 +612,8 @@ class XmpTag(MetadataTag):
         elif xtype == 'XPath':
             # TODO
             return value
+
+        return value
 
     def __str__(self):
         """

@@ -30,6 +30,14 @@ import datetime
 
 class TestXmpTag(unittest.TestCase):
 
+    def test_convert_to_python_bag(self):
+        xtype = 'bag Text'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_python('', xtype), [u''])
+        self.assertEqual(XmpTag._convert_to_python('One value only', xtype), [u'One value only'])
+        self.assertEqual(XmpTag._convert_to_python('Some, text, keyword, this is a test', xtype),
+                         [u'Some', u'text', u'keyword', u'this is a test'])
+
     def test_convert_to_python_boolean(self):
         xtype = 'Boolean'
         # Valid values
