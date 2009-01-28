@@ -643,16 +643,30 @@ class XmpTag(MetadataTag):
     def _convert_to_string(value, xtype):
         """
         Convert a value to its corresponding string representation.
-        Fallback to str(value) if no standard-compliant conversion can be done.
-        """
-        if xtype == 'Boolean':
-            if value == True:
-                return 'True'
-            elif value == False:
-                return 'False'
 
-        # Default fallback conversion
-        return str(value)
+        @param value: the value to be converted
+        @type value:  depends on xtype (DOCME)
+        @param xtype: the XMP type of the value
+        @type xtype:  C{str}
+
+        @return: the value converted to its corresponding string representation
+        @rtype:  C{str}
+
+        @raise L{XmpValueError}: if the conversion fails
+        """
+        if xtype == 'Boolean' and type(value) is bool:
+            return str(value)
+
+        elif xtype == 'Text':
+            if type(value) is unicode:
+                try:
+                    return value.encode('utf-8')
+                except UnicodeEncodeError:
+                    raise XmpValueError(value, xtype)
+            elif type(value) is str:
+                return value
+
+        raise XmpValueError(value, xtype)
 
     def __str__(self):
         """
