@@ -99,6 +99,11 @@ class TestXmpTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'invalid', xtype)
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '11/10/1983', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '-1000', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-13', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-10-32', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-10-30T25:12Z', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-10-30T23:67Z', xtype)
 
         # FIXME: the following test should not fail: having hours without minutes is not a valid syntax.
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-01-22T21', xtype)
