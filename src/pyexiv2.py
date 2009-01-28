@@ -464,6 +464,16 @@ class IptcTag(MetadataTag):
         return r.replace('Raw value = ', 'Raw values = ')
 
 
+class XmpValueError(ValueError):
+    def __init__(self, value, xtype):
+        self.value = value
+        self.xtype = xtype
+
+    def __str__(self):
+        return 'Invalid value for XMP type [%s]: [%s]' % \
+               (self.xtype, self.value)
+
+
 class XmpTag(MetadataTag):
 
     """
@@ -488,10 +498,17 @@ class XmpTag(MetadataTag):
     def _convert_to_python(value, xtype):
         """
         Convert a value to its corresponding python type.
-        Return the value unchanged if the conversion fails.
-        """
-        # TODO: use try except blocks and logging to log conversion errors
 
+        @param value: the value to be converted, as a string
+        @type value:  C{str}
+        @param xtype: the XMP type of the value
+        @type xtype:  C{str}
+
+        @return: the value converted to its corresponding python type
+        @rtype:  depends on xtype (DOCME)
+
+        @raise L{XmpValueError}: if the conversion fails
+        """
         if xtype.startswith('bag '):
             values = value.split(', ')
             return map(lambda x: XmpTag._convert_to_python(x, xtype[4:]), values)
@@ -502,19 +519,20 @@ class XmpTag(MetadataTag):
             elif value == 'False':
                 return False
             else:
-                return value
+                raise XmpValueError(value, xtype)
 
         elif xtype == 'Choice':
             # TODO
-            return value
+            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+
         elif xtype == 'Colorant':
             # TODO
-            return value
+            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
         elif xtype == 'Date':
             match = XmpTag._date_re.match(value)
             if match is None:
-                return value
+                raise XmpValueError(value, xtype)
             gd = match.groupdict()
             if gd['month'] is not None:
                 month = int(gd['month'])
@@ -525,7 +543,10 @@ class XmpTag(MetadataTag):
             else:
                 day = 1
             if gd['time'] is None:
-                return datetime.date(int(gd['year']), month, day)
+                try:
+                    return datetime.date(int(gd['year']), month, day)
+                except ValueError:
+                    raise XmpValueError(value, xtype)
             else:
                 if gd['seconds'] is not None:
                     seconds = int(gd['seconds'])
@@ -540,39 +561,43 @@ class XmpTag(MetadataTag):
                 else:
                     tzinfo = FixedOffset(gd['sign'], int(gd['ohours']),
                                          int(gd['ominutes']))
-                return datetime.datetime(int(gd['year']), month, day,
-                                         int(gd['hours']), int(gd['minutes']),
-                                         seconds, microseconds, tzinfo)
+                try:
+                    return datetime.datetime(int(gd['year']), month, day,
+                                             int(gd['hours']), int(gd['minutes']),
+                                             seconds, microseconds, tzinfo)
+                except ValueError:
+                    raise XmpValueError(value, xtype)
 
         elif xtype == 'Dimensions':
             # TODO
-            return value
+            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+
         elif xtype == 'Font':
             # TODO
-            return value
+            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
         elif xtype == 'Integer':
             try:
                 return int(value)
-            except:
-                return value
+            except ValueError:
+                raise XmpValueError(value, xtype)
 
         elif xtype == 'Lang Alt':
             matches = value.split('lang="')
             nb = len(matches)
             if nb < 2 or matches[0] != '':
-                return value
+                raise XmpValueError(value, xtype)
             result = {}
             for i, match in enumerate(matches[1:]):
                 try:
                     qualifier, text = match.split('" ', 1)
                 except ValueError:
-                    return value
+                    raise XmpValueError(value, xtype)
                 else:
                     if not text.rstrip().endswith(','):
                         if (i < nb - 2):
                             # If not the last match, it should end with a comma
-                            return value
+                            raise XmpValueError(value, xtype)
                         else:
                             result[qualifier] = text
                     else:
@@ -581,29 +606,29 @@ class XmpTag(MetadataTag):
 
         elif xtype == 'Locale':
             # TODO
-            return value
+            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
         elif xtype == 'MIMEType':
             try:
                 mtype, msubtype = value.split('/', 1)
             except ValueError:
-                return value
+                raise XmpValueError(value, xtype)
             else:
                 return {'type': mtype, 'subtype': msubtype}
 
         elif xtype == 'Real':
             # TODO
-            return value
+            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
         elif xtype in ('ProperName', 'Text'):
             try:
                 return unicode(value, 'utf-8')
             except TypeError:
-                return value
+                raise XmpValueError(value, xtype)
 
         elif xtype == 'Thumbnail':
             # TODO
-            return value
+            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
         elif xtype in ('URI', 'URL'):
             # TODO: use urlparse?
@@ -611,9 +636,9 @@ class XmpTag(MetadataTag):
 
         elif xtype == 'XPath':
             # TODO
-            return value
+            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
-        return value
+        raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
     @staticmethod
     def _convert_to_string(value, xtype):

@@ -25,7 +25,7 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import XmpTag, FixedOffset
+from pyexiv2 import XmpTag, XmpValueError, FixedOffset
 import datetime
 
 class TestXmpTag(unittest.TestCase):
@@ -44,7 +44,7 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('True', xtype), True)
         self.assertEqual(XmpTag._convert_to_python('False', xtype), False)
         # Invalid values: not converted
-        self.assertEqual(XmpTag._convert_to_python('invalid', xtype), 'invalid')
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'invalid', xtype)
 
     def test_convert_to_string_boolean(self):
         xtype = 'Boolean'
@@ -97,11 +97,11 @@ class TestXmpTag(unittest.TestCase):
                          datetime.datetime(1999, 10, 13, 5, 3, 54, 721000, tzinfo=FixedOffset('-', 6, 0)),
                          datetime.timedelta(0))
         # Invalid values
-        self.assertEqual(XmpTag._convert_to_python('invalid', xtype), 'invalid')
-        self.assertEqual(XmpTag._convert_to_python('11/10/1983', xtype), '11/10/1983')
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'invalid', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '11/10/1983', xtype)
 
         # FIXME: the following test should not fail: having hours without minutes is not a valid syntax.
-        self.assertEqual(XmpTag._convert_to_python('2009-01-22T21', xtype), '2009-01-22T21')
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-01-22T21', xtype)
 
     def test_convert_to_python_integer(self):
         xtype = 'Integer'
@@ -110,10 +110,10 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('+5628', xtype), 5628)
         self.assertEqual(XmpTag._convert_to_python('-4', xtype), -4)
         # Invalid values
-        self.assertEqual(XmpTag._convert_to_python('abc', xtype), 'abc')
-        self.assertEqual(XmpTag._convert_to_python('5,64', xtype), '5,64')
-        self.assertEqual(XmpTag._convert_to_python('47.0001', xtype), '47.0001')
-        self.assertEqual(XmpTag._convert_to_python('1E3', xtype), '1E3')
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'abc', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '5,64', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '47.0001', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '1E3', xtype)
 
     def test_convert_to_python_langalt(self):
         xtype = 'Lang Alt'
@@ -127,10 +127,10 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('lang="x-default" some text, lang="fr-FR" du texte, lang="es-ES" un texto', xtype),
                          {'x-default': 'some text', 'fr-FR': 'du texte', 'es-ES': 'un texto'})
         # Invalid values
-        self.assertEqual(XmpTag._convert_to_python('invalid', xtype), 'invalid')
-        self.assertEqual(XmpTag._convert_to_python('lang="malformed', xtype), 'lang="malformed')
-        self.assertEqual(XmpTag._convert_to_python('xlang="x-default" some text', xtype), 'xlang="x-default" some text')
-        self.assertEqual(XmpTag._convert_to_python('lang="x-default" some text, xlang="fr-FR" du texte', xtype), 'lang="x-default" some text, xlang="fr-FR" du texte')
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'invalid', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'lang="malformed', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'xlang="x-default" some text', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'lang="x-default" some text, xlang="fr-FR" du texte', xtype)
 
     def test_convert_to_python_mimetype(self):
         xtype = 'MIMEType'
@@ -140,24 +140,20 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('video/ogg', xtype),
                          {'type': 'video', 'subtype': 'ogg'})
         # Invalid values
-        self.assertEqual(XmpTag._convert_to_python('invalid', xtype), 'invalid')
-        self.assertEqual(XmpTag._convert_to_python('image-jpeg', xtype), 'image-jpeg')
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'invalid', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'image-jpeg', xtype)
 
     def test_convert_to_python_propername(self):
         xtype = 'ProperName'
         # Valid values
         self.assertEqual(XmpTag._convert_to_python('Gérard', xtype), u'Gérard')
-        self.assertEqual(XmpTag._convert_to_python(u'François Pignon', xtype), u'François Pignon')
         self.assertEqual(XmpTag._convert_to_python('Python Software Foundation', xtype), u'Python Software Foundation')
 
     def test_convert_to_python_text(self):
         xtype = 'Text'
         # Valid values
         self.assertEqual(XmpTag._convert_to_python('Some text.', xtype), u'Some text.')
-        self.assertEqual(XmpTag._convert_to_python(u'Some text.', xtype), u'Some text.')
         self.assertEqual(XmpTag._convert_to_python('Some text with exotic chàräctérʐ.', xtype),
-                         u'Some text with exotic chàräctérʐ.')
-        self.assertEqual(XmpTag._convert_to_python(u'Some text with exotic chàräctérʐ.', xtype),
                          u'Some text with exotic chàräctérʐ.')
 
     def test_convert_to_python_uri(self):
