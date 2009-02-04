@@ -156,6 +156,15 @@ class TestXmpTag(unittest.TestCase):
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'invalid', xtype)
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'image-jpeg', xtype)
 
+    def test_convert_to_string_mimetype(self):
+        xtype = 'MIMEType'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_string({'type': 'image', 'subtype': 'jpeg'}, xtype), 'image/jpeg')
+        self.assertEqual(XmpTag._convert_to_string({'type': 'video', 'subtype': 'ogg'}, xtype), 'video/ogg')
+        # Invalid values
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, 'invalid', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, {'type': 'image'}, xtype)
+
     def test_convert_to_python_propername(self):
         xtype = 'ProperName'
         # Valid values

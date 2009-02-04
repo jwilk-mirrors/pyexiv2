@@ -666,6 +666,15 @@ class XmpTag(MetadataTag):
             else:
                 raise XmpValueError(value, xtype)
 
+        elif xtype == 'MIMEType':
+            if type(value) is dict:
+                try:
+                    return '%s/%s' % (value['type'], value['subtype'])
+                except KeyError:
+                    raise XmpValueError(value, xtype)
+            else:
+                raise XmpValueError(value, xtype)
+
         elif xtype == 'Text':
             if type(value) is unicode:
                 try:
