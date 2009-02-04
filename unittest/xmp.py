@@ -104,8 +104,6 @@ class TestXmpTag(unittest.TestCase):
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-10-32', xtype)
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-10-30T25:12Z', xtype)
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-10-30T23:67Z', xtype)
-
-        # FIXME: the following test should not fail: having hours without minutes is not a valid syntax.
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-01-22T21', xtype)
 
     def test_convert_to_python_integer(self):

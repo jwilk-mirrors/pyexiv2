@@ -483,7 +483,7 @@ class XmpTag(MetadataTag):
     # strptime is not flexible enough to handle all valid Date formats, we use a
     # custom regular expression
     _time_zone_re = r'Z|((?P<sign>\+|-)(?P<ohours>\d{2}):(?P<ominutes>\d{2}))'
-    _time_re = r'(?P<hours>\d{2}):(?P<minutes>\d{2})(:(?P<seconds>\d{2})(.(?P<decimal>\d+))?)?(?P<tzd>%s)' % _time_zone_re
+    _time_re = r'(?P<hours>\d{2})(:(?P<minutes>\d{2})(:(?P<seconds>\d{2})(.(?P<decimal>\d+))?)?(?P<tzd>%s))?' % _time_zone_re
     _date_re = re.compile(r'(?P<year>\d{4})(-(?P<month>\d{2})(-(?P<day>\d{2})(T(?P<time>%s))?)?)?' % _time_re)
 
     def __init__(self, key, name, label, description, type, values):
@@ -547,6 +547,9 @@ class XmpTag(MetadataTag):
                 except ValueError:
                     raise XmpValueError(value, xtype)
             else:
+                if gd['minutes'] is None:
+                    # Malformed time
+                    raise XmpValueError(value, xtype)
                 if gd['seconds'] is not None:
                     seconds = int(gd['seconds'])
                 else:
