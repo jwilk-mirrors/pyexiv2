@@ -608,6 +608,7 @@ class XmpTag(MetadataTag):
 
         elif xtype == 'Locale':
             # TODO
+            # See RFC 3066
             raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
         elif xtype == 'MIMEType':
@@ -633,7 +634,6 @@ class XmpTag(MetadataTag):
             raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
         elif xtype in ('URI', 'URL'):
-            # TODO: use urlparse?
             return value
 
         elif xtype == 'XPath':
@@ -659,6 +659,12 @@ class XmpTag(MetadataTag):
         """
         if xtype == 'Boolean' and type(value) is bool:
             return str(value)
+
+        elif xtype == 'Integer':
+            if type(value) in (int, long):
+                return str(value)
+            else:
+                raise XmpValueError(value, xtype)
 
         elif xtype == 'Text':
             if type(value) is unicode:
