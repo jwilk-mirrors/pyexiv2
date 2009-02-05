@@ -106,6 +106,34 @@ class TestXmpTag(unittest.TestCase):
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-10-30T23:67Z', xtype)
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, '2009-01-22T21', xtype)
 
+    def test_convert_to_string_date(self):
+        xtype = 'Date'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_string(datetime.date(2009, 2, 4), xtype),
+                         '2009-02-04')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13), xtype),
+                         '1999-10-13')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, tzinfo=FixedOffset()), xtype),
+                         '1999-10-13T05:03Z')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, tzinfo=FixedOffset('+', 5, 30)), xtype),
+                         '1999-10-13T05:03+05:30')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, tzinfo=FixedOffset('-', 11, 30)), xtype),
+                         '1999-10-13T05:03-11:30')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, tzinfo=FixedOffset()), xtype),
+                         '1999-10-13T05:03:27Z')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, tzinfo=FixedOffset('+', 5, 30)), xtype),
+                         '1999-10-13T05:03:27+05:30')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, tzinfo=FixedOffset('-', 11, 30)), xtype),
+                         '1999-10-13T05:03:27-11:30')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300, tzinfo=FixedOffset()), xtype),
+                         '1999-10-13T05:03:27.1243Z')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300, tzinfo=FixedOffset('+', 5, 30)), xtype),
+                         '1999-10-13T05:03:27.1243+05:30')
+        self.assertEqual(XmpTag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300, tzinfo=FixedOffset('-', 11, 30)), xtype),
+                         '1999-10-13T05:03:27.1243-11:30')
+        # Invalid values
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, 'invalid', xtype)
+
     def test_convert_to_python_integer(self):
         xtype = 'Integer'
         # Valid values

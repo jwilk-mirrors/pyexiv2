@@ -141,8 +141,10 @@ class FixedOffset(datetime.tzinfo):
         Keyword arguments:
         dt -- the datetime.time object representing the local time
         """
-        r = '%s%02d:%02d' % (self.sign, self.hours, self.minutes)
-        return r
+        if self.hours == 0 and self.minutes == 0:
+            return 'Z'
+        else:
+            return '%s%02d:%02d' % (self.sign, self.hours, self.minutes)
 
     def __equal__(self, other):
         return (self.sign == other.sign) and (self.hours == other.hours) and \
@@ -659,6 +661,26 @@ class XmpTag(MetadataTag):
         """
         if xtype == 'Boolean' and type(value) is bool:
             return str(value)
+
+        elif xtype == 'Date':
+            if type(value) is datetime.date:
+                return value.isoformat()
+            elif type(value) is datetime.datetime:
+                if value.hour == 0 and value.minute == 0 and \
+                    value.second == 0 and value.microsecond == 0 and \
+                    (value.tzinfo is None or value.tzinfo == FixedOffset()):
+                    return value.strftime('%Y-%m-%d')
+                elif value.second == 0 and value.microsecond == 0:
+                    return value.strftime('%Y-%m-%dT%H:%M%Z')
+                elif value.microsecond == 0:
+                    return value.strftime('%Y-%m-%dT%H:%M:%S%Z')
+                else:
+                    r = value.strftime('%Y-%m-%dT%H:%M:%S.')
+                    r += str(int(value.microsecond) / 1E6)[2:]
+                    r += value.strftime('%Z')
+                    return r
+            else:
+                raise XmpValueError(value, xtype)
 
         elif xtype == 'Integer':
             if type(value) in (int, long):
