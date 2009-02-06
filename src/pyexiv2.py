@@ -731,7 +731,7 @@ class XmpTag(MetadataTag):
             else:
                 raise XmpValueError(value, xtype)
 
-        elif xtype in ('ProperName', 'Text'):
+        elif xtype in ('ProperName', 'Text', 'URI', 'URL'):
             if type(value) is unicode:
                 try:
                     return value.encode('utf-8')

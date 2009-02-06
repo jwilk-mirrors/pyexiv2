@@ -56,12 +56,6 @@ class TestXmpTag(unittest.TestCase):
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, 'invalid', xtype)
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, None, xtype)
 
-    def test_convert_to_python_choice(self):
-        pass
-
-    def test_convert_to_python_colorant(self):
-        pass
-
     def test_convert_to_python_date(self):
         xtype = 'Date'
         # Valid values
@@ -261,6 +255,19 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('uuid:9A3B7F52214211DAB6308A7391270C13', xtype),
                          'uuid:9A3B7F52214211DAB6308A7391270C13')
 
+    def test_convert_to_string_uri(self):
+        xtype = 'URI'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_string('http://example.com', xtype), 'http://example.com')
+        self.assertEqual(XmpTag._convert_to_string(u'http://example.com', xtype), 'http://example.com')
+        self.assertEqual(XmpTag._convert_to_string('https://example.com', xtype), 'https://example.com')
+        self.assertEqual(XmpTag._convert_to_string('http://localhost:8000/resource', xtype),
+                         'http://localhost:8000/resource')
+        self.assertEqual(XmpTag._convert_to_string('uuid:9A3B7F52214211DAB6308A7391270C13', xtype),
+                         'uuid:9A3B7F52214211DAB6308A7391270C13')
+        # Invalid values
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, None, xtype)
+
     def test_convert_to_python_url(self):
         xtype = 'URL'
         # Valid values
@@ -268,5 +275,16 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('https://example.com', xtype), 'https://example.com')
         self.assertEqual(XmpTag._convert_to_python('http://localhost:8000/resource', xtype),
                          'http://localhost:8000/resource')
+
+    def test_convert_to_string_url(self):
+        xtype = 'URL'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_string('http://example.com', xtype), 'http://example.com')
+        self.assertEqual(XmpTag._convert_to_string(u'http://example.com', xtype), 'http://example.com')
+        self.assertEqual(XmpTag._convert_to_string('https://example.com', xtype), 'https://example.com')
+        self.assertEqual(XmpTag._convert_to_string('http://localhost:8000/resource', xtype),
+                         'http://localhost:8000/resource')
+        # Invalid values
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, None, xtype)
 
     # TODO: other types
