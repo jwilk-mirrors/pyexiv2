@@ -45,6 +45,7 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('False', xtype), False)
         # Invalid values: not converted
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, 'invalid', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, None, xtype)
 
     def test_convert_to_string_boolean(self):
         xtype = 'Boolean'
@@ -53,6 +54,7 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_string(False, xtype), 'False')
         # Invalid values
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, 'invalid', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, None, xtype)
 
     def test_convert_to_python_choice(self):
         pass
@@ -133,6 +135,7 @@ class TestXmpTag(unittest.TestCase):
                          '1999-10-13T05:03:27.1243-11:30')
         # Invalid values
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, 'invalid', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, None, xtype)
 
     def test_convert_to_python_integer(self):
         xtype = 'Integer'
@@ -216,6 +219,17 @@ class TestXmpTag(unittest.TestCase):
         # Valid values
         self.assertEqual(XmpTag._convert_to_python('Gérard', xtype), u'Gérard')
         self.assertEqual(XmpTag._convert_to_python('Python Software Foundation', xtype), u'Python Software Foundation')
+        # Invalid values
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, None, xtype)
+
+    def test_convert_to_string_propername(self):
+        xtype = 'ProperName'
+        # Valid values
+        self.assertEqual(XmpTag._convert_to_string('Gérard', xtype), 'Gérard')
+        self.assertEqual(XmpTag._convert_to_string(u'Gérard', xtype), 'Gérard')
+        self.assertEqual(XmpTag._convert_to_string(u'Python Software Foundation', xtype), 'Python Software Foundation')
+        # Invalid values
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, None, xtype)
 
     def test_convert_to_python_text(self):
         xtype = 'Text'
@@ -223,6 +237,8 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_python('Some text.', xtype), u'Some text.')
         self.assertEqual(XmpTag._convert_to_python('Some text with exotic chàräctérʐ.', xtype),
                          u'Some text with exotic chàräctérʐ.')
+        # Invalid values
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_python, None, xtype)
 
     def test_convert_to_string_text(self):
         xtype = 'Text'
@@ -232,6 +248,8 @@ class TestXmpTag(unittest.TestCase):
                          'Some text with exotic chàräctérʐ.')
         self.assertEqual(XmpTag._convert_to_string('Some text with exotic chàräctérʐ.', xtype),
                          'Some text with exotic chàräctérʐ.')
+        # Invalid values
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, None, xtype)
 
     def test_convert_to_python_uri(self):
         xtype = 'URI'

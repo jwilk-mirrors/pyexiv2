@@ -731,7 +731,7 @@ class XmpTag(MetadataTag):
             else:
                 raise XmpValueError(value, xtype)
 
-        elif xtype == 'Text':
+        elif xtype in ('ProperName', 'Text'):
             if type(value) is unicode:
                 try:
                     return value.encode('utf-8')
@@ -739,6 +739,8 @@ class XmpTag(MetadataTag):
                     raise XmpValueError(value, xtype)
             elif type(value) is str:
                 return value
+            else:
+                raise XmpValueError(value, xtype)
 
         raise XmpValueError(value, xtype)
 
