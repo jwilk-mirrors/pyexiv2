@@ -511,6 +511,8 @@ class XmpTag(MetadataTag):
         @raise L{XmpValueError}: if the conversion fails
         """
         if xtype.startswith('bag '):
+            if value == '':
+                return []
             values = value.split(', ')
             return map(lambda x: XmpTag._convert_to_python(x, xtype[4:]), values)
 
@@ -666,7 +668,13 @@ class XmpTag(MetadataTag):
 
         @raise L{XmpValueError}: if the conversion fails
         """
-        if xtype == 'Boolean' and type(value) is bool:
+        if xtype.startswith('bag '):
+            if type(value) in (list, tuple):
+                return ', '.join(map(lambda x: XmpTag._convert_to_string(x, xtype[4:]), value))
+            else:
+                raise XmpValueError(value, xtype)
+
+        elif xtype == 'Boolean' and type(value) is bool:
             return str(value)
 
         elif xtype == 'Date':
