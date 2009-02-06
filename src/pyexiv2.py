@@ -353,7 +353,7 @@ class MetadataTag(object):
           IPTC and XMP), and which are specific.
     """
 
-    def __init__(self, key, name, label, description, type, value):
+    def __init__(self, key, name, label, description, xtype, value):
         """
         Constructor.
         """
@@ -361,7 +361,7 @@ class MetadataTag(object):
         self.name = name
         self.label = label
         self.description = description
-        self.type = type
+        self.xtype = xtype
         self._value = value
         self.value = value
 
@@ -373,7 +373,7 @@ class MetadataTag(object):
             'Name = ' + self.name + os.linesep + \
             'Label = ' + self.label + os.linesep + \
             'Description = ' + self.description + os.linesep + \
-            'Type = ' + self.type + os.linesep + \
+            'Type = ' + self.xtype + os.linesep + \
             'Raw value = ' + str(self._value)
         return r
 
@@ -385,11 +385,11 @@ class ExifTag(MetadataTag):
     of the tag formatted as a human readable string.
     """
 
-    def __init__(self, key, name, label, description, type, value, fvalue):
+    def __init__(self, key, name, label, description, xtype, value, fvalue):
         """
         Constructor.
         """
-        MetadataTag.__init__(self, key, name, label, description, type, value)
+        MetadataTag.__init__(self, key, name, label, description, xtype, value)
         self.fvalue = fvalue
         self.__convert_value_to_python_type()
 
@@ -397,18 +397,18 @@ class ExifTag(MetadataTag):
         """
         Convert the stored value from a string to the matching Python type.
         """
-        if self.type == 'Byte':
+        if self.xtype == 'Byte':
             pass
-        elif self.type == 'Ascii':
+        elif self.xtype == 'Ascii':
             # try to guess if the value is a datetime
             self.value = StringToDateTime(self._value)
-        elif self.type == 'Short':
+        elif self.xtype == 'Short':
             self.value = int(self._value)
-        elif self.type == 'Long' or self.type == 'SLong':
+        elif self.xtype == 'Long' or self.type == 'SLong':
             self.value = long(self._value)
-        elif self.type == 'Rational' or self.type == 'SRational':
+        elif self.xtype == 'Rational' or self.type == 'SRational':
             self.value = StringToRational(self._value)
-        elif self.type == 'Undefined':
+        elif self.xtype == 'Undefined':
             # self.value is a sequence of bytes whose codes are written as a
             # string, each code being followed by a blank space (e.g.
             # "48 50 50 49 " for "0221" in the "Exif.Photo.ExifVersion" tag).
@@ -436,26 +436,26 @@ class IptcTag(MetadataTag):
     property).
     """
 
-    def __init__(self, key, name, label, description, type, values):
+    def __init__(self, key, name, label, description, xtype, values):
         """
         Constructor.
         """
-        MetadataTag.__init__(self, key, name, label, description, type, values)
+        MetadataTag.__init__(self, key, name, label, description, xtype, values)
         self.__convert_values_to_python_type()
 
     def __convert_values_to_python_type(self):
         """
         Convert the stored values from strings to the matching Python type.
         """
-        if self.type == 'Short':
+        if self.xtype == 'Short':
             self.value = map(int, self._value)
-        elif self.type == 'String':
+        elif self.xtype == 'String':
             pass
-        elif self.type == 'Date':
+        elif self.xtype == 'Date':
             self.value = map(StringToDate, self._value)
-        elif self.type == 'Time':
+        elif self.xtype == 'Time':
             self.value = map(StringToTime, self._value)
-        elif self.type == 'Undefined':
+        elif self.xtype == 'Undefined':
             pass
 
     def __str__(self):
@@ -488,12 +488,12 @@ class XmpTag(MetadataTag):
     _time_re = r'(?P<hours>\d{2})(:(?P<minutes>\d{2})(:(?P<seconds>\d{2})(.(?P<decimal>\d+))?)?(?P<tzd>%s))?' % _time_zone_re
     _date_re = re.compile(r'(?P<year>\d{4})(-(?P<month>\d{2})(-(?P<day>\d{2})(T(?P<time>%s))?)?)?' % _time_re)
 
-    def __init__(self, key, name, label, description, type, values):
+    def __init__(self, key, name, label, description, xtype, values):
         """
         Constructor.
         """
-        MetadataTag.__init__(self, key, name, label, description, type, values)
-        self.value = map(lambda x: XmpTag._convert_to_python(x, self.type), self.value)
+        MetadataTag.__init__(self, key, name, label, description, xtype, values)
+        self.value = map(lambda x: XmpTag._convert_to_python(x, self.xtype), self.value)
 
     @staticmethod
     def _convert_to_python(value, xtype):
