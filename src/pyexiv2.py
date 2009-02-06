@@ -363,7 +363,6 @@ class MetadataTag(object):
         self.description = description
         self.xtype = xtype
         self._value = value
-        self.value = value
 
     def __str__(self):
         """
@@ -492,8 +491,8 @@ class XmpTag(MetadataTag):
         """
         Constructor.
         """
-        MetadataTag.__init__(self, key, name, label, description, xtype, values)
-        self.value = map(lambda x: XmpTag._convert_to_python(x, self.xtype), self.value)
+        super(XmpTag, self).__init__(key, name, label, description, xtype, values)
+        self.values = map(lambda x: XmpTag._convert_to_python(x, self.xtype), self._value)
 
     @staticmethod
     def _convert_to_python(value, xtype):
@@ -756,8 +755,13 @@ class XmpTag(MetadataTag):
         """
         Return a string representation of the XMP tag.
         """
-        r = MetadataTag.__str__(self)
-        return r.replace('Raw value = ', 'Raw values = ')
+        r = 'Key = ' + self.key + os.linesep + \
+            'Name = ' + self.name + os.linesep + \
+            'Label = ' + self.label + os.linesep + \
+            'Description = ' + self.description + os.linesep + \
+            'Type = ' + self.xtype + os.linesep + \
+            'Values = ' + str(self.values)
+        return r
 
 
 class Image(libexiv2python.Image):
