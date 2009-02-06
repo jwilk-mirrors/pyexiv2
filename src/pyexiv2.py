@@ -604,8 +604,15 @@ class XmpTag(MetadataTag):
                             raise XmpValueError(value, xtype)
                         else:
                             result[qualifier] = text
+                            try:
+                                result[qualifier] = unicode(text, 'utf-8')
+                            except TypeError:
+                                raise XmpValueError(value, xtype)
                     else:
-                        result[qualifier] = text.rstrip()[:-1]
+                        try:
+                            result[qualifier] = unicode(text.rstrip()[:-1], 'utf-8')
+                        except TypeError:
+                            raise XmpValueError(value, xtype)
             return result
 
         elif xtype == 'Locale':
@@ -685,6 +692,33 @@ class XmpTag(MetadataTag):
         elif xtype == 'Integer':
             if type(value) in (int, long):
                 return str(value)
+            else:
+                raise XmpValueError(value, xtype)
+
+        elif xtype == 'Lang Alt':
+            if type(value) is dict and len(value) > 0:
+                r = ''
+                for key, avalue in value.iteritems():
+                    if type(key) is unicode:
+                        try:
+                            rkey = key.encode('utf-8')
+                        except UnicodeEncodeError:
+                            raise XmpValueError(value, xtype)
+                    elif type(key) is str:
+                        rkey = key
+                    else:
+                        raise XmpValueError(value, xtype)
+                    if type(avalue) is unicode:
+                        try:
+                            ravalue = avalue.encode('utf-8')
+                        except UnicodeEncodeError:
+                            raise XmpValueError(value, xtype)
+                    elif type(avalue) is str:
+                        ravalue = avalue
+                    else:
+                        raise XmpValueError(value, xtype)
+                    r += 'lang="%s" %s, ' % (rkey, ravalue)
+                return r[:-2]
             else:
                 raise XmpValueError(value, xtype)
 
