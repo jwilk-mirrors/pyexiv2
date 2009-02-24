@@ -42,4 +42,13 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '47.0001', xtype)
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '1E3', xtype)
 
+    def test_convert_to_python_string(self):
+        xtype = 'String'
+        # Valid values
+        self.assertEqual(IptcTag._convert_to_python('Some text.', xtype), u'Some text.')
+        self.assertEqual(IptcTag._convert_to_python('Some text with exotic chàräctérʐ.', xtype),
+                         u'Some text with exotic chàräctérʐ.')
+        # Invalid values
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, None, xtype)
+
     # TODO: other types

@@ -488,6 +488,12 @@ class IptcTag(MetadataTag):
             except ValueError:
                 raise IptcValueError(value, xtype)
 
+        elif xtype == 'String':
+            try:
+                return unicode(value, 'utf-8')
+            except TypeError:
+                raise IptcValueError(value, xtype)
+
         # TODO: other types
 
         raise NotImplementedError('IPTC conversion for type [%s]' % xtype)
