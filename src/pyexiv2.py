@@ -428,6 +428,16 @@ class ExifTag(MetadataTag):
         return r
 
 
+class IptcValueError(ValueError):
+    def __init__(self, value, xtype):
+        self.value = value
+        self.xtype = xtype
+
+    def __str__(self):
+        return 'Invalid value for IPTC type [%s]: [%s]' % \
+               (self.xtype, self.value)
+
+
 class IptcTag(MetadataTag):
 
     """
@@ -439,30 +449,60 @@ class IptcTag(MetadataTag):
         """
         Constructor.
         """
-        MetadataTag.__init__(self, key, name, label, description, xtype, values)
-        self.__convert_values_to_python_type()
+        super(IptcTag, self).__init__(key, name, label, description, xtype, values)
+        self.values = map(lambda x: IptcTag._convert_to_python(x, self.xtype), self._value)
 
-    def __convert_values_to_python_type(self):
+#    def __convert_values_to_python_type(self):
+#        """
+#        Convert the stored values from strings to the matching Python type.
+#        """
+#        if self.xtype == 'Short':
+#            self.value = map(int, self._value)
+#        elif self.xtype == 'String':
+#            pass
+#        elif self.xtype == 'Date':
+#            self.value = map(StringToDate, self._value)
+#        elif self.xtype == 'Time':
+#            self.value = map(StringToTime, self._value)
+#        elif self.xtype == 'Undefined':
+#            pass
+
+    @staticmethod
+    def _convert_to_python(value, xtype):
         """
-        Convert the stored values from strings to the matching Python type.
+        Convert a value to its corresponding python type.
+
+        @param value: the value to be converted, as a string
+        @type value:  C{str}
+        @param xtype: the IPTC type of the value
+        @type xtype:  C{str}
+
+        @return: the value converted to its corresponding python type
+        @rtype:  depends on xtype (DOCME)
+
+        @raise L{IptcValueError}: if the conversion fails
         """
-        if self.xtype == 'Short':
-            self.value = map(int, self._value)
-        elif self.xtype == 'String':
-            pass
-        elif self.xtype == 'Date':
-            self.value = map(StringToDate, self._value)
-        elif self.xtype == 'Time':
-            self.value = map(StringToTime, self._value)
-        elif self.xtype == 'Undefined':
-            pass
+        if xtype == 'Short':
+            try:
+                return int(value)
+            except ValueError:
+                raise IptcValueError(value, xtype)
+
+        # TODO: other types
+
+        raise NotImplementedError('IPTC conversion for type [%s]' % xtype)
 
     def __str__(self):
         """
         Return a string representation of the IPTC tag.
         """
-        r = MetadataTag.__str__(self)
-        return r.replace('Raw value = ', 'Raw values = ')
+        r = 'Key = ' + self.key + os.linesep + \
+            'Name = ' + self.name + os.linesep + \
+            'Label = ' + self.label + os.linesep + \
+            'Description = ' + self.description + os.linesep + \
+            'Type = ' + self.xtype + os.linesep + \
+            'Values = ' + str(self.values)
+        return r
 
 
 class XmpValueError(ValueError):

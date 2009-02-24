@@ -28,6 +28,7 @@ import unittest
 from pyexiv2 import XmpTag, XmpValueError, FixedOffset
 import datetime
 
+
 class TestXmpTag(unittest.TestCase):
 
     def test_convert_to_python_bag(self):

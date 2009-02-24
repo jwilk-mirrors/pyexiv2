@@ -36,6 +36,7 @@ import unittest
 #from Bug183332_TestCase import Bug183332_TestCase
 #from Bug183618_TestCase import Bug183618_TestCase
 from xmp import TestXmpTag
+from iptc import TestIptcTag
 
 
 if __name__ == '__main__':
@@ -49,5 +50,6 @@ if __name__ == '__main__':
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183332_TestCase))
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183618_TestCase))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpTag))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIptcTag))
     # Run the test suite
     unittest.TextTestRunner(verbosity=2).run(suite)
