@@ -445,6 +445,11 @@ class IptcTag(MetadataTag):
     property).
     """
 
+    # strptime is not flexible enough to handle all valid Time formats, we use a
+    # custom regular expression
+    _time_zone_re = r'(?P<sign>\+|-)(?P<ohours>\d{2}):(?P<ominutes>\d{2})'
+    _time_re = re.compile(r'(?P<hours>\d{2}):(?P<minutes>\d{2}):(?P<seconds>\d{2})(?P<tzd>%s)' % _time_zone_re)
+
     def __init__(self, key, name, label, description, xtype, values):
         """
         Constructor.
@@ -504,6 +509,26 @@ class IptcTag(MetadataTag):
                 t = time.strptime(value, format)
                 return datetime.date(*t[:3])
             except ValueError:
+                raise IptcValueError(value, xtype)
+
+        elif xtype == 'Time':
+            # According to the IPTC specification, the format for a string field
+            # representing a time is '%H%M%S±%H%M'. However, the string returned
+            # by exiv2 using method TimeValue::toString() is formatted using
+            # pattern '%H:%M:%S±%H:%M'.
+            match = IptcTag._time_re.match(value)
+            if match is None:
+                raise IptcValueError(value, xtype)
+            gd = match.groupdict()
+            try:
+                tzinfo = FixedOffset(gd['sign'], int(gd['ohours']),
+                                     int(gd['ominutes']))
+            except TypeError:
+                raise IptcValueError(value, xtype)
+            try:
+                return datetime.time(int(gd['hours']), int(gd['minutes']),
+                                     int(gd['seconds']), tzinfo=tzinfo)
+            except (TypeError, ValueError):
                 raise IptcValueError(value, xtype)
 
         # TODO: other types

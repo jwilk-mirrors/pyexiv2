@@ -25,7 +25,7 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import IptcTag, IptcValueError
+from pyexiv2 import IptcTag, IptcValueError, FixedOffset
 import datetime
 
 
@@ -64,5 +64,22 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-02', xtype)
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-10-32', xtype)
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-02-24T22:12:54', xtype)
+
+    def test_convert_to_python_time(self):
+        xtype = 'Time'
+        # Valid values
+        self.assertEqual(IptcTag._convert_to_python('05:03:54+00:00', xtype),
+                         datetime.time(5, 3, 54, tzinfo=FixedOffset()))
+        self.assertEqual(IptcTag._convert_to_python('05:03:54+06:00', xtype),
+                         datetime.time(5, 3, 54, tzinfo=FixedOffset('+', 6, 0)))
+        self.assertEqual(IptcTag._convert_to_python('05:03:54-10:30', xtype),
+                         datetime.time(5, 3, 54, tzinfo=FixedOffset('-', 10, 30)))
+        # Invalid values
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, 'invalid', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '23:12:42', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '25:12:42+00:00', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '21:77:42+00:00', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '21:12:98+00:00', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '081242+0000', xtype)
 
     # TODO: other types
