@@ -26,6 +26,7 @@
 
 import unittest
 from pyexiv2 import IptcTag, IptcValueError
+import datetime
 
 
 class TestIptcTag(unittest.TestCase):
@@ -50,5 +51,18 @@ class TestIptcTag(unittest.TestCase):
                          u'Some text with exotic chàräctérʐ.')
         # Invalid values
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, None, xtype)
+
+    def test_convert_to_python_date(self):
+        xtype = 'Date'
+        # Valid values
+        self.assertEqual(IptcTag._convert_to_python('1999-10-13', xtype),
+                         datetime.date(1999, 10, 13))
+        # Invalid values
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, 'invalid', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '11/10/1983', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '-1000', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-02', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-10-32', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-02-24T22:12:54', xtype)
 
     # TODO: other types

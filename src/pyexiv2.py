@@ -494,6 +494,18 @@ class IptcTag(MetadataTag):
             except TypeError:
                 raise IptcValueError(value, xtype)
 
+        elif xtype == 'Date':
+            # According to the IPTC specification, the format for a string field
+            # representing a date is '%Y%m%d'. However, the string returned by
+            # exiv2 using method DateValue::toString() is formatted using
+            # pattern '%Y-%m-%d'.
+            format = '%Y-%m-%d'
+            try:
+                t = time.strptime(value, format)
+                return datetime.date(*t[:3])
+            except ValueError:
+                raise IptcValueError(value, xtype)
+
         # TODO: other types
 
         raise NotImplementedError('IPTC conversion for type [%s]' % xtype)
