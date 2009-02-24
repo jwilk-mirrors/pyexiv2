@@ -457,21 +457,6 @@ class IptcTag(MetadataTag):
         super(IptcTag, self).__init__(key, name, label, description, xtype, values)
         self.values = map(lambda x: IptcTag._convert_to_python(x, self.xtype), self._value)
 
-#    def __convert_values_to_python_type(self):
-#        """
-#        Convert the stored values from strings to the matching Python type.
-#        """
-#        if self.xtype == 'Short':
-#            self.value = map(int, self._value)
-#        elif self.xtype == 'String':
-#            pass
-#        elif self.xtype == 'Date':
-#            self.value = map(StringToDate, self._value)
-#        elif self.xtype == 'Time':
-#            self.value = map(StringToTime, self._value)
-#        elif self.xtype == 'Undefined':
-#            pass
-
     @staticmethod
     def _convert_to_python(value, xtype):
         """
@@ -531,7 +516,9 @@ class IptcTag(MetadataTag):
             except (TypeError, ValueError):
                 raise IptcValueError(value, xtype)
 
-        # TODO: other types
+        elif xtype == 'Undefined':
+            # Binary data, return it unmodified
+            return value
 
         raise NotImplementedError('IPTC conversion for type [%s]' % xtype)
 

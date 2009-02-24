@@ -82,4 +82,10 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '21:12:98+00:00', xtype)
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '081242+0000', xtype)
 
-    # TODO: other types
+    def test_convert_to_python_undefined(self):
+        xtype = 'Undefined'
+        # Valid values
+        self.assertEqual(IptcTag._convert_to_python('Some binary data.', xtype),
+                         'Some binary data.')
+        self.assertEqual(IptcTag._convert_to_python('�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}', xtype),
+                         '�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}')
