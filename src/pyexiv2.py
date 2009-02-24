@@ -522,6 +522,31 @@ class IptcTag(MetadataTag):
 
         raise NotImplementedError('IPTC conversion for type [%s]' % xtype)
 
+    @staticmethod
+    def _convert_to_string(value, xtype):
+        """
+        Convert a value to its corresponding string representation.
+
+        @param value: the value to be converted
+        @type value:  depends on xtype (DOCME)
+        @param xtype: the IPTC type of the value
+        @type xtype:  C{str}
+
+        @return: the value converted to its corresponding string representation
+        @rtype:  C{str}
+
+        @raise L{IptcValueError}: if the conversion fails
+        """
+        if xtype == 'Short':
+            if type(value) is int:
+                return str(value)
+            else:
+                raise IptcValueError(value, xtype)
+
+        # TODO: other types
+
+        raise IptcValueError(value, xtype)
+
     def __str__(self):
         """
         Return a string representation of the IPTC tag.

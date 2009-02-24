@@ -43,6 +43,16 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '47.0001', xtype)
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '1E3', xtype)
 
+    def test_convert_to_string_short(self):
+        xtype = 'Short'
+        # Valid values
+        self.assertEqual(IptcTag._convert_to_string(123, xtype), '123')
+        self.assertEqual(IptcTag._convert_to_string(-57, xtype), '-57')
+        # Invalid values
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, 'invalid', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, '3.14', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, '1E3', xtype)
+
     def test_convert_to_python_string(self):
         xtype = 'String'
         # Valid values
