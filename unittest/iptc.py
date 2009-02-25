@@ -62,6 +62,17 @@ class TestIptcTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, None, xtype)
 
+    def test_convert_to_string_string(self):
+        xtype = 'String'
+        # Valid values
+        self.assertEqual(IptcTag._convert_to_string(u'Some text', xtype), 'Some text')
+        self.assertEqual(IptcTag._convert_to_string(u'Some text with exotic chàräctérʐ.', xtype),
+                         'Some text with exotic chàräctérʐ.')
+        self.assertEqual(IptcTag._convert_to_string('Some text with exotic chàräctérʐ.', xtype),
+                         'Some text with exotic chàräctérʐ.')
+        # Invalid values
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, None, xtype)
+
     def test_convert_to_python_date(self):
         xtype = 'Date'
         # Valid values

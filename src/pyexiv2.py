@@ -543,6 +543,17 @@ class IptcTag(MetadataTag):
             else:
                 raise IptcValueError(value, xtype)
 
+        elif xtype == 'String':
+            if type(value) is unicode:
+                try:
+                    return value.encode('utf-8')
+                except UnicodeEncodeError:
+                    raise IptcValueError(value, xtype)
+            elif type(value) is str:
+                return value
+            else:
+                raise IptcValueError(value, xtype)
+
         # TODO: other types
 
         raise IptcValueError(value, xtype)
