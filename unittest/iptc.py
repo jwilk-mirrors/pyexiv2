@@ -86,6 +86,21 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-10-32', xtype)
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-02-24T22:12:54', xtype)
 
+    def test_convert_to_string_date(self):
+        xtype = 'Date'
+        # Valid values
+        self.assertEqual(IptcTag._convert_to_string(datetime.date(2009, 2, 4), xtype),
+                         '20090204')
+        self.assertEqual(IptcTag._convert_to_string(datetime.datetime(1999, 10, 13), xtype),
+                         '19991013')
+        self.assertEqual(IptcTag._convert_to_string(datetime.datetime(2009, 2, 4), xtype),
+                         '20090204')
+        self.assertEqual(IptcTag._convert_to_string(datetime.datetime(2009, 2, 4, 10, 52, 37), xtype),
+                         '20090204')
+        # Invalid values
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, 'invalid', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, None, xtype)
+
     def test_convert_to_python_time(self):
         xtype = 'Time'
         # Valid values

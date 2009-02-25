@@ -554,6 +554,13 @@ class IptcTag(MetadataTag):
             else:
                 raise IptcValueError(value, xtype)
 
+        elif xtype == 'Date':
+            if type(value) in (datetime.date, datetime.datetime):
+                # ISO 8601 date format
+                return value.strftime('%Y%m%d')
+            else:
+                raise IptcValueError(value, xtype)
+
         # TODO: other types
 
         raise IptcValueError(value, xtype)
