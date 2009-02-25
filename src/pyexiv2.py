@@ -561,6 +561,17 @@ class IptcTag(MetadataTag):
             else:
                 raise IptcValueError(value, xtype)
 
+        elif xtype == 'Time':
+            if type(value) in (datetime.time, datetime.datetime):
+                r = value.strftime('%H%M%S')
+                if value.tzinfo is not None:
+                    r += value.strftime('%z')
+                else:
+                    r += '+0000'
+                return r
+            else:
+                raise IptcValueError(value, xtype)
+
         # TODO: other types
 
         raise IptcValueError(value, xtype)

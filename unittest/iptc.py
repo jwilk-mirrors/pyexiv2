@@ -118,6 +118,32 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '21:12:98+00:00', xtype)
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '081242+0000', xtype)
 
+    def test_convert_to_string_time(self):
+        xtype = 'Time'
+        # Valid values
+        self.assertEqual(IptcTag._convert_to_string(datetime.time(10, 52, 4), xtype),
+                         '105204+0000')
+        self.assertEqual(IptcTag._convert_to_string(datetime.time(10, 52, 4, 574), xtype),
+                         '105204+0000')
+        self.assertEqual(IptcTag._convert_to_string(datetime.time(10, 52, 4, tzinfo=FixedOffset()), xtype),
+                         '105204+0000')
+        self.assertEqual(IptcTag._convert_to_string(datetime.time(10, 52, 4, tzinfo=FixedOffset('+', 5, 30)), xtype),
+                         '105204+0530')
+        self.assertEqual(IptcTag._convert_to_string(datetime.time(10, 52, 4, tzinfo=FixedOffset('-', 4, 0)), xtype),
+                         '105204-0400')
+        self.assertEqual(IptcTag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4), xtype),
+                         '105204+0000')
+        self.assertEqual(IptcTag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, 478), xtype),
+                         '105204+0000')
+        self.assertEqual(IptcTag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset()), xtype),
+                         '105204+0000')
+        self.assertEqual(IptcTag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset('+', 5, 30)), xtype),
+                         '105204+0530')
+        self.assertEqual(IptcTag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset('-', 4, 0)), xtype),
+                         '105204-0400')
+        # Invalid values
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, 'invalid', xtype)
+
     def test_convert_to_python_undefined(self):
         xtype = 'Undefined'
         # Valid values
