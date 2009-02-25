@@ -151,3 +151,13 @@ class TestIptcTag(unittest.TestCase):
                          'Some binary data.')
         self.assertEqual(IptcTag._convert_to_python('�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}', xtype),
                          '�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}')
+
+    def test_convert_to_string_undefined(self):
+        xtype = 'Undefined'
+        # Valid values
+        self.assertEqual(IptcTag._convert_to_string('Some binary data.', xtype),
+                         'Some binary data.')
+        self.assertEqual(IptcTag._convert_to_string('�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}', xtype),
+                         '�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}')
+        # Invalid values
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, None, xtype)

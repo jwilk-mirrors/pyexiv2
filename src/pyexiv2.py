@@ -572,7 +572,11 @@ class IptcTag(MetadataTag):
             else:
                 raise IptcValueError(value, xtype)
 
-        # TODO: other types
+        elif xtype == 'Undefined':
+            if type(value) is str:
+                return value
+            else:
+                raise IptcValueError(value, xtype)
 
         raise IptcValueError(value, xtype)
 
