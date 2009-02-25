@@ -377,6 +377,16 @@ class MetadataTag(object):
         return r
 
 
+class ExifValueError(ValueError):
+    def __init__(self, value, xtype):
+        self.value = value
+        self.xtype = xtype
+
+    def __str__(self):
+        return 'Invalid value for EXIF type [%s]: [%s]' % \
+               (self.xtype, self.value)
+
+
 class ExifTag(MetadataTag):
 
     """
@@ -388,14 +398,12 @@ class ExifTag(MetadataTag):
         """
         Constructor.
         """
-        MetadataTag.__init__(self, key, name, label, description, xtype, value)
+        super(ExifTag, self).__init__(key, name, label, description, xtype, value)
         self.fvalue = fvalue
-        self.__convert_value_to_python_type()
+        self.value = ExifTag._convert_to_python(self._value, self.xtype)
 
+    """
     def __convert_value_to_python_type(self):
-        """
-        Convert the stored value from a string to the matching Python type.
-        """
         if self.xtype == 'Byte':
             pass
         elif self.xtype == 'Ascii':
@@ -418,13 +426,69 @@ class ExifTag(MetadataTag):
                 # Undefined but do not store their value as expected.
                 # This should fix bug #173387.
                 pass
+    """
+
+    @staticmethod
+    def _convert_to_python(value, xtype):
+        """
+        Convert a value to its corresponding python type.
+
+        @param value: the value to be converted, as a string
+        @type value:  C{str}
+        @param xtype: the EXIF type of the value
+        @type xtype:  C{str}
+
+        @return: the value converted to its corresponding python type
+        @rtype:  depends on xtype (DOCME)
+
+        @raise L{ExifValueError}: if the conversion fails
+        """
+        if xtype == 'Short':
+            try:
+                return int(value)
+            except ValueError:
+                raise ExifValueError(value, xtype)
+
+        # TODO: other types
+
+        raise ExifValueError(value, xtype)
+
+    @staticmethod
+    def _convert_to_string(value, xtype):
+        """
+        Convert a value to its corresponding string representation.
+
+        @param value: the value to be converted
+        @type value:  depends on xtype (DOCME)
+        @param xtype: the EXIF type of the value
+        @type xtype:  C{str}
+
+        @return: the value converted to its corresponding string representation
+        @rtype:  C{str}
+
+        @raise L{ExifValueError}: if the conversion fails
+        """
+        if xtype == 'Short':
+            if type(value) is int:
+                return str(value)
+            else:
+                raise ExifValueError(value, xtype)
+
+        # TODO: other types
+
+        raise ExifValueError(value, xtype)
 
     def __str__(self):
         """
         Return a string representation of the EXIF tag.
         """
-        r = MetadataTag.__str__(self)
-        r += os.linesep + 'Formatted value = ' + self.fvalue
+        r = 'Key = ' + self.key + os.linesep + \
+            'Name = ' + self.name + os.linesep + \
+            'Label = ' + self.label + os.linesep + \
+            'Description = ' + self.description + os.linesep + \
+            'Type = ' + self.xtype + os.linesep + \
+            'Value = ' + str(self.value) + os.linesep + \
+            'Formatted value = ' + self.fvalue
         return r
 
 
@@ -520,7 +584,7 @@ class IptcTag(MetadataTag):
             # Binary data, return it unmodified
             return value
 
-        raise NotImplementedError('IPTC conversion for type [%s]' % xtype)
+        raise IptcValueError(value, xtype)
 
     @staticmethod
     def _convert_to_string(value, xtype):
@@ -801,8 +865,11 @@ class XmpTag(MetadataTag):
             else:
                 raise XmpValueError(value, xtype)
 
-        elif xtype == 'Boolean' and type(value) is bool:
-            return str(value)
+        elif xtype == 'Boolean':
+            if type(value) is bool:
+                return str(value)
+            else:
+                raise XmpValueError(value, xtype)
 
         elif xtype == 'Date':
             if type(value) is datetime.date:
@@ -877,7 +944,7 @@ class XmpTag(MetadataTag):
             else:
                 raise XmpValueError(value, xtype)
 
-        raise XmpValueError(value, xtype)
+        raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
     def __str__(self):
         """

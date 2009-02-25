@@ -35,8 +35,9 @@ import unittest
 #from Bug175070_TestCase import Bug175070_TestCase
 #from Bug183332_TestCase import Bug183332_TestCase
 #from Bug183618_TestCase import Bug183618_TestCase
-from xmp import TestXmpTag
+from exif import TestExifTag
 from iptc import TestIptcTag
+from xmp import TestXmpTag
 
 
 if __name__ == '__main__':
@@ -49,7 +50,8 @@ if __name__ == '__main__':
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug175070_TestCase))
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183332_TestCase))
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183618_TestCase))
-    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpTag))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestExifTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIptcTag))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpTag))
     # Run the test suite
     unittest.TextTestRunner(verbosity=2).run(suite)
