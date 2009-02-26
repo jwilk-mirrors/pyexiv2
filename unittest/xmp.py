@@ -165,8 +165,7 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(XmpTag._convert_to_string(-57, xtype), '-57')
         # Invalid values
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, 'invalid', xtype)
-        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, '3.14', xtype)
-        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, '1E3', xtype)
+        self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, 3.14, xtype)
 
     def test_convert_to_python_langalt(self):
         xtype = 'Lang Alt'

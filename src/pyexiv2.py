@@ -449,6 +449,12 @@ class ExifTag(MetadataTag):
             except ValueError:
                 raise ExifValueError(value, xtype)
 
+        elif xtype in ('Long', 'SLong'):
+            try:
+                return long(value)
+            except ValueError:
+                raise ExifValueError(value, xtype)
+
         # TODO: other types
 
         raise ExifValueError(value, xtype)
@@ -469,7 +475,19 @@ class ExifTag(MetadataTag):
         @raise L{ExifValueError}: if the conversion fails
         """
         if xtype == 'Short':
-            if type(value) is int:
+            if type(value) is int and value >= 0:
+                return str(value)
+            else:
+                raise ExifValueError(value, xtype)
+
+        elif xtype == 'Long':
+            if type(value) in (int, long) and value >= 0:
+                return str(value)
+            else:
+                raise ExifValueError(value, xtype)
+
+        elif xtype == 'SLong':
+            if type(value) in (int, long):
                 return str(value)
             else:
                 raise ExifValueError(value, xtype)
