@@ -26,9 +26,45 @@
 
 import unittest
 from pyexiv2 import ExifTag, ExifValueError
+import datetime
 
 
 class TestExifTag(unittest.TestCase):
+
+    def test_convert_to_python_ascii(self):
+        xtype = 'Ascii'
+        # Valid values: datetimes
+        self.assertEqual(ExifTag._convert_to_python('2009-03-01 12:46:51', xtype),
+                         datetime.datetime(2009, 03, 01, 12, 46, 51))
+        self.assertEqual(ExifTag._convert_to_python('2009:03:01 12:46:51', xtype),
+                         datetime.datetime(2009, 03, 01, 12, 46, 51))
+        self.assertEqual(ExifTag._convert_to_python('2009-03-01T12:46:51Z', xtype),
+                         datetime.datetime(2009, 03, 01, 12, 46, 51))
+        # Valid values: strings
+        self.assertEqual(ExifTag._convert_to_python('Some text.', xtype), u'Some text.')
+        self.assertEqual(ExifTag._convert_to_python('Some text with exotic chàräctérʐ.', xtype),
+                         u'Some text with exotic chàräctérʐ.')
+        # Invalid values: datetimes
+        self.assertEqual(ExifTag._convert_to_python('2009-13-01 12:46:51', xtype),
+                         u'2009-13-01 12:46:51')
+        self.assertEqual(ExifTag._convert_to_python('2009-12-01', xtype),
+                         u'2009-12-01')
+
+    def test_convert_to_string_ascii(self):
+        xtype = 'Ascii'
+        # Valid values: datetimes
+        self.assertEqual(ExifTag._convert_to_string(datetime.datetime(2009, 03, 01, 12, 54, 28), xtype),
+                         '2009-03-01 12:54:28')
+        self.assertEqual(ExifTag._convert_to_string(datetime.date(2009, 03, 01), xtype),
+                         '2009-03-01 00:00:00')
+        # Valid values: strings
+        self.assertEqual(ExifTag._convert_to_string(u'Some text', xtype), 'Some text')
+        self.assertEqual(ExifTag._convert_to_string(u'Some text with exotic chàräctérʐ.', xtype),
+                         'Some text with exotic chàräctérʐ.')
+        self.assertEqual(ExifTag._convert_to_string('Some text with exotic chàräctérʐ.', xtype),
+                         'Some text with exotic chàräctérʐ.')
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, None, xtype)
 
     def test_convert_to_python_short(self):
         xtype = 'Short'

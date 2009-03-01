@@ -394,6 +394,13 @@ class ExifTag(MetadataTag):
     of the tag formatted as a human readable string.
     """
 
+    # According to the EXIF specification, the only accepted format for an Ascii
+    # value representing a datetime is '%Y-%m-%d %H:%M:%S', but it seems that
+    # others formats can be found in the wild.
+    _datetime_formats = ('%Y-%m-%d %H:%M:%S',
+                         '%Y:%m:%d %H:%M:%S',
+                         '%Y-%m-%dT%H:%M:%SZ')
+
     def __init__(self, key, name, label, description, xtype, value, fvalue):
         """
         Constructor.
@@ -443,7 +450,22 @@ class ExifTag(MetadataTag):
 
         @raise L{ExifValueError}: if the conversion fails
         """
-        if xtype == 'Short':
+        if xtype == 'Ascii':
+            # The value may contain a Datetime
+            for format in ExifTag._datetime_formats:
+                try:
+                    t = time.strptime(value, format)
+                except ValueError:
+                    continue
+                else:
+                    return datetime.datetime(*t[:6])
+            # Default to string
+            try:
+                return unicode(value, 'utf-8')
+            except TypeError:
+                raise ExifValueError(value, xtype)
+
+        elif xtype == 'Short':
             try:
                 return int(value)
             except ValueError:
@@ -474,7 +496,22 @@ class ExifTag(MetadataTag):
 
         @raise L{ExifValueError}: if the conversion fails
         """
-        if xtype == 'Short':
+        if xtype == 'Ascii':
+            if type(value) is datetime.datetime:
+                return value.strftime('%Y-%m-%d %H:%M:%S')
+            elif type(value) is datetime.date:
+                return value.strftime('%Y-%m-%d 00:00:00')
+            elif type(value) is unicode:
+                try:
+                    return value.encode('utf-8')
+                except UnicodeEncodeError:
+                    raise ExifValueError(value, xtype)
+            elif type(value) is str:
+                return value
+            else:
+                raise ExifValueError(value, xtype) 
+
+        elif xtype == 'Short':
             if type(value) is int and value >= 0:
                 return str(value)
             else:
