@@ -407,7 +407,7 @@ class ExifTag(MetadataTag):
         """
         super(ExifTag, self).__init__(key, name, label, description, xtype, value)
         self.fvalue = fvalue
-        self.value = ExifTag._convert_to_python(value, xtype)
+        self.value = ExifTag._convert_to_python(value, xtype, fvalue)
 
     """
     def __convert_value_to_python_type(self):
@@ -436,14 +436,16 @@ class ExifTag(MetadataTag):
     """
 
     @staticmethod
-    def _convert_to_python(value, xtype):
+    def _convert_to_python(value, xtype, fvalue):
         """
         Convert a value to its corresponding python type.
 
-        @param value: the value to be converted, as a string
-        @type value:  C{str}
-        @param xtype: the EXIF type of the value
-        @type xtype:  C{str}
+        @param value:  the value to be converted, as a string
+        @type value:   C{str}
+        @param xtype:  the EXIF type of the value
+        @type xtype:   C{str}
+        @param fvalue: the value formatted as a human-readable string by exiv2
+        @type fvalue:  C{str}
 
         @return: the value converted to its corresponding python type
         @rtype:  depends on xtype (DOCME)
@@ -476,6 +478,12 @@ class ExifTag(MetadataTag):
                 return long(value)
             except ValueError:
                 raise ExifValueError(value, xtype)
+
+        elif xtype == 'Undefined':
+            try:
+                return unicode(fvalue, 'utf-8')
+            except TypeError:
+                raise ExifValueError(fvalue, xtype)
 
         # TODO: other types
 
