@@ -407,7 +407,7 @@ class ExifTag(MetadataTag):
         """
         super(ExifTag, self).__init__(key, name, label, description, xtype, value)
         self.fvalue = fvalue
-        self.value = ExifTag._convert_to_python(self._value, self.xtype)
+        self.value = ExifTag._convert_to_python(value, xtype)
 
     """
     def __convert_value_to_python_type(self):
@@ -574,7 +574,7 @@ class IptcTag(MetadataTag):
         Constructor.
         """
         super(IptcTag, self).__init__(key, name, label, description, xtype, values)
-        self.values = map(lambda x: IptcTag._convert_to_python(x, self.xtype), self._value)
+        self.values = map(lambda x: IptcTag._convert_to_python(x, xtype), values)
 
     @staticmethod
     def _convert_to_python(value, xtype):
@@ -739,7 +739,7 @@ class XmpTag(MetadataTag):
         Constructor.
         """
         super(XmpTag, self).__init__(key, name, label, description, xtype, values)
-        self.values = map(lambda x: XmpTag._convert_to_python(x, self.xtype), self._value)
+        self.values = map(lambda x: XmpTag._convert_to_python(x, xtype), values)
 
     @staticmethod
     def _convert_to_python(value, xtype):
