@@ -289,6 +289,8 @@ class Rational(object):
     A class representing a rational number.
     """
 
+    _format_re = re.compile(r'(?P<numerator>-?\d+)/(?P<denominator>\d+)')
+
     def __init__(self, numerator, denominator):
         """
         Constructor.
@@ -305,6 +307,26 @@ class Rational(object):
             raise ZeroDivisionError(msg)
         self.numerator = long(numerator)
         self.denominator = long(denominator)
+
+    @staticmethod
+    def from_string(string):
+        """
+        Instantiate a Rational from a string formatted as
+        C{[-]numerator/denominator}.
+
+        @param string: a string representation of a rational number
+        @type string:  C{str}
+
+        @return: the rational number parsed
+        @rtype:  L{Rational}
+
+        @raise ValueError: if the format of the string is invalid
+        """
+        match = Rational._format_re.match(string)
+        if match is None:
+            raise ValueError('Invalid format for a rational: %s' % string)
+        gd = match.groupdict()
+        return Rational(long(gd['numerator']), long(gd['denominator']))
 
     def __eq__(self, other):
         """
@@ -326,26 +348,6 @@ class Rational(object):
         Return a string representation of the rational number.
         """
         return '%d/%d' % (self.numerator, self.denominator)
-
-def StringToRational(string):
-    """
-    Try to convert a string containing a rational number to a Rational object.
-
-    Try to convert a string containing a rational number to the corresponding
-    Rational object.
-    The conversion is done by matching a regular expression.
-    If the pattern does not match, the Rational object with numerator=0 and
-    denominator=1 is returned.
-
-    Keyword arguments:
-    string -- the string potentially containing a rational number
-    """
-    pattern = re.compile("(-?[0-9]+)/(-?[1-9][0-9]*)")
-    match = pattern.match(string)
-    if match == None:
-        return Rational(0, 1)
-    else:
-        return Rational(*map(long, match.groups()))
 
 
 class MetadataTag(object):
