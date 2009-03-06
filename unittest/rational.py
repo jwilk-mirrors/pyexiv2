@@ -1,9 +1,8 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # ******************************************************************************
 #
-# Copyright (C) 2008 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2008-2009 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -21,42 +20,27 @@
 # along with pyexiv2; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
 #
-#
-# File:      RationalTestCase.py
-# Author(s): Olivier Tilloy <olivier@tilloy.net>
+# Author: Olivier Tilloy <olivier@tilloy.net>
 #
 # ******************************************************************************
 
 import unittest
-import pyexiv2
+from pyexiv2 import Rational
 
-class RationalTestCase(unittest.TestCase):
 
-    """
-    Test case on the pyexiv2.Rational class.
-    """
+class TestRational(unittest.TestCase):
 
-    def testConstructor(self):
-        """
-        Test that the rational number constructor works as expected.
-        """
-        r = pyexiv2.Rational(2, 1)
+    def test_constructor(self):
+        r = Rational(2, 1)
         self.assertEqual(r.numerator, 2)
         self.assertEqual(r.denominator, 1)
+        self.assertRaises(ZeroDivisionError, Rational, 1, 0)
 
-    def testException(self):
-        """
-        Test that the constructor throws an exception when denominator is zero.
-        """
-        self.assertRaises(ZeroDivisionError, pyexiv2.Rational, 1, 0)
-
-    def testEquality(self):
-        """
-        Test the (non) equality of two rational numbers.
-        """
-        r1 = pyexiv2.Rational(2, 1)
-        r2 = pyexiv2.Rational(2, 1)
-        r3 = pyexiv2.Rational(3, 1)
+    def test_equality(self):
+        r1 = Rational(2, 1)
+        r2 = Rational(2, 1)
+        r3 = Rational(8, 4)
+        r4 = Rational(3, 2)
         self.assertEqual(r1, r2)
-        self.assertNotEqual(r1, r3)
-
+        self.assertEqual(r1, r3)
+        self.assertNotEqual(r1, r4)

@@ -283,7 +283,7 @@ def StringToTime(string):
 
     return localTime
 
-class Rational:
+class Rational(object):
 
     """
     A class representing a rational number.
@@ -293,14 +293,16 @@ class Rational:
         """
         Constructor.
 
-        Construct a rational number from its numerator and its denominator.
+        @param numerator:   the numerator
+        @type numerator:    C{long}
+        @param denominator: the denominator
+        @type denominator:  C{long}
 
-        Keyword arguments:
-        numerator -- the numerator
-        denominator -- the denominator (if zero, will raise a ZeroDivisionError)
+        @raise C{ZeroDivisionError}: if the denominator equals zero
         """
-        if int(denominator) == 0:
-            raise ZeroDivisionError('Denominator of a rational number cannot be zero')
+        if denominator == 0:
+            msg = 'Denominator of a rational number cannot be zero.'
+            raise ZeroDivisionError(msg)
         self.numerator = long(numerator)
         self.denominator = long(denominator)
 
@@ -308,20 +310,22 @@ class Rational:
         """
         Compare two rational numbers for equality.
 
-        Two rational numbers are equal if and only if their numerators are equal
-        and their denominators are equal.
+        Two rational numbers are equal if their reduced forms are equal.
 
-        Keyword arguments:
-        other -- the rational number to compare to self for equality
+        @param other: the rational number to compare to self for equality
+        @type other:  L{Rational}
+        
+        @return: C{True} if equal, C{False} otherwise
+        @rtype:  C{bool}
         """
-        return ((self.numerator == other.numerator) and
-                (self.denominator == other.denominator))
+        return (self.numerator * other.denominator) == \
+               (other.numerator * self.denominator)
 
     def __str__(self):
         """
         Return a string representation of the rational number.
         """
-        return str(self.numerator) + '/' + str(self.denominator)
+        return '%d/%d' % (self.numerator, self.denominator)
 
 def StringToRational(string):
     """
