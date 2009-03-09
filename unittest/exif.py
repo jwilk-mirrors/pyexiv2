@@ -25,7 +25,7 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import ExifTag, ExifValueError
+from pyexiv2 import ExifTag, ExifValueError, Rational
 import datetime
 
 
@@ -128,6 +128,42 @@ class TestExifTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, 'invalid', xtype)
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, 3.14, xtype)
+
+    def test_convert_to_python_rational(self):
+        xtype = 'Rational'
+        # Valid values
+        self.assertEqual(ExifTag._convert_to_python('5/3', xtype, None), Rational(5, 3))
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, 'invalid', xtype, None)
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '-5/3', xtype, None)
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5 / 3', xtype, None)
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5/-3', xtype, None)
+
+    def test_convert_to_string_rational(self):
+        xtype = 'Rational'
+        # Valid values
+        self.assertEqual(ExifTag._convert_to_string(Rational(5, 3), xtype), '5/3')
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, 'invalid', xtype)
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, Rational(-5, 3), xtype)
+
+    def test_convert_to_python_srational(self):
+        xtype = 'SRational'
+        # Valid values
+        self.assertEqual(ExifTag._convert_to_python('5/3', xtype, None), Rational(5, 3))
+        self.assertEqual(ExifTag._convert_to_python('-5/3', xtype, None), Rational(-5, 3))
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, 'invalid', xtype, None)
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5 / 3', xtype, None)
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5/-3', xtype, None)
+
+    def test_convert_to_string_srational(self):
+        xtype = 'SRational'
+        # Valid values
+        self.assertEqual(ExifTag._convert_to_string(Rational(5, 3), xtype), '5/3')
+        self.assertEqual(ExifTag._convert_to_string(Rational(-5, 3), xtype), '-5/3')
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, 'invalid', xtype)
 
     def test_convert_to_python_undefined(self):
         xtype = 'Undefined'

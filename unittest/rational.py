@@ -44,6 +44,10 @@ class TestRational(unittest.TestCase):
         self.assertRaises(ValueError, Rational.from_string, '3/-5')
         self.assertRaises(ValueError, Rational.from_string, 'invalid')
 
+    def test_to_string(self):
+        self.assertEqual(str(Rational(3, 5)), '3/5')
+        self.assertEqual(str(Rational(-3, 5)), '-3/5')
+
     def test_equality(self):
         r1 = Rational(2, 1)
         r2 = Rational(2, 1)

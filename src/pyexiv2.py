@@ -283,6 +283,7 @@ def StringToTime(string):
 
     return localTime
 
+
 class Rational(object):
 
     """
@@ -485,6 +486,16 @@ class ExifTag(MetadataTag):
             except ValueError:
                 raise ExifValueError(value, xtype)
 
+        elif xtype in ('Rational', 'SRational'):
+            try:
+                r = Rational.from_string(value)
+            except (ValueError, ZeroDivisionError):
+                raise ExifValueError(value, xtype)
+            else:
+                if xtype == 'Rational' and r.numerator < 0:
+                    raise ExifValueError(value, xtype)
+                return r
+
         elif xtype == 'Undefined':
             try:
                 return unicode(fvalue, 'utf-8')
@@ -542,6 +553,22 @@ class ExifTag(MetadataTag):
                 return str(value)
             else:
                 raise ExifValueError(value, xtype)
+
+        elif xtype == 'Rational':
+            if type(value) is Rational and value.numerator >= 0:
+                return str(value)
+            else:
+                raise ExifValueError(value, xtype)
+
+        elif xtype == 'SRational':
+            if type(value) is Rational:
+                return str(value)
+            else:
+                raise ExifValueError(value, xtype)
+
+        elif xtype == 'Undefined':
+            # TODO
+            raise NotImplementedError('EXIF conversion for type [%s]' % xtype)
 
         # TODO: other types
 
