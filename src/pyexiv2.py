@@ -21,9 +21,7 @@
 # along with pyexiv2; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
 #
-#
-# File:      pyexiv2.py
-# Author(s): Olivier Tilloy <olivier@tilloy.net>
+# Author: Olivier Tilloy <olivier@tilloy.net>
 #
 # ******************************************************************************
 
@@ -165,6 +163,7 @@ def UndefinedToString(undefined):
     """
     return ''.join(map(lambda x: chr(int(x)), undefined.rstrip().split(' ')))
 
+
 def StringToUndefined(sequence):
     """
     Convert a string containing a sequence of bytes into its undefined form.
@@ -178,110 +177,6 @@ def StringToUndefined(sequence):
     sequence -- the string containing the sequence of bytes
     """
     return ''.join(map(lambda x: '%d ' % ord(x), sequence))
-
-def StringToDateTime(string):
-    """
-    Try to convert a string containing a date and time to a datetime object.
-
-    Try to convert a string containing a date and time to the corresponding
-    datetime object. The conversion is done by trying several patterns for
-    regular expression matching.
-    If no pattern matches, the string is returned unchanged.
-
-    Keyword arguments:
-    string -- the string potentially containing a date and time
-    """
-    # Possible formats to try
-    # According to the EXIF specification [http://www.exif.org/Exif2-2.PDF], the
-    # only accepted format for a string field representing a datetime is
-    # '%Y-%m-%d %H:%M:%S', but it seems that others formats can be found in the
-    # wild, so this list could be extended to include new exotic formats.
-    # TODO: move the declaration of this list at module level
-    formats = ['%Y-%m-%d %H:%M:%S', '%Y:%m:%d %H:%M:%S', '%Y-%m-%dT%H:%M:%SZ']
-
-    for format in formats:
-        try:
-            t = time.strptime(string, format)
-            return datetime.datetime(*t[:6])
-        except ValueError:
-            # the tested format does not match, do nothing
-            pass
-
-    # none of the tested formats matched, return the original string unchanged
-    return string
-
-def StringToDate(string):
-    """
-    Try to convert a string containing a date to a date object.
-
-    Try to convert a string containing a date to the corresponding date object.
-    The conversion is done by matching a regular expression.
-    If the pattern does not match, the string is returned unchanged.
-
-    Keyword arguments:
-    string -- the string potentially containing a date
-    """
-    # According to the IPTC specification
-    # [http://www.iptc.org/std/IIM/4.1/specification/IIMV4.1.pdf], the format
-    # for a string field representing a date is '%Y%m%d'.
-    # However, the string returned by exiv2 using method DateValue::toString()
-    # is formatted using pattern '%Y-%m-%d'.
-    format = '%Y-%m-%d'
-    try:
-        t = time.strptime(string, format)
-        return datetime.date(*t[:3])
-    except ValueError:
-        # the tested format does not match, do nothing
-        return string
-
-def StringToTime(string):
-    """
-    Try to convert a string containing a time to a time object.
-
-    Try to convert a string containing a time to the corresponding time object.
-    The conversion is done by matching a regular expression.
-    If the pattern does not match, the string is returned unchanged.
-
-    Keyword arguments:
-    string -- the string potentially containing a time
-    """
-    # According to the IPTC specification
-    # [http://www.iptc.org/std/IIM/4.1/specification/IIMV4.1.pdf], the format
-    # for a string field representing a time is '%H%M%S±%H%M'.
-    # However, the string returned by exiv2 using method TimeValue::toString()
-    # is formatted using pattern '%H:%M:%S±%H:%M'.
-
-    if len(string) != 14:
-        # the string is not correctly formatted, do nothing
-        return string
-
-    if (string[2] != ':') or (string[5] != ':') or (string[11] != ':'):
-        # the string is not correctly formatted, do nothing
-        return string
-
-    offsetSign = string[8]
-    if (offsetSign != '+') and (offsetSign != '-'):
-        # the string is not correctly formatted, do nothing
-        return string
-
-    try:
-        hours = int(string[:2])
-        minutes = int(string[3:5])
-        seconds = int(string[6:8])
-        offsetHours = int(string[9:11])
-        offsetMinutes = int(string[12:])
-    except ValueError:
-        # the string is not correctly formatted, do nothing
-        return string
-
-    try:
-        offset = FixedOffset(offsetSign, offsetHours, offsetMinutes)
-        localTime = datetime.time(hours, minutes, seconds, tzinfo=offset)
-    except ValueError:
-        # the values are out of range, do nothing
-        return string
-
-    return localTime
 
 
 class Rational(object):
@@ -415,32 +310,6 @@ class ExifTag(MetadataTag):
         super(ExifTag, self).__init__(key, name, label, description, xtype, value)
         self.fvalue = fvalue
         self.value = ExifTag._convert_to_python(value, xtype, fvalue)
-
-    """
-    def __convert_value_to_python_type(self):
-        if self.xtype == 'Byte':
-            pass
-        elif self.xtype == 'Ascii':
-            # try to guess if the value is a datetime
-            self.value = StringToDateTime(self._value)
-        elif self.xtype == 'Short':
-            self.value = int(self._value)
-        elif self.xtype == 'Long' or self.type == 'SLong':
-            self.value = long(self._value)
-        elif self.xtype == 'Rational' or self.type == 'SRational':
-            self.value = StringToRational(self._value)
-        elif self.xtype == 'Undefined':
-            # self.value is a sequence of bytes whose codes are written as a
-            # string, each code being followed by a blank space (e.g.
-            # "48 50 50 49 " for "0221" in the "Exif.Photo.ExifVersion" tag).
-            try:
-                self.value = UndefinedToString(self._value)
-            except ValueError:
-                # Some tags such as "Exif.Photo.UserComment" are marked as
-                # Undefined but do not store their value as expected.
-                # This should fix bug #173387.
-                pass
-    """
 
     @staticmethod
     def _convert_to_python(value, xtype, fvalue):
@@ -1460,4 +1329,3 @@ class Image(libexiv2python.Image):
         for key in self.iptcKeys():
             destImage[key] = self[key]
         destImage.setComment(self.getComment())
-
