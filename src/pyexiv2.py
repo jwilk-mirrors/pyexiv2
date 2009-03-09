@@ -474,6 +474,9 @@ class ExifTag(MetadataTag):
             except TypeError:
                 raise ExifValueError(value, xtype)
 
+        elif xtype == 'Byte':
+            return value
+
         elif xtype == 'Short':
             try:
                 return int(value)
@@ -501,8 +504,6 @@ class ExifTag(MetadataTag):
                 return unicode(fvalue, 'utf-8')
             except TypeError:
                 raise ExifValueError(fvalue, xtype)
-
-        # TODO: other types
 
         raise ExifValueError(value, xtype)
 
@@ -535,6 +536,17 @@ class ExifTag(MetadataTag):
                 return value
             else:
                 raise ExifValueError(value, xtype) 
+
+        elif xtype == 'Byte':
+            if type(value) is unicode:
+                try:
+                    return value.encode('utf-8')
+                except UnicodeEncodeError:
+                    raise ExifValueError(value, xtype)
+            elif type(value) is str:
+                return value
+            else:
+                raise ExifValueError(value, xtype)
 
         elif xtype == 'Short':
             if type(value) is int and value >= 0:
@@ -576,8 +588,6 @@ class ExifTag(MetadataTag):
                 return value
             else:
                 raise ExifValueError(value, xtype)
-
-        # TODO: other types
 
         raise ExifValueError(value, xtype)
 

@@ -66,6 +66,19 @@ class TestExifTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, None, xtype)
 
+    def test_convert_to_python_byte(self):
+        xtype = 'Byte'
+        # Valid values
+        self.assertEqual(ExifTag._convert_to_python('Some text', xtype, None), 'Some text')
+
+    def test_convert_to_string_byte(self):
+        xtype = 'Byte'
+        # Valid values
+        self.assertEqual(ExifTag._convert_to_string('Some text', xtype), 'Some text')
+        self.assertEqual(ExifTag._convert_to_string(u'Some text', xtype), 'Some text')
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, None, xtype)
+
     def test_convert_to_python_short(self):
         xtype = 'Short'
         # Valid values
