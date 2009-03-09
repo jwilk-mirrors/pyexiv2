@@ -567,8 +567,15 @@ class ExifTag(MetadataTag):
                 raise ExifValueError(value, xtype)
 
         elif xtype == 'Undefined':
-            # TODO
-            raise NotImplementedError('EXIF conversion for type [%s]' % xtype)
+            if type(value) is unicode:
+                try:
+                    return value.encode('utf-8')
+                except UnicodeEncodeError:
+                    raise ExifValueError(value, xtype)
+            elif type(value) is str:
+                return value
+            else:
+                raise ExifValueError(value, xtype)
 
         # TODO: other types
 

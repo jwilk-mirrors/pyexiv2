@@ -174,3 +174,11 @@ class TestExifTag(unittest.TestCase):
                          u'Digital still camera')
         # Invalid values
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, 'abc', xtype, None)
+
+    def test_convert_to_string_undefined(self):
+        xtype = 'Undefined'
+        # Valid values
+        self.assertEqual(ExifTag._convert_to_string('48 49 48 48 ', xtype), '48 49 48 48 ')
+        self.assertEqual(ExifTag._convert_to_string(u'48 49 48 48 ', xtype), '48 49 48 48 ')
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, 3, xtype)
