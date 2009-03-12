@@ -38,6 +38,7 @@ from rational import TestRational
 from exif import TestExifTag
 from iptc import TestIptcTag
 from xmp import TestXmpTag
+from metadata import TestImageMetadata
 
 
 if __name__ == '__main__':
@@ -53,5 +54,6 @@ if __name__ == '__main__':
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestExifTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIptcTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpTag))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestImageMetadata))
     # Run the test suite
     unittest.TextTestRunner(verbosity=2).run(suite)

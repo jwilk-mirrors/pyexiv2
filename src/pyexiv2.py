@@ -941,6 +941,66 @@ class XmpTag(MetadataTag):
         return r
 
 
+class ImageMetadata(object):
+
+    """
+    DOCME
+    """
+
+    def __init__(self, filename):
+        self.filename = filename
+        if type(filename) is unicode:
+            self.filename = filename.encode('utf-8')
+        self._image = None
+        self._keys = {'exif': None, 'iptc': None, 'xmp': None}
+        self._tags = {'exif': {}, 'iptc': {}, 'xmp': {}}
+
+    def _instantiate_image(self, filename):
+        # This method is meant to be overridden in unit tests to easily replace
+        # the internal image reference by a mock.
+        return libexiv2python.Image(filename)
+
+    def read(self):
+        """
+        DOCME
+        """
+        if self._image is None:
+            self._image = self._instantiate_image(self.filename)
+        self._image.readMetadata()
+
+    def write(self):
+        """
+        DOCME
+        """
+        self._image.writeMetadata()
+
+    @property
+    def exif_keys(self):
+        if self._keys['exif'] is None:
+            self._keys['exif'] = self._image.exifKeys()
+        return self._keys['exif']
+
+    @property
+    def iptc_keys(self):
+        if self._keys['iptc'] is None:
+            self._keys['iptc'] = self._image.iptcKeys()
+        return self._keys['iptc']
+
+    @property
+    def xmp_keys(self):
+        if self._keys['xmp'] is None:
+            self._keys['xmp'] = self._image.xmpKeys()
+        return self._keys['xmp']
+
+    def _get_exif_tag(self, key):
+        try:
+            return self._tags['exif'][key]
+        except KeyError:
+            tag = ExifTag(*self._image.getExifTag(key))
+            self._tags['exif'][key] = tag
+            return tag
+
+
 class Image(libexiv2python.Image):
 
     """
