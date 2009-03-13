@@ -342,8 +342,9 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
+			Exiv2::ExifThumb thumbnail(_exifData);
 			const Exiv2::byte* dataBuf = (const Exiv2::byte*) data.c_str();
-			//_exifData.setJpegThumbnail(dataBuf, data.size());
+			thumbnail.setJpegThumbnail(dataBuf, data.size());
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
@@ -352,8 +353,10 @@ namespace LibPyExiv2
 	void Image::deleteThumbnail()
 	{
 		if(_dataRead)
-			//_exifData.eraseThumbnail();
-			1;
+		{
+			Exiv2::ExifThumb thumbnail(_exifData);
+			thumbnail.erase();
+		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
