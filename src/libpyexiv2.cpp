@@ -309,30 +309,30 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			Exiv2::Thumbnail::AutoPtr thumbnail = _exifData.getThumbnail();
-			if (thumbnail.get() != 0)
+			Exiv2::ExifThumb thumbnail(_exifData);
+			std::string mimetype(thumbnail.mimeType());
+			if (mimetype == "")
 			{
-				std::string format(_exifData.thumbnailFormat());
-				// Copy the data buffer in a string. Since the data buffer can
-				// contain null char ('\x00'), the string cannot be simply
-				// constructed like that:
-				//     std::string data((char*) dataBuffer.pData_);
-				// because it would be truncated after the first occurence of a
-				// null char. Therefore, it has to be copied char by char.
-				Exiv2::DataBuf dataBuffer = _exifData.copyThumbnail();
-				char* charData = (char*) dataBuffer.pData_;
-				long dataLen = dataBuffer.size_;
-				// First allocate the memory for the whole string...
-				std::string data(dataLen, ' ');
-				// ... then fill it with the raw jpeg data.
-				for(long i = 0; i < dataLen; ++i)
-				{
-					data[i] = charData[i];
-				}
-				return boost::python::make_tuple(format, data);
-			}
-			else
+			    // The image does not contain an EXIF thumbnail
 				throw Exiv2::Error(THUMB_ACCESS);
+			}
+			// Copy the data buffer in a string. Since the data buffer can
+			// contain null char ('\x00'), the string cannot be simply
+			// constructed like that:
+			//     std::string data((char*) dataBuffer.pData_);
+			// because it would be truncated after the first occurence of a
+			// null char. Therefore, it has to be copied char by char.
+			Exiv2::DataBuf dataBuffer = thumbnail.copy();
+			char* charData = (char*) dataBuffer.pData_;
+			long dataLen = dataBuffer.size_;
+			// First allocate the memory for the whole string...
+			std::string data(dataLen, ' ');
+			// ... then fill it with the raw jpeg data.
+			for(long i = 0; i < dataLen; ++i)
+			{
+				data[i] = charData[i];
+			}
+			return boost::python::make_tuple(mimetype, data);
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
@@ -343,7 +343,7 @@ namespace LibPyExiv2
 		if(_dataRead)
 		{
 			const Exiv2::byte* dataBuf = (const Exiv2::byte*) data.c_str();
-			_exifData.setJpegThumbnail(dataBuf, data.size());
+			//_exifData.setJpegThumbnail(dataBuf, data.size());
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
@@ -352,7 +352,8 @@ namespace LibPyExiv2
 	void Image::deleteThumbnail()
 	{
 		if(_dataRead)
-			_exifData.eraseThumbnail();
+			//_exifData.eraseThumbnail();
+			1;
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
 	}
@@ -361,9 +362,10 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			int result = _exifData.writeThumbnail(path);
-			if (result == 8)
-				throw Exiv2::Error(NO_THUMBNAIL);
+			//int result = _exifData.writeThumbnail(path);
+			//if (result == 8)
+			//	throw Exiv2::Error(NO_THUMBNAIL);
+			1;
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
@@ -373,7 +375,8 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			_exifData.setJpegThumbnail(path);
+			//_exifData.setJpegThumbnail(path);
+			1;
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);

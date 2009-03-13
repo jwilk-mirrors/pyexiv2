@@ -45,27 +45,33 @@ if __name__ == '__main__':
 	if (len(sys.argv) != 2):
 		print 'Usage: ' + sys.argv[0] + ' path/to/picture/file/containing/jpeg/thumbnail'
 		sys.exit(1)
-	else:
-		app = gtk.Window(gtk.WINDOW_TOPLEVEL)
 
-		# Load the image, read the metadata and extract the thumbnail data
-		image = pyexiv2.Image(sys.argv[1])
-		image.readMetadata()
+	app = gtk.Window(gtk.WINDOW_TOPLEVEL)
+
+	# Load the image, read the metadata and extract the thumbnail data
+	filename = sys.argv[1]
+	image = pyexiv2.Image(filename)
+	image.readMetadata()
+
+	try:
 		ttype, tdata = image.getThumbnailData()
+	except IOError:
+		print 'Error: %s does not contain an EXIF thumbnail.' % filename
+		sys.exit(1)
 
-		# Create a GTK pixbuf loader to read the thumbnail data
-		pbloader = gtk.gdk.PixbufLoader()
-		pbloader.write(tdata)
-		# Get the resulting pixbuf and build an image to be displayed
-		pixbuf = pbloader.get_pixbuf()
-		pbloader.close()
-		imgwidget = gtk.Image()
-		imgwidget.set_from_pixbuf(pixbuf)
+	# Create a GTK pixbuf loader to read the thumbnail data
+	pbloader = gtk.gdk.PixbufLoader()
+	pbloader.write(tdata)
+	# Get the resulting pixbuf and build an image to be displayed
+	pixbuf = pbloader.get_pixbuf()
+	pbloader.close()
+	imgwidget = gtk.Image()
+	imgwidget.set_from_pixbuf(pixbuf)
 
-		# Show the application's main window
-		# Note: closing the window will not terminate the application as no
-		# appropriate signal has been defined.
-		app.add(imgwidget)
-		imgwidget.show()
-		app.show()
-		gtk.main()
+	# Show the application's main window
+	# Note: closing the window will not terminate the application as no
+	# appropriate signal has been defined.
+	app.add(imgwidget)
+	imgwidget.show()
+	app.show()
+	gtk.main()

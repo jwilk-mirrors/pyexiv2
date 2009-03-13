@@ -114,8 +114,8 @@ namespace LibPyExiv2
 
 		// Read and write access to the thumbnail embedded in the image.
 
-		// Return a tuple containing the format of the thumbnail ("TIFF" or
-		// "JPEG") and the thumbnail raw data as a string buffer.
+		// Return a tuple containing the mimetype of the thumbnail ("image/tiff"
+		// or "image/jpeg") and the thumbnail raw data as a string buffer.
 		// Throw an exception if the thumbnail data cannot be accessed.
 		boost::python::tuple getThumbnailData();
 

@@ -28,7 +28,7 @@
 # ******************************************************************************
 
 import sys
-import qt
+from PyQt4 import QtGui
 import pyexiv2
 
 if __name__ == '__main__':
@@ -45,23 +45,28 @@ if __name__ == '__main__':
 	if (len(sys.argv) != 2):
 		print 'Usage: ' + sys.argv[0] + ' path/to/picture/file/containing/jpeg/thumbnail'
 		sys.exit(1)
-	else:
-		app = qt.QApplication([])
 
-		# Load the image, read the metadata and extract the thumbnail data
-		image = pyexiv2.Image(sys.argv[1])
-		image.readMetadata()
+	app = QtGui.QApplication([])
+
+	# Load the image, read the metadata and extract the thumbnail data
+	filename = sys.argv[1]
+	image = pyexiv2.Image(filename)
+	image.readMetadata()
+
+	try:
 		ttype, tdata = image.getThumbnailData()
+	except IOError:
+		print 'Error: %s does not contain an EXIF thumbnail.' % filename
+		sys.exit(1)
 
-		# Create a QT pixmap from the thumbnail data
-		pixmap = qt.QPixmap()
-		pixmap.loadFromData(tdata, 'JPEG')
+	# Create a QT pixmap from the thumbnail data
+	pixmap = QtGui.QPixmap()
+	pixmap.loadFromData(tdata, ttype.split('/')[1].upper())
 
-		# Create a QT label to display the pixmap
-		label = qt.QLabel(None)
-		label.setPixmap(pixmap)
+	# Create a QT label to display the pixmap
+	label = QtGui.QLabel(None)
+	label.setPixmap(pixmap)
 
-		# Show the application's main window
-		app.setMainWidget(label)
-		label.show()
-		app.exec_loop()
+	# Show the application's main window
+	label.show()
+	app.exec_()
