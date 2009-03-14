@@ -365,10 +365,14 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			//int result = _exifData.writeThumbnail(path);
-			//if (result == 8)
-			//	throw Exiv2::Error(NO_THUMBNAIL);
-			1;
+			Exiv2::ExifThumb thumbnail(_exifData);
+			std::string mimetype(thumbnail.mimeType());
+			if (mimetype == "")
+			{
+			    // The image does not contain an EXIF thumbnail
+				throw Exiv2::Error(NO_THUMBNAIL);
+			}
+			thumbnail.writeFile(path);
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
@@ -378,8 +382,8 @@ namespace LibPyExiv2
 	{
 		if(_dataRead)
 		{
-			//_exifData.setJpegThumbnail(path);
-			1;
+			Exiv2::ExifThumb thumbnail(_exifData);
+			thumbnail.setJpegThumbnail(path);
 		}
 		else
 			throw Exiv2::Error(METADATA_NOT_READ);
