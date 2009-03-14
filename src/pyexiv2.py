@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # ******************************************************************************
@@ -751,12 +750,3 @@ class Image(libpyexiv2.Image):
 		for key in self.iptcKeys():
 			destImage[key] = self[key]
 		destImage.setComment(self.getComment())
-
-def _test():
-	print 'testing library pyexiv2...'
-	# TODO: various tests
-	print 'done.'
-
-if __name__ == '__main__':
-	_test()
-
