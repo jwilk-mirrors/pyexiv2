@@ -309,6 +309,12 @@ class ExifTag(MetadataTag):
         """
         super(ExifTag, self).__init__(key, name, label, description, xtype, value)
         self.fvalue = fvalue
+        if xtype in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
+            # May contain multiple values
+            values = value.split()
+            if len(values) > 1:
+                self.value = map(lambda x: ExifTag._convert_to_python(x, xtype), values)
+                return
         self.value = ExifTag._convert_to_python(value, xtype, fvalue)
 
     @staticmethod
