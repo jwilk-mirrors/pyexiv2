@@ -45,7 +45,7 @@ public:
     Image(const Image& image);
 
     void readMetadata();
-    //void writeMetadata();
+    void writeMetadata();
 
     // Read and write access to the EXIF tags.
     // For a complete list of the available EXIF tags, see

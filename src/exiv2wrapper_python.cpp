@@ -50,7 +50,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
     class_<Image>("Image", init<std::string>())
 
         .def("readMetadata", &Image::readMetadata)
-//        .def("writeMetadata", &Image::writeMetadata)
+        .def("writeMetadata", &Image::writeMetadata)
 
         .def("exifKeys", &Image::exifKeys)
         .def("getExifTag", &Image::getExifTag)

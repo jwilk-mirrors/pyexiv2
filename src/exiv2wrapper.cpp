@@ -62,7 +62,7 @@ void Image::readMetadata()
     _dataRead = true;
 }
 
-/*void Image::writeMetadata()
+void Image::writeMetadata()
 {
     if(_dataRead)
     {
@@ -73,7 +73,7 @@ void Image::readMetadata()
     }
     else
         throw Exiv2::Error(METADATA_NOT_READ);
-}*/
+}
 
 boost::python::list Image::exifKeys()
 {
