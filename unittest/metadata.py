@@ -25,7 +25,7 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import ImageMetadata, ExifTag
+from pyexiv2 import ImageMetadata, ExifTag, IptcTag, XmpTag
 
 
 class ImageMock(object):
@@ -80,6 +80,43 @@ class TestImageMetadata(unittest.TestCase):
              'Undefined', '48 50 50 49 ', '2.21')
         self.metadata._image.tags['exif'] = tags
 
+    def _set_iptc_tags(self):
+        tags = {}
+        tags['Iptc.Application2.Caption'] = \
+            ('Iptc.Application2.Caption', 'Caption', 'Caption',
+             'A textual description of the object data.', 'String',
+             ['blabla'])
+        tags['Iptc.Application2.DateCreated'] = \
+            ('Iptc.Application2.DateCreated', 'DateCreated', 'Date Created',
+             'Represented in the form CCYYMMDD to designate the date the ' \
+             'intellectual content of the object data was created rather ' \
+             'than the date of the creation of the physical representation. ' \
+             'Follows ISO 8601 standard.', 'Date', ['2004-07-13'])
+        self.metadata._image.tags['iptc'] = tags
+
+    def _set_xmp_tags(self):
+        tags = {}
+        tags['Xmp.dc.format'] = \
+            ('Xmp.dc.format', 'format', 'Format', 'The file format used when ' \
+             'saving the resource. Tools and applications should set this ' \
+             'property to the save format of the data. It may include ' \
+             'appropriate qualifiers.', 'MIMEType', ['image/jpeg'])
+        tags['Xmp.dc.subject'] = \
+            ('Xmp.dc.subject', 'subject', 'Subject', 'An unordered array of ' \
+             'descriptive phrases or keywords that specify the topic of the ' \
+             'content of the resource.', 'bag Text', ['image, test, pyexiv2'])
+        tags['Xmp.xmp.CreateDate'] = \
+            ('Xmp.xmp.CreateDate', 'CreateDate', 'Create Date',
+             'The date and time the resource was originally created.', 'Date',
+             ['2005-09-07T15:07:40-07:00'])
+        tags['Xmp.xmpMM.DocumentID'] = \
+            ('Xmp.xmpMM.DocumentID', 'DocumentID', 'Document ID',
+             'The common identifier for all versions and renditions of a ' \
+             'document. It should be based on a UUID; see Document and ' \
+             'Instance IDs below.', 'URI',
+             ['uuid:9A3B7F52214211DAB6308A7391270C13'])
+        self.metadata._image.tags['xmp'] = tags
+
     def test_read(self):
         self.assertEqual(self.metadata._image, None)
         self.metadata.read()
@@ -104,7 +141,53 @@ class TestImageMetadata(unittest.TestCase):
         self.metadata.read()
         self._set_exif_tags()
         self.assertEqual(self.metadata._tags['exif'], {})
+        # Get an existing tag
         key = 'Exif.Image.Make'
         tag = self.metadata._get_exif_tag(key)
         self.assertEqual(type(tag), ExifTag)
         self.assertEqual(self.metadata._tags['exif'][key], tag)
+        # Try to get an inexistent tag
+        key = 'Exif.Photo.Sharpness'
+        self.failUnlessRaises(KeyError, self.metadata._get_exif_tag, key)
+
+    def test_iptc_keys(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        self.assertEqual(self.metadata._keys['iptc'], None)
+        keys = self.metadata.iptc_keys
+        self.assertEqual(len(keys), 2)
+        self.assertEqual(self.metadata._keys['iptc'], keys)
+
+    def test_get_iptc_tag(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        self.assertEqual(self.metadata._tags['iptc'], {})
+        # Get an existing tag
+        key = 'Iptc.Application2.DateCreated'
+        tag = self.metadata._get_iptc_tag(key)
+        self.assertEqual(type(tag), IptcTag)
+        self.assertEqual(self.metadata._tags['iptc'][key], tag)
+        # Try to get an inexistent tag
+        key = 'Iptc.Application2.Copyright'
+        self.failUnlessRaises(KeyError, self.metadata._get_iptc_tag, key)
+
+    def test_xmp_keys(self):
+        self.metadata.read()
+        self._set_xmp_tags()
+        self.assertEqual(self.metadata._keys['xmp'], None)
+        keys = self.metadata.xmp_keys
+        self.assertEqual(len(keys), 4)
+        self.assertEqual(self.metadata._keys['xmp'], keys)
+
+    def test_get_xmp_tag(self):
+        self.metadata.read()
+        self._set_xmp_tags()
+        self.assertEqual(self.metadata._tags['xmp'], {})
+        # Get an existing tag
+        key = 'Xmp.dc.subject'
+        tag = self.metadata._get_xmp_tag(key)
+        self.assertEqual(type(tag), XmpTag)
+        self.assertEqual(self.metadata._tags['xmp'][key], tag)
+        # Try to get an inexistent tag
+        key = 'Xmp.xmp.Label'
+        self.failUnlessRaises(KeyError, self.metadata._get_xmp_tag, key)

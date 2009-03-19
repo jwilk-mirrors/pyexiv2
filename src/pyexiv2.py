@@ -1006,6 +1006,22 @@ class ImageMetadata(object):
             self._tags['exif'][key] = tag
             return tag
 
+    def _get_iptc_tag(self, key):
+        try:
+            return self._tags['iptc'][key]
+        except KeyError:
+            tag = IptcTag(*self._image.getIptcTag(key))
+            self._tags['iptc'][key] = tag
+            return tag
+
+    def _get_xmp_tag(self, key):
+        try:
+            return self._tags['xmp'][key]
+        except KeyError:
+            tag = XmpTag(*self._image.getXmpTag(key))
+            self._tags['xmp'][key] = tag
+            return tag
+
 
 class Image(libexiv2python.Image):
 
