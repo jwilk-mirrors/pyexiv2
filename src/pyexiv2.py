@@ -1022,6 +1022,17 @@ class ImageMetadata(object):
             self._tags['xmp'][key] = tag
             return tag
 
+    def get(self, key):
+        """
+        Get a metadata tag for a given key.
+        DOCME
+        """
+        family = key.split('.')[0].lower()
+        try:
+            return getattr(self, '_get_%s_tag' % family)(key)
+        except AttributeError:
+            raise KeyError(key)
+
 
 class Image(libexiv2python.Image):
 

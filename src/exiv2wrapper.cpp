@@ -456,6 +456,7 @@ void Image::setThumbnailFromJpegFile(const std::string path)
 }
 */
 
+// TODO: update the errors code to reflect changes from src/error.cpp in libexiv2
 void translateExiv2Error(Exiv2::Error const& error)
 {
     // Use the Python 'C' API to set up an exception object

@@ -146,7 +146,7 @@ class TestImageMetadata(unittest.TestCase):
         tag = self.metadata._get_exif_tag(key)
         self.assertEqual(type(tag), ExifTag)
         self.assertEqual(self.metadata._tags['exif'][key], tag)
-        # Try to get an inexistent tag
+        # Try to get an nonexistent tag
         key = 'Exif.Photo.Sharpness'
         self.failUnlessRaises(KeyError, self.metadata._get_exif_tag, key)
 
@@ -167,7 +167,7 @@ class TestImageMetadata(unittest.TestCase):
         tag = self.metadata._get_iptc_tag(key)
         self.assertEqual(type(tag), IptcTag)
         self.assertEqual(self.metadata._tags['iptc'][key], tag)
-        # Try to get an inexistent tag
+        # Try to get an nonexistent tag
         key = 'Iptc.Application2.Copyright'
         self.failUnlessRaises(KeyError, self.metadata._get_iptc_tag, key)
 
@@ -188,6 +188,27 @@ class TestImageMetadata(unittest.TestCase):
         tag = self.metadata._get_xmp_tag(key)
         self.assertEqual(type(tag), XmpTag)
         self.assertEqual(self.metadata._tags['xmp'][key], tag)
-        # Try to get an inexistent tag
+        # Try to get an nonexistent tag
         key = 'Xmp.xmp.Label'
         self.failUnlessRaises(KeyError, self.metadata._get_xmp_tag, key)
+
+    def test_get(self):
+        self.metadata.read()
+        self._set_exif_tags()
+        self._set_iptc_tags()
+        self._set_xmp_tags()
+        # Get existing tags
+        key = 'Exif.Photo.ExifVersion'
+        tag = self.metadata.get(key)
+        self.assertEqual(type(tag), ExifTag)
+        key = 'Iptc.Application2.Caption'
+        tag = self.metadata.get(key)
+        self.assertEqual(type(tag), IptcTag)
+        key = 'Xmp.xmp.CreateDate'
+        tag = self.metadata.get(key)
+        self.assertEqual(type(tag), XmpTag)
+        # Try to get nonexistent tags
+        keys = ('Exif.Image.SamplesPerPixel', 'Iptc.Application2.FixtureId',
+                'Xmp.xmp.Rating', 'Wrong.Noluck.Raise')
+        for key in keys:
+            self.failUnlessRaises(KeyError, self.metadata.get, key)
