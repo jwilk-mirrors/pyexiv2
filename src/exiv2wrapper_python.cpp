@@ -19,8 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
  */
 /*
-  File:      exiv2wrapper_python.cpp
-  Author(s): Olivier Tilloy <olivier@tilloy.net>
+  Author: Olivier Tilloy <olivier@tilloy.net>
  */
 // *****************************************************************************
 
@@ -55,7 +54,6 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
         .def("exifKeys", &Image::exifKeys)
         .def("getExifTag", &Image::getExifTag)
-//        .def("_Image__getExifTagToString", &Image::getExifTagToString)
 //        .def("_Image__setExifTag", &Image::setExifTag)
 //        .def("_Image__deleteExifTag", &Image::deleteExifTag)
 
@@ -66,8 +64,6 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
         .def("xmpKeys", &Image::xmpKeys)
         .def("getXmpTag", &Image::getXmpTag)
-
-//        .def("tagDetails", &Image::tagDetails)
 
 //        .def("getThumbnailData", &Image::getThumbnailData)
 //        .def("setThumbnailData", &Image::setThumbnailData)

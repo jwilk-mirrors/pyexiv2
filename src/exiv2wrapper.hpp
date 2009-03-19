@@ -19,8 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
  */
 /*
-  File:      exiv2wrapper.hpp
-  Author(s): Olivier Tilloy <olivier@tilloy.net>
+  Author: Olivier Tilloy <olivier@tilloy.net>
  */
 // *****************************************************************************
 
@@ -67,11 +66,6 @@ public:
     // tagvalue
     // tagvalue (human-readable)
     boost::python::tuple getExifTag(std::string key);
-
-    // Return a human-readable string containing the value of the
-    // required EXIF tag.
-    // Throw an exception if the tag is not set.
-    //std::string getExifTagToString(std::string key);
 
     // Set the EXIF tag's value and return a tuple containing the
     // type and previous value of the tag (empty strings if not previously
@@ -130,9 +124,6 @@ public:
     // type
     // tagvalue (list)
     boost::python::tuple getXmpTag(std::string key);
-
-    // Return a tuple containing the name of the tag and its description.
-    //boost::python::tuple tagDetails(std::string key);
 
     // Read and write access to the thumbnail embedded in the image.
 
