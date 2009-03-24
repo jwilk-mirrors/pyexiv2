@@ -54,9 +54,9 @@ class TestExifTag(unittest.TestCase):
         xtype = 'Ascii'
         # Valid values: datetimes
         self.assertEqual(ExifTag._convert_to_string(datetime.datetime(2009, 03, 01, 12, 54, 28), xtype),
-                         '2009-03-01 12:54:28')
+                         '2009:03:01 12:54:28')
         self.assertEqual(ExifTag._convert_to_string(datetime.date(2009, 03, 01), xtype),
-                         '2009-03-01 00:00:00')
+                         '2009:03:01 00:00:00')
         # Valid values: strings
         self.assertEqual(ExifTag._convert_to_string(u'Some text', xtype), 'Some text')
         self.assertEqual(ExifTag._convert_to_string(u'Some text with exotic chàräctérʐ.', xtype),

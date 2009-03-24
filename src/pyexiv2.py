@@ -250,9 +250,7 @@ class MetadataTag(object):
 
     """
     A generic metadata tag.
-
-    TODO: determine which attributes are common to all types of tags (EXIF,
-          IPTC and XMP), and which are specific.
+    DOCME
     """
 
     def __init__(self, key, name, label, description, xtype, value):
@@ -265,6 +263,8 @@ class MetadataTag(object):
         self.description = description
         self.xtype = xtype
         self._value = value
+        # Reference to the containing ImageMetadata object
+        self.metadata = None
 
     def __str__(self):
         """
@@ -297,10 +297,10 @@ class ExifTag(MetadataTag):
     """
 
     # According to the EXIF specification, the only accepted format for an Ascii
-    # value representing a datetime is '%Y-%m-%d %H:%M:%S', but it seems that
+    # value representing a datetime is '%Y:%m:%d %H:%M:%S', but it seems that
     # others formats can be found in the wild.
-    _datetime_formats = ('%Y-%m-%d %H:%M:%S',
-                         '%Y:%m:%d %H:%M:%S',
+    _datetime_formats = ('%Y:%m:%d %H:%M:%S',
+                         '%Y-%m-%d %H:%M:%S',
                          '%Y-%m-%dT%H:%M:%SZ')
 
     def __init__(self, key, name, label, description, xtype, value, fvalue):
@@ -399,9 +399,9 @@ class ExifTag(MetadataTag):
         """
         if xtype == 'Ascii':
             if type(value) is datetime.datetime:
-                return value.strftime('%Y-%m-%d %H:%M:%S')
+                return value.strftime('%Y:%m:%d %H:%M:%S')
             elif type(value) is datetime.date:
-                return value.strftime('%Y-%m-%d 00:00:00')
+                return value.strftime('%Y:%m:%d 00:00:00')
             elif type(value) is unicode:
                 try:
                     return value.encode('utf-8')
@@ -465,6 +465,14 @@ class ExifTag(MetadataTag):
                 raise ExifValueError(value, xtype)
 
         raise ExifValueError(value, xtype)
+
+    def to_string(self):
+        """
+        Return a string representation of the EXIF tag suitable to pass to
+        libexiv2 to set the value of the tag.
+        DOCME
+        """
+        return ExifTag._convert_to_string(self.value, self.xtype)
 
     def __str__(self):
         """
@@ -1003,6 +1011,7 @@ class ImageMetadata(object):
             return self._tags['exif'][key]
         except KeyError:
             tag = ExifTag(*self._image.getExifTag(key))
+            tag.metadata = self
             self._tags['exif'][key] = tag
             return tag
 
@@ -1011,6 +1020,7 @@ class ImageMetadata(object):
             return self._tags['iptc'][key]
         except KeyError:
             tag = IptcTag(*self._image.getIptcTag(key))
+            tag.metadata = self
             self._tags['iptc'][key] = tag
             return tag
 
@@ -1019,6 +1029,7 @@ class ImageMetadata(object):
             return self._tags['xmp'][key]
         except KeyError:
             tag = XmpTag(*self._image.getXmpTag(key))
+            tag.metadata = self
             self._tags['xmp'][key] = tag
             return tag
 
@@ -1032,6 +1043,22 @@ class ImageMetadata(object):
             return getattr(self, '_get_%s_tag' % family)(key)
         except AttributeError:
             raise KeyError(key)
+
+    def _set_exif_tag(self, tag):
+        if type(tag) is not ExifTag:
+            raise TypeError('Expecting an ExifTag')
+        self._image.setExifTag(tag.key, tag.to_string())
+        self._tags['exif'][tag.key] = tag
+        tag.metadata = self
+
+    def _set_exif_tag_value(self, key, value):
+        # Overwrite the tag value for an already existing tag.
+        # The tag is already in cache.
+        if key not in self.exif_keys:
+            raise KeyError('Cannot set the value of an inexistent tag')
+        if type(value) is not str:
+            raise TypeError('Expecting a string')
+        self._image.setExifTag(key, value)
 
 
 class Image(libexiv2python.Image):

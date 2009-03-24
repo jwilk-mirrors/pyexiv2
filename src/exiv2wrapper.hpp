@@ -67,10 +67,9 @@ public:
     // tagvalue (human-readable)
     boost::python::tuple getExifTag(std::string key);
 
-    // Set the EXIF tag's value and return a tuple containing the
-    // type and previous value of the tag (empty strings if not previously
-    // set). If the tag was not previously set, it is created.
-    //boost::python::tuple setExifTag(std::string key, std::string value);
+    // Set the EXIF tag's value. If the tag was not previously set, it is
+    // created.
+    void setExifTag(std::string key, std::string value);
 
     // Delete the required EXIF tag and return a tuple containing the
     // type and previous value.
