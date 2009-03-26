@@ -262,7 +262,7 @@ class MetadataTag(object):
         self.label = label
         self.description = description
         self.xtype = xtype
-        self._value = value
+        self.raw_value = value
         # Reference to the containing ImageMetadata object
         self.metadata = None
 
@@ -275,7 +275,7 @@ class MetadataTag(object):
             'Label = ' + self.label + os.linesep + \
             'Description = ' + self.description + os.linesep + \
             'Type = ' + self.xtype + os.linesep + \
-            'Raw value = ' + str(self._value)
+            'Raw value = ' + str(self.raw_value)
         return r
 
 
@@ -313,9 +313,28 @@ class ExifTag(MetadataTag):
             # May contain multiple values
             values = value.split()
             if len(values) > 1:
-                self.value = map(lambda x: ExifTag._convert_to_python(x, xtype), values)
+                self._value = map(lambda x: ExifTag._convert_to_python(x, xtype), values)
                 return
-        self.value = ExifTag._convert_to_python(value, xtype, fvalue)
+        self._value = ExifTag._convert_to_python(value, xtype, fvalue)
+
+    def _get_value(self):
+        return self._value
+
+    def _set_value(self, new_value):
+        if self.metadata is not None:
+            raw_value = ExifTag._convert_to_string(new_value, self.xtype)
+            self.metadata._set_exif_tag_value(self.key, raw_value)
+        self._value = new_value
+
+    def _del_value(self):
+        if self.metadata is not None:
+            # TODO
+            pass
+        del self._value
+
+    # DOCME
+    value = property(fget=_get_value, fset=_set_value, fdel=_del_value,
+                     doc=None)
 
     @staticmethod
     def _convert_to_python(value, xtype, fvalue):

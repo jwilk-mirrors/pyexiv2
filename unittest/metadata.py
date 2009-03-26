@@ -178,7 +178,8 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['exif'], {tag.key: tag})
         self.assert_(self.metadata._image.tags['exif'].has_key(tag.key))
-        self.assertEqual(self.metadata._image.tags['exif'][tag.key], tag._value)
+        self.assertEqual(self.metadata._image.tags['exif'][tag.key],
+                         tag.raw_value)
 
     def test_set_exif_tag_overwrite(self):
         self.metadata.read()
@@ -193,7 +194,8 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['exif'], {tag.key: tag})
         self.assert_(self.metadata._image.tags['exif'].has_key(tag.key))
-        self.assertEqual(self.metadata._image.tags['exif'][tag.key], tag._value)
+        self.assertEqual(self.metadata._image.tags['exif'][tag.key],
+                         tag.raw_value)
 
     def test_set_exif_tag_overwrite_already_gotten(self):
         self.metadata.read()
@@ -210,6 +212,8 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(new_tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['exif'], {key: new_tag})
         self.assert_(self.metadata._image.tags['exif'].has_key(key))
+        # Special case where the formatted value is used instead of the raw
+        # value.
         self.assertEqual(self.metadata._image.tags['exif'][key], new_tag.fvalue)
 
     def test_set_exif_tag_value_inexistent(self):
