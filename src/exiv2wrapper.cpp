@@ -143,26 +143,22 @@ void Image::setExifTag(std::string key, std::string value)
         throw Exiv2::Error(METADATA_NOT_READ);
 }
 
-/*boost::python::tuple Image::deleteExifTag(std::string key)
+void Image::deleteExifTag(std::string key)
 {
-    boost::python::tuple returnValue;
     if(_dataRead)
     {
         Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
         Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
         if(i != _exifData.end())
         {
-            Exiv2::Exifdatum exifDatum = _exifData[key];
-            returnValue = boost::python::make_tuple(std::string(exifDatum.typeName()), exifDatum.toString());
             _exifData.erase(i);
-            return returnValue;
         }
         else
             throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
     else
         throw Exiv2::Error(METADATA_NOT_READ);
-}*/
+}
 
 boost::python::list Image::iptcKeys()
 {

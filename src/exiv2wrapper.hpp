@@ -71,10 +71,9 @@ public:
     // created.
     void setExifTag(std::string key, std::string value);
 
-    // Delete the required EXIF tag and return a tuple containing the
-    // type and previous value.
+    // Delete the required EXIF tag.
     // Throw an exception if the tag was not set.
-    //boost::python::tuple deleteExifTag(std::string key);
+    void deleteExifTag(std::string key);
 
     // Read and write access to the IPTC tags.
     // For a complete list of the available IPTC tags, see

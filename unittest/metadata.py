@@ -52,6 +52,12 @@ class ImageMock(object):
     def setExifTag(self, key, value):
         self.tags['exif'][key] = value
 
+    def deleteExifTag(self, key):
+        try:
+            del self.tags['exif'][key]
+        except KeyError:
+            pass
+
     def iptcKeys(self):
         return self.tags['iptc'].keys()
 
@@ -197,11 +203,11 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._image.tags['exif'][tag.key],
                          tag.raw_value)
 
-    def test_set_exif_tag_overwrite_already_gotten(self):
+    def test_set_exif_tag_overwrite_already_cached(self):
         self.metadata.read()
         self._set_exif_tags()
         self.assertEqual(self.metadata._tags['exif'], {})
-        # Overwrite an existing tag already gotten
+        # Overwrite an existing tag already cached
         key = 'Exif.Photo.ExifVersion'
         tag = self.metadata._get_exif_tag(key)
         self.assertEqual(self.metadata._tags['exif'][key], tag)
@@ -241,6 +247,33 @@ class TestImageMetadata(unittest.TestCase):
         self.failIfEqual(self.metadata._image.tags['exif'][key], value)
         self.metadata._set_exif_tag_value(key, value)
         self.assertEqual(self.metadata._image.tags['exif'][key], value)
+
+    def test_delete_exif_tag_inexistent(self):
+        self.metadata.read()
+        self._set_exif_tags()
+        key = 'Exif.Image.Artist'
+        self.failUnlessRaises(KeyError, self.metadata._delete_exif_tag, key)
+
+    def test_delete_exif_tag_not_cached(self):
+        self.metadata.read()
+        self._set_exif_tags()
+        key = 'Exif.Image.DateTime'
+        self.assertEqual(self.metadata._tags['exif'], {})
+        self.assert_(self.metadata._image.tags['exif'].has_key(key))
+        self.metadata._delete_exif_tag(key)
+        self.assertEqual(self.metadata._tags['exif'], {})
+        self.failIf(self.metadata._image.tags['exif'].has_key(key))
+
+    def test_delete_exif_tag_cached(self):
+        self.metadata.read()
+        self._set_exif_tags()
+        key = 'Exif.Image.DateTime'
+        self.assert_(self.metadata._image.tags['exif'].has_key(key))
+        tag = self.metadata._get_exif_tag(key)
+        self.assertEqual(self.metadata._tags['exif'][key], tag)
+        self.metadata._delete_exif_tag(key)
+        self.assertEqual(self.metadata._tags['exif'], {})
+        self.failIf(self.metadata._image.tags['exif'].has_key(key))
 
     def test_iptc_keys(self):
         self.metadata.read()

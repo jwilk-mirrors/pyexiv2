@@ -328,8 +328,7 @@ class ExifTag(MetadataTag):
 
     def _del_value(self):
         if self.metadata is not None:
-            # TODO
-            pass
+            self.metadata._delete_exif_tag(self.key)
         del self._value
 
     # DOCME
@@ -1073,11 +1072,24 @@ class ImageMetadata(object):
     def _set_exif_tag_value(self, key, value):
         # Overwrite the tag value for an already existing tag.
         # The tag is already in cache.
+        # Warning: this is not meant to be called directly as it doesn't update
+        # the internal cache (which would leave the object in an inconsistent
+        # state).
         if key not in self.exif_keys:
             raise KeyError('Cannot set the value of an inexistent tag')
         if type(value) is not str:
             raise TypeError('Expecting a string')
         self._image.setExifTag(key, value)
+
+    def _delete_exif_tag(self, key):
+        if key not in self.exif_keys:
+            raise KeyError('Cannot delete an inexistent tag')
+        self._image.deleteExifTag(key)
+        try:
+            del self._tags['exif'][key]
+        except KeyError:
+            # The tag was not cached.
+            pass
 
 
 class Image(libexiv2python.Image):

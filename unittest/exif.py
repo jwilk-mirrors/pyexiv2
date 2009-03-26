@@ -36,6 +36,12 @@ class ImageMetadataMock(object):
     def _set_exif_tag_value(self, key, value):
         self.tags[key] = value
 
+    def _delete_exif_tag(self, key):
+        try:
+            del self.tags[key]
+        except KeyError:
+            pass
+
 
 class TestExifTag(unittest.TestCase):
 
@@ -221,3 +227,21 @@ class TestExifTag(unittest.TestCase):
         tag.value = 2
         self.failIfEqual(tag.value, old_value)
         self.assertEqual(tag.metadata.tags[tag.key], '2')
+
+    def test_del_value_no_metadata(self):
+        tag = ExifTag('Exif.Thumbnail.Orientation', 'Orientation',
+                      'Orientation', 'The image orientation viewed in terms ' \
+                      'of rows and columns.', 'Short', '1', 'top, left')
+        del tag.value
+        self.failIf(hasattr(tag, 'value'))
+
+    def test_del_value_with_metadata(self):
+        tag = ExifTag('Exif.Thumbnail.Orientation', 'Orientation',
+                      'Orientation', 'The image orientation viewed in terms ' \
+                      'of rows and columns.', 'Short', '1', 'top, left')
+        tag.metadata = ImageMetadataMock()
+        tag.metadata._set_exif_tag_value(tag.key, tag.to_string())
+        self.assertEqual(tag.metadata.tags, {tag.key: '1'})
+        del tag.value
+        self.failIf(hasattr(tag, 'value'))
+        self.failIf(tag.metadata.tags.has_key(tag.key))
