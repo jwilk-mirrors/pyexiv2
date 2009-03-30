@@ -1051,7 +1051,7 @@ class ImageMetadata(object):
             self._tags['xmp'][key] = tag
             return tag
 
-    def get(self, key):
+    def __getitem__(self, key):
         """
         Get a metadata tag for a given key.
         DOCME

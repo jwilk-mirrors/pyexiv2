@@ -319,23 +319,23 @@ class TestImageMetadata(unittest.TestCase):
         key = 'Xmp.xmp.Label'
         self.failUnlessRaises(KeyError, self.metadata._get_xmp_tag, key)
 
-    def test_get(self):
+    def test_getitem(self):
         self.metadata.read()
         self._set_exif_tags()
         self._set_iptc_tags()
         self._set_xmp_tags()
         # Get existing tags
         key = 'Exif.Photo.ExifVersion'
-        tag = self.metadata.get(key)
+        tag = self.metadata[key]
         self.assertEqual(type(tag), ExifTag)
         key = 'Iptc.Application2.Caption'
-        tag = self.metadata.get(key)
+        tag = self.metadata[key]
         self.assertEqual(type(tag), IptcTag)
         key = 'Xmp.xmp.CreateDate'
-        tag = self.metadata.get(key)
+        tag = self.metadata[key]
         self.assertEqual(type(tag), XmpTag)
         # Try to get nonexistent tags
         keys = ('Exif.Image.SamplesPerPixel', 'Iptc.Application2.FixtureId',
                 'Xmp.xmp.Rating', 'Wrong.Noluck.Raise')
         for key in keys:
-            self.failUnlessRaises(KeyError, self.metadata.get, key)
+            self.failUnlessRaises(KeyError, self.metadata.__getitem__, key)
