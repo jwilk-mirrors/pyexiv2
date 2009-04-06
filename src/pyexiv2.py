@@ -1098,8 +1098,38 @@ class ImageMetadata(object):
         tag.metadata = self
 
     def _set_iptc_tag_values(self, key, values):
+        # Overwrite the tag value for an already existing tag.
+        # The tag is already in cache.
+        # Warning: this is not meant to be called directly as it doesn't update
+        # the internal cache (which would leave the object in an inconsistent
+        # state).
         # TODO
         raise NotImplementedError()
+
+    def _set_xmp_tag(self, tag):
+        # TODO
+        raise NotImplementedError()
+
+    def _set_xmp_tag_values(self, key, values):
+        # Overwrite the tag value for an already existing tag.
+        # The tag is already in cache.
+        # Warning: this is not meant to be called directly as it doesn't update
+        # the internal cache (which would leave the object in an inconsistent
+        # state).
+        # TODO
+        raise NotImplementedError()
+
+    def __setitem__(self, key, tag):
+        """
+        Set a metadata tag for a given key.
+        Override existing values.
+        DOCME.
+        """
+        family = key.split('.')[0].lower()
+        try:
+            return getattr(self, '_set_%s_tag' % family)(key, tag)
+        except AttributeError:
+            raise KeyError(key)
 
     def _delete_exif_tag(self, key):
         if key not in self.exif_keys:
@@ -1112,6 +1142,14 @@ class ImageMetadata(object):
             pass
 
     def _delete_iptc_tag(self, key):
+        # TODO
+        raise NotImplementedError()
+
+    def _delete_xmp_tag(self, key):
+        # TODO
+        raise NotImplementedError()
+
+    def __delitem__(self, key):
         # TODO
         raise NotImplementedError()
 

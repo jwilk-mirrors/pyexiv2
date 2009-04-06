@@ -130,6 +130,10 @@ class TestImageMetadata(unittest.TestCase):
              ['uuid:9A3B7F52214211DAB6308A7391270C13'])
         self.metadata._image.tags['xmp'] = tags
 
+    ######################
+    # Test general methods
+    ######################
+
     def test_read(self):
         self.assertEqual(self.metadata._image, None)
         self.metadata.read()
@@ -141,6 +145,10 @@ class TestImageMetadata(unittest.TestCase):
         self.failIf(self.metadata._image.written)
         self.metadata.write()
         self.failUnless(self.metadata._image.written)
+
+    ###########################
+    # Test EXIF-related methods
+    ###########################
 
     def test_exif_keys(self):
         self.metadata.read()
@@ -277,6 +285,10 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._tags['exif'], {})
         self.failIf(self.metadata._image.tags['exif'].has_key(key))
 
+    ###########################
+    # Test IPTC-related methods
+    ###########################
+
     def test_iptc_keys(self):
         self.metadata.read()
         self._set_iptc_tags()
@@ -360,6 +372,34 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._image.tags['iptc'][key],
                          new_tag.raw_value)
 
+    def test_set_iptc_tag_value_inexistent(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_set_iptc_tag_value_wrong_type(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_set_iptc_tag_value(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_delete_iptc_tag_inexistent(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_delete_iptc_tag_not_cached(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_delete_iptc_tag_cached(self):
+        # TODO
+        raise(NotImplementedError())
+
+    ##########################
+    # Test XMP-related methods
+    ##########################
+
     def test_xmp_keys(self):
         self.metadata.read()
         self._set_xmp_tags()
@@ -382,6 +422,50 @@ class TestImageMetadata(unittest.TestCase):
         key = 'Xmp.xmp.Label'
         self.failUnlessRaises(KeyError, self.metadata._get_xmp_tag, key)
 
+    def test_set_xmp_tag_wrong(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_set_xmp_tag_create(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_set_xmp_tag_overwrite(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_set_xmp_tag_overwrite_already_cached(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_set_xmp_tag_value_inexistent(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_set_xmp_tag_value_wrong_type(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_set_xmp_tag_value(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_delete_xmp_tag_inexistent(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_delete_xmp_tag_not_cached(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_delete_xmp_tag_cached(self):
+        # TODO
+        raise(NotImplementedError())
+
+    ###########################
+    # Test dictionary interface
+    ###########################
+
     def test_getitem(self):
         self.metadata.read()
         self._set_exif_tags()
@@ -402,3 +486,11 @@ class TestImageMetadata(unittest.TestCase):
                 'Xmp.xmp.Rating', 'Wrong.Noluck.Raise')
         for key in keys:
             self.failUnlessRaises(KeyError, self.metadata.__getitem__, key)
+
+    def test_setitem(self):
+        # TODO
+        raise(NotImplementedError())
+
+    def test_delitem(self):
+        # TODO
+        raise(NotImplementedError())
