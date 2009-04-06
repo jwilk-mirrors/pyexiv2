@@ -69,7 +69,7 @@ public:
 
     // Set the EXIF tag's value. If the tag was not previously set, it is
     // created.
-    void setExifTag(std::string key, std::string value);
+    void setExifTagValue(std::string key, std::string value);
 
     // Delete the required EXIF tag.
     // Throw an exception if the tag was not set.
@@ -95,23 +95,22 @@ public:
     // tagvalue (list)
     boost::python::tuple getIptcTag(std::string key);
 
-    // Set the IPTC tag's value and return a tuple containing the
-    // type and previous value of the tag (empty strings if not previously
-    // set). If the tag was not previously set, it is created.
+    // Set the IPTC tag's value. If the tag was not previously set, it is
+    // created.
     // If the key references a repeatable tag, the parameter index (starting
     // from 0 like a list index) is used to determine which of the
     // repetitions is to be set. In case of an index greater than the
     // highest existing one, adds a repetition of the tag.
-    //boost::python::tuple setIptcTag(std::string key, std::string value, unsigned int index);
+    //void setIptcTag(std::string key, std::string value, unsigned int index);
+    void setIptcTagValues(std::string key, boost::python::tuple values);
 
-    // Delete the required IPTC tag and return a tuple containing the
-    // type and previous value.
+    // Delete the required IPTC tag.
     // If the key references a repeatable tag, the parameter index (starting
     // from 0 like a list index) is used to determine which of the
     // repetitions is to be deleted.
     // Throw an exception if the tag was not set or if the index is greater
     // than the highest existing one.
-    //boost::python::tuple deleteIptcTag(std::string key, unsigned int index);
+    //void deleteIptcTag(std::string key, unsigned int index);
 
     boost::python::list xmpKeys();
 

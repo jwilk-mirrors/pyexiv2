@@ -49,7 +49,7 @@ class ImageMock(object):
     def getExifTag(self, key):
         return self.tags['exif'][key]
 
-    def setExifTag(self, key, value):
+    def setExifTagValue(self, key, value):
         self.tags['exif'][key] = value
 
     def deleteExifTag(self, key):
@@ -63,6 +63,9 @@ class ImageMock(object):
 
     def getIptcTag(self, key):
         return self.tags['iptc'][key]
+
+    def setIptcTagValues(self, key, values):
+        self.tags['iptc'][key] = values
 
     def xmpKeys(self):
         return self.tags['xmp'].keys()
@@ -166,9 +169,8 @@ class TestImageMetadata(unittest.TestCase):
         self._set_exif_tags()
         self.assertEqual(self.metadata._tags['exif'], {})
         # Try to set a tag with wrong type
-        key = 'Exif.Image.Make'
-        value = 'Not an exif tag'
-        self.failUnlessRaises(TypeError, self.metadata._set_exif_tag, key, value)
+        tag = 'Not an exif tag'
+        self.failUnlessRaises(TypeError, self.metadata._set_exif_tag, tag)
         self.assertEqual(self.metadata._tags['exif'], {})
 
     def test_set_exif_tag_create(self):
@@ -296,6 +298,67 @@ class TestImageMetadata(unittest.TestCase):
         # Try to get an nonexistent tag
         key = 'Iptc.Application2.Copyright'
         self.failUnlessRaises(KeyError, self.metadata._get_iptc_tag, key)
+
+    def test_set_iptc_tag_wrong(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        self.assertEqual(self.metadata._tags['iptc'], {})
+        # Try to set a tag with wrong type
+        tag = 'Not an iptc tag'
+        self.failUnlessRaises(TypeError, self.metadata._set_iptc_tag, tag)
+        self.assertEqual(self.metadata._tags['iptc'], {})
+
+    def test_set_iptc_tag_create(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        self.assertEqual(self.metadata._tags['iptc'], {})
+        # Create a new tag
+        tag = IptcTag('Iptc.Application2.Writer', 'Writer', 'Writer',
+                      'Identification of the name of the person involved in ' \
+                      'the writing, editing or correcting the object data or ' \
+                      'caption/abstract.', 'String', ['Nobody'])
+        self.assertEqual(tag.metadata, None)
+        self.metadata._set_iptc_tag(tag)
+        self.assertEqual(tag.metadata, self.metadata)
+        self.assertEqual(self.metadata._tags['iptc'], {tag.key: tag})
+        self.assert_(self.metadata._image.tags['iptc'].has_key(tag.key))
+        self.assertEqual(self.metadata._image.tags['iptc'][tag.key],
+                         tag.raw_value)
+
+    def test_set_iptc_tag_overwrite(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        self.assertEqual(self.metadata._tags['iptc'], {})
+        # Overwrite an existing tag
+        tag = IptcTag('Iptc.Application2.Caption', 'Caption', 'Caption',
+                      'A textual description of the object data.', 'String',
+                      ['A picture.'])
+        self.assertEqual(tag.metadata, None)
+        self.metadata._set_iptc_tag(tag)
+        self.assertEqual(tag.metadata, self.metadata)
+        self.assertEqual(self.metadata._tags['iptc'], {tag.key: tag})
+        self.assert_(self.metadata._image.tags['iptc'].has_key(tag.key))
+        self.assertEqual(self.metadata._image.tags['iptc'][tag.key],
+                         tag.raw_value)
+
+    def test_set_iptc_tag_overwrite_already_cached(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        self.assertEqual(self.metadata._tags['iptc'], {})
+        # Overwrite an existing tag already cached
+        key = 'Iptc.Application2.Caption'
+        tag = self.metadata._get_iptc_tag(key)
+        self.assertEqual(self.metadata._tags['iptc'][key], tag)
+        new_tag = IptcTag(key, 'Caption', 'Caption',
+                      'A textual description of the object data.', 'String',
+                      ['A picture.'])
+        self.assertEqual(new_tag.metadata, None)
+        self.metadata._set_iptc_tag(new_tag)
+        self.assertEqual(new_tag.metadata, self.metadata)
+        self.assertEqual(self.metadata._tags['iptc'], {key: new_tag})
+        self.assert_(self.metadata._image.tags['iptc'].has_key(key))
+        self.assertEqual(self.metadata._image.tags['iptc'][key],
+                         new_tag.raw_value)
 
     def test_xmp_keys(self):
         self.metadata.read()

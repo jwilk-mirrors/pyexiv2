@@ -533,6 +533,7 @@ class IptcTag(MetadataTag):
         Constructor.
         """
         super(IptcTag, self).__init__(key, name, label, description, xtype, values)
+        # FIXME: make values either a tuple (immutable) or a notifying list
         self.values = map(lambda x: IptcTag._convert_to_python(x, xtype), values)
 
     @staticmethod
@@ -657,6 +658,14 @@ class IptcTag(MetadataTag):
                 raise IptcValueError(value, xtype)
 
         raise IptcValueError(value, xtype)
+
+    def to_string(self):
+        """
+        Return a list of string representations of the IPTC tag values suitable
+        to pass to libexiv2 to set the values of the tag.
+        DOCME
+        """
+        return map(lambda x: IptcTag._convert_to_string(x, self.xtype), self.values)
 
     def __str__(self):
         """
@@ -1065,7 +1074,7 @@ class ImageMetadata(object):
     def _set_exif_tag(self, tag):
         if type(tag) is not ExifTag:
             raise TypeError('Expecting an ExifTag')
-        self._image.setExifTag(tag.key, tag.to_string())
+        self._image.setExifTagValue(tag.key, tag.to_string())
         self._tags['exif'][tag.key] = tag
         tag.metadata = self
 
@@ -1079,7 +1088,18 @@ class ImageMetadata(object):
             raise KeyError('Cannot set the value of an inexistent tag')
         if type(value) is not str:
             raise TypeError('Expecting a string')
-        self._image.setExifTag(key, value)
+        self._image.setExifTagValue(key, value)
+
+    def _set_iptc_tag(self, tag):
+        if type(tag) is not IptcTag:
+            raise TypeError('Expecting an IptcTag')
+        self._image.setIptcTagValues(tag.key, tag.to_string())
+        self._tags['iptc'][tag.key] = tag
+        tag.metadata = self
+
+    def _set_iptc_tag_values(self, key, values):
+        # TODO
+        raise NotImplementedError()
 
     def _delete_exif_tag(self, key):
         if key not in self.exif_keys:
@@ -1090,6 +1110,10 @@ class ImageMetadata(object):
         except KeyError:
             # The tag was not cached.
             pass
+
+    def _delete_iptc_tag(self, key):
+        # TODO
+        raise NotImplementedError()
 
 
 class Image(libexiv2python.Image):

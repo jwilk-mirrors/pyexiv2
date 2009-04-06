@@ -54,13 +54,13 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
         .def("exifKeys", &Image::exifKeys)
         .def("getExifTag", &Image::getExifTag)
-        .def("setExifTag", &Image::setExifTag)
+        .def("setExifTagValue", &Image::setExifTagValue)
         .def("deleteExifTag", &Image::deleteExifTag)
 
         .def("iptcKeys", &Image::iptcKeys)
         .def("getIptcTag", &Image::getIptcTag)
-//        .def("_Image__setIptcTag", &Image::setIptcTag)
-//        .def("_Image__deleteIptcTag", &Image::deleteIptcTag)
+        .def("setIptcTagValues", &Image::setIptcTagValues)
+//        .def("deleteIptcTag", &Image::deleteIptcTag)
 
         .def("xmpKeys", &Image::xmpKeys)
         .def("getXmpTag", &Image::getXmpTag)

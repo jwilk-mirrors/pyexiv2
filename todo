@@ -1,5 +1,6 @@
 todo list
 
+- Unit test the C++ wrapper (in python, if possible)
 - Use logging to log, among other things, decoding and type conversion errors
 - The constructor of the Image class should accept a buffered file
 - Tag getters/setters should support unicode strings as well as regular strings (see bug #146313).
@@ -8,6 +9,6 @@ todo list
 - Add a 'doc' builder to the SConstruct to build the module's documentation
 - Export docstrings for the C++ binding
 - Rewrite the exiv2 command-line tool and the test binaries in Python and (Python) scripts to run the same tests that are run to test exiv2
-- Write a complete documentation for the binding and it uses (use other tools, maybe pydoctor)
+- Write a complete documentation for the binding and its uses (use other tools, maybe pydoctor)
 - New architecture and support of XMP metadata (see bug #183337)
 - Consider upgrading the license to GPL v3
