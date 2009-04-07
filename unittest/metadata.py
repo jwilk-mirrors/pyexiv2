@@ -372,17 +372,34 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._image.tags['iptc'][key],
                          new_tag.raw_value)
 
-    def test_set_iptc_tag_value_inexistent(self):
-        # TODO
-        raise(NotImplementedError())
+    def test_set_iptc_tag_values_inexistent(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        key = 'Iptc.Application2.Urgency'
+        values = ['1']
+        self.failUnlessRaises(KeyError, self.metadata._set_iptc_tag_values,
+                              key, values)
 
-    def test_set_iptc_tag_value_wrong_type(self):
-        # TODO
-        raise(NotImplementedError())
+    def test_set_iptc_tag_values_wrong_type(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        key = 'Iptc.Application2.DateCreated'
+        value = '20090324'
+        self.failUnlessRaises(TypeError, self.metadata._set_iptc_tag_values,
+                              key, value)
+        values = [datetime.date(2009, 3, 24)]
+        self.failUnlessRaises(TypeError, self.metadata._set_iptc_tag_values,
+                              key, values)
 
-    def test_set_iptc_tag_value(self):
-        # TODO
-        raise(NotImplementedError())
+    def test_set_iptc_tag_values(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        key = 'Iptc.Application2.DateCreated'
+        tag = self.metadata._get_iptc_tag(key)
+        values = ['2009-04-07']
+        self.failIfEqual(self.metadata._image.tags['iptc'][key], values)
+        self.metadata._set_iptc_tag_values(key, values)
+        self.assertEqual(self.metadata._image.tags['iptc'][key], values)
 
     def test_delete_iptc_tag_inexistent(self):
         # TODO
