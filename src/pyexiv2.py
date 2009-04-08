@@ -1149,8 +1149,14 @@ class ImageMetadata(object):
             pass
 
     def _delete_iptc_tag(self, key):
-        # TODO
-        raise NotImplementedError()
+        if key not in self.iptc_keys:
+            raise KeyError('Cannot delete an inexistent tag')
+        self._image.deleteIptcTag(key)
+        try:
+            del self._tags['iptc'][key]
+        except KeyError:
+            # The tag was not cached.
+            pass
 
     def _delete_xmp_tag(self, key):
         # TODO

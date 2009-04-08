@@ -67,6 +67,12 @@ class ImageMock(object):
     def setIptcTagValues(self, key, values):
         self.tags['iptc'][key] = values
 
+    def deleteIptcTag(self, key):
+        try:
+            del self.tags['iptc'][key]
+        except KeyError:
+            pass
+
     def xmpKeys(self):
         return self.tags['xmp'].keys()
 
@@ -402,16 +408,31 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._image.tags['iptc'][key], values)
 
     def test_delete_iptc_tag_inexistent(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_iptc_tags()
+        key = 'Iptc.Application2.LocationCode'
+        self.failUnlessRaises(KeyError, self.metadata._delete_iptc_tag, key)
 
     def test_delete_iptc_tag_not_cached(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_iptc_tags()
+        key = 'Iptc.Application2.Caption'
+        self.assertEqual(self.metadata._tags['iptc'], {})
+        self.assert_(self.metadata._image.tags['iptc'].has_key(key))
+        self.metadata._delete_iptc_tag(key)
+        self.assertEqual(self.metadata._tags['iptc'], {})
+        self.failIf(self.metadata._image.tags['iptc'].has_key(key))
 
     def test_delete_iptc_tag_cached(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_iptc_tags()
+        key = 'Iptc.Application2.Caption'
+        self.assert_(self.metadata._image.tags['iptc'].has_key(key))
+        tag = self.metadata._get_iptc_tag(key)
+        self.assertEqual(self.metadata._tags['iptc'][key], tag)
+        self.metadata._delete_iptc_tag(key)
+        self.assertEqual(self.metadata._tags['iptc'], {})
+        self.failIf(self.metadata._image.tags['iptc'].has_key(key))
 
     ##########################
     # Test XMP-related methods
