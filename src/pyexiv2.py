@@ -1163,8 +1163,15 @@ class ImageMetadata(object):
         raise NotImplementedError()
 
     def __delitem__(self, key):
-        # TODO
-        raise NotImplementedError()
+        """
+        Delete a metadata tag with a given key.
+        DOCME.
+        """
+        family = key.split('.')[0].lower()
+        try:
+            return getattr(self, '_delete_%s_tag' % family)(key)
+        except AttributeError:
+            raise KeyError(key)
 
 
 class Image(libexiv2python.Image):
