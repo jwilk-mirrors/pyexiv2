@@ -302,3 +302,20 @@ class TestXmpTag(unittest.TestCase):
         self.failUnlessRaises(XmpValueError, XmpTag._convert_to_string, None, xtype)
 
     # TODO: other types
+
+
+    def test_set_values_no_metadata(self):
+        # TODO
+        raise NotImplementedError()
+
+    def test_set_values_with_metadata(self):
+        # TODO
+        raise NotImplementedError()
+
+    def test_del_values_no_metadata(self):
+        # TODO
+        raise NotImplementedError()
+
+    def test_del_values_with_metadata(self):
+        # TODO
+        raise NotImplementedError()

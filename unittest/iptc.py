@@ -160,3 +160,19 @@ class TestIptcTag(unittest.TestCase):
                          '�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}')
         # Invalid values
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, None, xtype)
+
+    def test_set_values_no_metadata(self):
+        # TODO
+        raise NotImplementedError()
+
+    def test_set_values_with_metadata(self):
+        # TODO
+        raise NotImplementedError()
+
+    def test_del_values_no_metadata(self):
+        # TODO
+        raise NotImplementedError()
+
+    def test_del_values_with_metadata(self):
+        # TODO
+        raise NotImplementedError()
