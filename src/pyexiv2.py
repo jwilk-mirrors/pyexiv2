@@ -534,7 +534,25 @@ class IptcTag(MetadataTag):
         """
         super(IptcTag, self).__init__(key, name, label, description, xtype, values)
         # FIXME: make values either a tuple (immutable) or a notifying list
-        self.values = map(lambda x: IptcTag._convert_to_python(x, xtype), values)
+        self._values = map(lambda x: IptcTag._convert_to_python(x, xtype), values)
+
+    def _get_values(self):
+        return self._values
+
+    def _set_values(self, new_values):
+        if self.metadata is not None:
+            raw_value = map(lambda x: IptcTag._convert_to_string(x, self.xtype), new_values)
+            self.metadata._set_iptc_tag_values(self.key, raw_value)
+        self._values = new_values
+
+    def _del_values(self):
+        if self.metadata is not None:
+            self.metadata._delete_iptc_tag(self.key)
+        del self._values
+
+    # DOCME
+    values = property(fget=_get_values, fset=_set_values, fdel=_del_values,
+                     doc=None)
 
     @staticmethod
     def _convert_to_python(value, xtype):

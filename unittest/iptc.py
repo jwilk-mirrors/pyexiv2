@@ -29,6 +29,20 @@ from pyexiv2 import IptcTag, IptcValueError, FixedOffset
 import datetime
 
 
+class ImageMetadataMock(object):
+
+    tags = {}
+
+    def _set_iptc_tag_values(self, key, values):
+        self.tags[key] = values
+
+    def _delete_iptc_tag(self, key):
+        try:
+            del self.tags[key]
+        except KeyError:
+            pass
+
+
 class TestIptcTag(unittest.TestCase):
 
     def test_convert_to_python_short(self):
@@ -162,17 +176,37 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, None, xtype)
 
     def test_set_values_no_metadata(self):
-        # TODO
-        raise NotImplementedError()
+        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
+                      'city of object data origin according to guidelines ' \
+                      'established by the provider.', 'String', ['Seattle'])
+        old_values = tag.values
+        tag.values = ['Barcelona']
+        self.failIfEqual(tag.values, old_values)
 
     def test_set_values_with_metadata(self):
-        # TODO
-        raise NotImplementedError()
+        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
+                      'city of object data origin according to guidelines ' \
+                      'established by the provider.', 'String', ['Seattle'])
+        tag.metadata = ImageMetadataMock()
+        old_values = tag.values
+        tag.values = ['Barcelona']
+        self.failIfEqual(tag.values, old_values)
+        self.assertEqual(tag.metadata.tags[tag.key], ['Barcelona'])
 
     def test_del_values_no_metadata(self):
-        # TODO
-        raise NotImplementedError()
+        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
+                      'city of object data origin according to guidelines ' \
+                      'established by the provider.', 'String', ['Seattle'])
+        del tag.values
+        self.failIf(hasattr(tag, 'values'))
 
     def test_del_values_with_metadata(self):
-        # TODO
-        raise NotImplementedError()
+        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
+                      'city of object data origin according to guidelines ' \
+                      'established by the provider.', 'String', ['Seattle'])
+        tag.metadata = ImageMetadataMock()
+        tag.metadata._set_iptc_tag_values(tag.key, tag.to_string())
+        self.assertEqual(tag.metadata.tags, {tag.key: ['Seattle']})
+        del tag.values
+        self.failIf(hasattr(tag, 'values'))
+        self.failIf(tag.metadata.tags.has_key(tag.key))
