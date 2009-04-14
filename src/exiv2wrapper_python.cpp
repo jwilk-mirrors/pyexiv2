@@ -45,8 +45,6 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
     register_exception_translator<Exiv2::Error>(&translateExiv2Error);
 
-    // Exported method names prefixed by "_Image__" are going to be "private"
-    // and are not meant to be used directly
     class_<Image>("Image", init<std::string>())
 
         .def("readMetadata", &Image::readMetadata)
@@ -60,7 +58,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("iptcKeys", &Image::iptcKeys)
         .def("getIptcTag", &Image::getIptcTag)
         .def("setIptcTagValues", &Image::setIptcTagValues)
-//        .def("deleteIptcTag", &Image::deleteIptcTag)
+        .def("deleteIptcTag", &Image::deleteIptcTag)
 
         .def("xmpKeys", &Image::xmpKeys)
         .def("getXmpTag", &Image::getXmpTag)

@@ -104,13 +104,9 @@ public:
     //void setIptcTag(std::string key, std::string value, unsigned int index);
     void setIptcTagValues(std::string key, boost::python::tuple values);
 
-    // Delete the required IPTC tag.
-    // If the key references a repeatable tag, the parameter index (starting
-    // from 0 like a list index) is used to determine which of the
-    // repetitions is to be deleted.
-    // Throw an exception if the tag was not set or if the index is greater
-    // than the highest existing one.
-    //void deleteIptcTag(std::string key, unsigned int index);
+    // Delete (all the repetitions of) the required IPTC tag.
+    // Throw an exception if the tag was not set.
+    void deleteIptcTag(std::string key);
 
     boost::python::list xmpKeys();
 
