@@ -541,8 +541,8 @@ class IptcTag(MetadataTag):
 
     def _set_values(self, new_values):
         if self.metadata is not None:
-            raw_value = map(lambda x: IptcTag._convert_to_string(x, self.xtype), new_values)
-            self.metadata._set_iptc_tag_values(self.key, raw_value)
+            raw_values = map(lambda x: IptcTag._convert_to_string(x, self.xtype), new_values)
+            self.metadata._set_iptc_tag_values(self.key, raw_values)
         self._values = new_values
 
     def _del_values(self):
@@ -720,12 +720,30 @@ class XmpTag(MetadataTag):
     _time_re = r'(?P<hours>\d{2})(:(?P<minutes>\d{2})(:(?P<seconds>\d{2})(.(?P<decimal>\d+))?)?(?P<tzd>%s))?' % _time_zone_re
     _date_re = re.compile(r'(?P<year>\d{4})(-(?P<month>\d{2})(-(?P<day>\d{2})(T(?P<time>%s))?)?)?' % _time_re)
 
-    def __init__(self, key, name, label, description, xtype, values):
+    def __init__(self, key, name, label, description, xtype, value):
         """
         Constructor.
         """
-        super(XmpTag, self).__init__(key, name, label, description, xtype, values)
-        self.values = map(lambda x: XmpTag._convert_to_python(x, xtype), values)
+        super(XmpTag, self).__init__(key, name, label, description, xtype, value)
+        self._value = XmpTag._convert_to_python(value, xtype)
+
+    def _get_value(self):
+        return self._value
+
+    def _set_value(self, new_value):
+        if self.metadata is not None:
+            raw_value = XmpTag._convert_to_string(new_value, self.xtype)
+            self.metadata._set_xmp_tag_value(self.key, raw_value)
+        self._value = new_value
+
+    def _del_value(self):
+        if self.metadata is not None:
+            self.metadata._delete_xmp_tag(self.key)
+        del self._value
+
+    # DOCME
+    value = property(fget=_get_value, fset=_set_value, fdel=_del_value,
+                     doc=None)
 
     @staticmethod
     def _convert_to_python(value, xtype):
@@ -1132,10 +1150,13 @@ class ImageMetadata(object):
         self._image.setIptcTagValues(key, values)
 
     def _set_xmp_tag(self, tag):
-        # TODO
-        raise NotImplementedError()
+        if type(tag) is not XmpTag:
+            raise TypeError('Expecting an XmpTag')
+        self._image.setXmpTagValue(tag.key, tag.to_string())
+        self._tags['xmp'][tag.key] = tag
+        tag.metadata = self
 
-    def _set_xmp_tag_values(self, key, values):
+    def _set_xmp_tag_value(self, key, value):
         # Overwrite the tag value for an already existing tag.
         # The tag is already in cache.
         # Warning: this is not meant to be called directly as it doesn't update

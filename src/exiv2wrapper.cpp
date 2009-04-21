@@ -344,39 +344,70 @@ boost::python::list Image::xmpKeys()
 
 boost::python::tuple Image::getXmpTag(std::string key)
 {
-    if(_dataRead)
-    {
-        Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
-        boost::python::list values;
-        unsigned int occurences = 0;
-        for (Exiv2::XmpMetadata::iterator i = _xmpData.begin();
-             i != _xmpData.end();
-             ++i)
-        {
-            if (i->key() == key)
-            {
-                values.append(i->toString());
-                ++occurences;
-            }
-        }
-        if (occurences > 0)
-        {
-            std::string sTagName = xmpKey.tagName();
-            std::string sTagLabel = xmpKey.tagLabel();
-            std::string sTagDesc(Exiv2::XmpProperties::propertyDesc(xmpKey));
-            std::string sTagType(Exiv2::XmpProperties::propertyInfo(xmpKey)->xmpValueType_);
-            return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, values);
-        }
-        else
-        {
-            throw Exiv2::Error(KEY_NOT_FOUND, key);
-        }
-    }
-    else
+    if(!_dataRead)
     {
         throw Exiv2::Error(METADATA_NOT_READ);
     }
+
+    Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
+
+    if(_xmpData.findKey(xmpKey) == _xmpData.end())
+    {
+        throw Exiv2::Error(KEY_NOT_FOUND, key);
+    }
+
+    Exiv2::Xmpdatum xmpDatum = _xmpData[key];
+    std::string sTagName = xmpKey.tagName();
+    std::string sTagLabel = xmpKey.tagLabel();
+    std::string sTagDesc(Exiv2::XmpProperties::propertyDesc(xmpKey));
+    std::string sTagType(Exiv2::XmpProperties::propertyInfo(xmpKey)->xmpValueType_);
+    std::string sTagValue = xmpDatum.toString();
+    return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, sTagValue);
 }
+
+/*void Image::setXmpTagValues(std::string key, boost::python::tuple values)
+{
+    if (!_dataRead)
+    {
+        throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
+    unsigned int index = 0;
+    unsigned int max = len(values);
+    Exiv2::XmpMetadata::iterator dataIterator = _xmpData.findKey(xmpKey);
+    while (index < max)
+    {
+        std::string value = boost::python::extract<std::string>(values[index++]);
+        if (dataIterator != _xmpData.end())
+        {
+            // Override an existing value
+            dataIterator->setValue(value);
+            dataIterator = std::find_if(++dataIterator, _xmpData.end(),
+                Exiv2::FindMetadatumById::FindMetadatumById(xmpKey.tag(),
+                                                            xmpKey.record()));
+        }
+        else
+        {
+            // Append a new value
+            Exiv2::Iptcdatum iptcDatum(iptcKey);
+            iptcDatum.setValue(value);
+            int state = _iptcData.add(iptcDatum);
+            if (state == 6)
+            {
+                throw Exiv2::Error(NON_REPEATABLE);
+            }
+        }
+    }
+    // Erase the remaining values if any
+    while (dataIterator != _iptcData.end())
+    {
+        _iptcData.erase(dataIterator);
+        dataIterator = std::find_if(dataIterator, _iptcData.end(),
+                Exiv2::FindMetadatumById::FindMetadatumById(iptcKey.tag(),
+                                                            iptcKey.record()));
+    }
+}*/
 
 /*
 boost::python::tuple Image::getThumbnailData()

@@ -119,21 +119,21 @@ class TestImageMetadata(unittest.TestCase):
             ('Xmp.dc.format', 'format', 'Format', 'The file format used when ' \
              'saving the resource. Tools and applications should set this ' \
              'property to the save format of the data. It may include ' \
-             'appropriate qualifiers.', 'MIMEType', ['image/jpeg'])
+             'appropriate qualifiers.', 'MIMEType', 'image/jpeg')
         tags['Xmp.dc.subject'] = \
             ('Xmp.dc.subject', 'subject', 'Subject', 'An unordered array of ' \
              'descriptive phrases or keywords that specify the topic of the ' \
-             'content of the resource.', 'bag Text', ['image, test, pyexiv2'])
+             'content of the resource.', 'bag Text', 'image, test, pyexiv2')
         tags['Xmp.xmp.CreateDate'] = \
             ('Xmp.xmp.CreateDate', 'CreateDate', 'Create Date',
              'The date and time the resource was originally created.', 'Date',
-             ['2005-09-07T15:07:40-07:00'])
+             '2005-09-07T15:07:40-07:00')
         tags['Xmp.xmpMM.DocumentID'] = \
             ('Xmp.xmpMM.DocumentID', 'DocumentID', 'Document ID',
              'The common identifier for all versions and renditions of a ' \
              'document. It should be based on a UUID; see Document and ' \
              'Instance IDs below.', 'URI',
-             ['uuid:9A3B7F52214211DAB6308A7391270C13'])
+             'uuid:9A3B7F52214211DAB6308A7391270C13')
         self.metadata._image.tags['xmp'] = tags
 
     ######################
