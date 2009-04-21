@@ -79,6 +79,9 @@ class ImageMock(object):
     def getXmpTag(self, key):
         return self.tags['xmp'][key]
 
+    def setXmpTagValue(self, key, value):
+        self.tags['xmp'][key] = value
+
 
 class TestImageMetadata(unittest.TestCase):
 
@@ -191,7 +194,7 @@ class TestImageMetadata(unittest.TestCase):
         self.metadata.read()
         self._set_exif_tags()
         self.assertEqual(self.metadata._tags['exif'], {})
-        # Create a new tag 
+        # Create a new tag
         tag = ExifTag('Exif.Thumbnail.Orientation', 'Orientation',
                       'Orientation', 'The image orientation viewed in terms ' \
                       'of rows and columns.', 'Short', '1', 'top, left')
@@ -461,32 +464,95 @@ class TestImageMetadata(unittest.TestCase):
         self.failUnlessRaises(KeyError, self.metadata._get_xmp_tag, key)
 
     def test_set_xmp_tag_wrong(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        self.assertEqual(self.metadata._tags['xmp'], {})
+        # Try to set a tag with wrong type
+        tag = 'Not an xmp tag'
+        self.failUnlessRaises(TypeError, self.metadata._set_xmp_tag, tag)
+        self.assertEqual(self.metadata._tags['xmp'], {})
 
     def test_set_xmp_tag_create(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        self.assertEqual(self.metadata._tags['xmp'], {})
+        # Create a new tag
+        tag = XmpTag('Xmp.dc.title', 'title', 'Title', 'The title of the ' \
+                     'document, or the name given to the resource. Typically,' \
+                     ' it will be a name by which the resource is formally ' \
+                     'known.', 'Lang Alt',
+                     'lang="x-default" This is not a title, ' \
+                     'lang="fr-FR" Ceci n\'est pas un titre')
+        self.assertEqual(tag.metadata, None)
+        self.metadata._set_xmp_tag(tag)
+        self.assertEqual(tag.metadata, self.metadata)
+        self.assertEqual(self.metadata._tags['xmp'], {tag.key: tag})
+        self.assert_(self.metadata._image.tags['xmp'].has_key(tag.key))
+        self.assertEqual(self.metadata._image.tags['xmp'][tag.key],
+                         tag.raw_value)
 
     def test_set_xmp_tag_overwrite(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        self.assertEqual(self.metadata._tags['xmp'], {})
+        # Overwrite an existing tag
+        tag = XmpTag('Xmp.dc.format', 'format', 'Format', 'The file format ' \
+                     'used when saving the resource. Tools and applications ' \
+                     'should set this property to the save format of the ' \
+                     'data. It may include appropriate qualifiers.',
+                     'MIMEType', 'image/png')
+        self.assertEqual(tag.metadata, None)
+        self.metadata._set_xmp_tag(tag)
+        self.assertEqual(tag.metadata, self.metadata)
+        self.assertEqual(self.metadata._tags['xmp'], {tag.key: tag})
+        self.assert_(self.metadata._image.tags['xmp'].has_key(tag.key))
+        self.assertEqual(self.metadata._image.tags['xmp'][tag.key],
+                         tag.raw_value)
 
     def test_set_xmp_tag_overwrite_already_cached(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        self.assertEqual(self.metadata._tags['xmp'], {})
+        # Overwrite an existing tag already cached
+        key = 'Xmp.xmp.CreateDate'
+        tag = self.metadata._get_xmp_tag(key)
+        self.assertEqual(self.metadata._tags['xmp'][key], tag)
+        new_tag = XmpTag(key, 'CreateDate', 'Create Date',
+                         'The date and time the resource was originally ' \
+                         'created.', 'Date', '2009-04-21T20:07+01:00')
+        self.assertEqual(new_tag.metadata, None)
+        self.metadata._set_xmp_tag(new_tag)
+        self.assertEqual(new_tag.metadata, self.metadata)
+        self.assertEqual(self.metadata._tags['xmp'], {key: new_tag})
+        self.assert_(self.metadata._image.tags['xmp'].has_key(key))
+        self.assertEqual(self.metadata._image.tags['xmp'][key],
+                         new_tag.raw_value)
 
     def test_set_xmp_tag_value_inexistent(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        key = 'Xmp.xmp.Nickname'
+        value = 'oSoMoN'
+        self.failUnlessRaises(KeyError, self.metadata._set_xmp_tag_value,
+                              key, value)
 
     def test_set_xmp_tag_value_wrong_type(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        key = 'Xmp.xmp.CreateDate'
+        value = datetime.datetime(2009, 4, 21, 20, 11, 0)
+        self.failUnlessRaises(TypeError, self.metadata._set_xmp_tag_value,
+                              key, value)
 
     def test_set_xmp_tag_value(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        key = 'Xmp.xmp.CreateDate'
+        tag = self.metadata._get_xmp_tag(key)
+        value = '2009-04-21T20:12:47+01:00'
+        self.failIfEqual(self.metadata._image.tags['xmp'][key], value)
+        self.metadata._set_xmp_tag_value(key, value)
+        self.assertEqual(self.metadata._image.tags['xmp'][key], value)
 
     def test_delete_xmp_tag_inexistent(self):
         # TODO

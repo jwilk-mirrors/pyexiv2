@@ -365,49 +365,15 @@ boost::python::tuple Image::getXmpTag(std::string key)
     return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, sTagValue);
 }
 
-/*void Image::setXmpTagValues(std::string key, boost::python::tuple values)
+void Image::setXmpTagValue(std::string key, std::string value)
 {
     if (!_dataRead)
     {
         throw Exiv2::Error(METADATA_NOT_READ);
     }
 
-    Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
-    unsigned int index = 0;
-    unsigned int max = len(values);
-    Exiv2::XmpMetadata::iterator dataIterator = _xmpData.findKey(xmpKey);
-    while (index < max)
-    {
-        std::string value = boost::python::extract<std::string>(values[index++]);
-        if (dataIterator != _xmpData.end())
-        {
-            // Override an existing value
-            dataIterator->setValue(value);
-            dataIterator = std::find_if(++dataIterator, _xmpData.end(),
-                Exiv2::FindMetadatumById::FindMetadatumById(xmpKey.tag(),
-                                                            xmpKey.record()));
-        }
-        else
-        {
-            // Append a new value
-            Exiv2::Iptcdatum iptcDatum(iptcKey);
-            iptcDatum.setValue(value);
-            int state = _iptcData.add(iptcDatum);
-            if (state == 6)
-            {
-                throw Exiv2::Error(NON_REPEATABLE);
-            }
-        }
-    }
-    // Erase the remaining values if any
-    while (dataIterator != _iptcData.end())
-    {
-        _iptcData.erase(dataIterator);
-        dataIterator = std::find_if(dataIterator, _iptcData.end(),
-                Exiv2::FindMetadatumById::FindMetadatumById(iptcKey.tag(),
-                                                            iptcKey.record()));
-    }
-}*/
+    _xmpData[key] = value;
+}
 
 /*
 boost::python::tuple Image::getThumbnailData()

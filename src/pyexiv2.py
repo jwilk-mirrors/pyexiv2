@@ -1005,6 +1005,14 @@ class XmpTag(MetadataTag):
 
         raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
+    def to_string(self):
+        """
+        Return a string representation of the XMP tag suitable to pass to
+        libexiv2 to set the value of the tag.
+        DOCME
+        """
+        return XmpTag._convert_to_string(self.value, self.xtype)
+
     def __str__(self):
         """
         Return a string representation of the XMP tag.
@@ -1163,7 +1171,11 @@ class ImageMetadata(object):
         # the internal cache (which would leave the object in an inconsistent
         # state).
         # TODO
-        raise NotImplementedError()
+        if key not in self.xmp_keys:
+            raise KeyError('Cannot set the value of an inexistent tag')
+        if type(value) is not str:
+            raise TypeError('Expecting a string')
+        self._image.setXmpTagValue(key, value)
 
     def __setitem__(self, key, tag):
         """

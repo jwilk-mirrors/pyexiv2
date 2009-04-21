@@ -113,7 +113,7 @@ public:
     // tagvalue (list)
     boost::python::tuple getXmpTag(std::string key);
 
-    void setXmpTagValues(std::string key, boost::python::tuple values);
+    void setXmpTagValue(std::string key, std::string value);
 
     // Read and write access to the thumbnail embedded in the image.
 
