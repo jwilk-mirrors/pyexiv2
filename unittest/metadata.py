@@ -666,5 +666,22 @@ class TestImageMetadata(unittest.TestCase):
         self.failUnlessEqual(self.metadata._tags['xmp'][key], tag)
 
     def test_delitem(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_exif_tags()
+        self._set_iptc_tags()
+        self._set_xmp_tags()
+        # Delete existing tags
+        key = 'Exif.Photo.ExifVersion'
+        del self.metadata[key]
+        self.failIf(key in self.metadata._tags['exif'])
+        key = 'Iptc.Application2.Caption'
+        del self.metadata[key]
+        self.failIf(key in self.metadata._tags['iptc'])
+        key = 'Xmp.xmp.CreateDate'
+        del self.metadata[key]
+        self.failIf(key in self.metadata._tags['xmp'])
+        # Try to delete nonexistent tags
+        keys = ('Exif.Image.SamplesPerPixel', 'Iptc.Application2.FixtureId',
+                'Xmp.xmp.Rating', 'Wrong.Noluck.Raise')
+        for key in keys:
+            self.failUnlessRaises(KeyError, self.metadata.__delitem__, key)
