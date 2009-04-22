@@ -592,8 +592,57 @@ class TestImageMetadata(unittest.TestCase):
             self.failUnlessRaises(KeyError, self.metadata.__getitem__, key)
 
     def test_setitem(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_exif_tags()
+        self._set_iptc_tags()
+        self._set_xmp_tags()
+        # Set new tags
+        key = 'Exif.Photo.ExposureBiasValue'
+        tag = ExifTag(key, 'ExposureBiasValue', 'Exposure Bias',
+                      'The exposure bias. The units is the APEX value. ' \
+                      'Ordinarily it is given in the range of -99.99 to 99.99.',
+                      'SRational', '0/3', '0')
+        self.metadata[key] = tag
+        self.failUnless(key in self.metadata._tags['exif'])
+        self.failUnlessEqual(self.metadata._tags['exif'][key], tag)
+        key = 'Iptc.Application2.City'
+        tag = IptcTag(key, 'City', 'City', 'Identifies city of object data ' \
+                      'origin according to guidelines established by the ' \
+                      'provider.', 'String', ['Barcelona'])
+        self.metadata[key] = tag
+        self.failUnless(key in self.metadata._tags['iptc'])
+        self.failUnlessEqual(self.metadata._tags['iptc'][key], tag)
+        key = 'Xmp.dc.description'
+        tag = XmpTag(key, 'description', 'Description', 'A textual ' \
+                     'description of the content of the resource. Multiple ' \
+                     'values may be present for different languages.',
+                     'Lang Alt', 'lang="x-default" Sunset picture.')
+        self.metadata[key] = tag
+        self.failUnless(key in self.metadata._tags['xmp'])
+        self.failUnlessEqual(self.metadata._tags['xmp'][key], tag)
+        # Replace existing tags
+        key = 'Exif.Photo.ExifVersion'
+        tag = ExifTag(key, 'ExifVersion', 'Exif Version', 'The version of ' \
+                      'this standard supported. Nonexistence of this field is' \
+                      ' taken to mean nonconformance to the standard.',
+                      'Undefined', '48 50 50 48 ', '2.20')
+        self.metadata[key] = tag
+        self.failUnless(key in self.metadata._tags['exif'])
+        self.failUnlessEqual(self.metadata._tags['exif'][key], tag)
+        key = 'Iptc.Application2.Caption'
+        tag = IptcTag(key, 'Caption', 'Caption', 'A textual description of ' \
+                      'the object data.', 'String', ['Sunset on Barcelona.'])
+        self.metadata[key] = tag
+        self.failUnless(key in self.metadata._tags['iptc'])
+        self.failUnlessEqual(self.metadata._tags['iptc'][key], tag)
+        key = 'Xmp.dc.subject'
+        tag = XmpTag(key, 'subject', 'Subject', 'An unordered array of ' \
+                     'descriptive phrases or keywords that specify the topic ' \
+                     'of the content of the resource.', 'bag Text',
+                     'sunset, Barcelona, beautiful, beach')
+        self.metadata[key] = tag
+        self.failUnless(key in self.metadata._tags['xmp'])
+        self.failUnlessEqual(self.metadata._tags['xmp'][key], tag)
 
     def test_delitem(self):
         # TODO

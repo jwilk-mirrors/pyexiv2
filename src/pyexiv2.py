@@ -1185,7 +1185,7 @@ class ImageMetadata(object):
         """
         family = key.split('.')[0].lower()
         try:
-            return getattr(self, '_set_%s_tag' % family)(key, tag)
+            return getattr(self, '_set_%s_tag' % family)(tag)
         except AttributeError:
             raise KeyError(key)
 
