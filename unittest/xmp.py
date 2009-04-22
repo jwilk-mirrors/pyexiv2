@@ -318,7 +318,7 @@ class TestXmpTag(unittest.TestCase):
     # TODO: other types
 
 
-    def test_set_values_no_metadata(self):
+    def test_set_value_no_metadata(self):
         tag = XmpTag('Xmp.xmp.ModifyDate', 'ModifyDate', 'Modify Date',
                      'The date and time the resource was last modified. Note:' \
                      ' The value of this property is not necessarily the same' \
@@ -329,7 +329,7 @@ class TestXmpTag(unittest.TestCase):
         tag.value = datetime.datetime(2009, 4, 22, 8, 30, 27, tzinfo=FixedOffset())
         self.failIfEqual(tag.value, old_value)
 
-    def test_set_values_with_metadata(self):
+    def test_set_value_with_metadata(self):
         tag = XmpTag('Xmp.xmp.ModifyDate', 'ModifyDate', 'Modify Date',
                      'The date and time the resource was last modified. Note:' \
                      ' The value of this property is not necessarily the same' \
@@ -342,10 +342,26 @@ class TestXmpTag(unittest.TestCase):
         self.failIfEqual(tag.value, old_value)
         self.assertEqual(tag.metadata.tags[tag.key], '2009-04-22T08:30:27Z')
 
-    def test_del_values_no_metadata(self):
-        # TODO
-        raise NotImplementedError()
+    def test_del_value_no_metadata(self):
+        tag = XmpTag('Xmp.xmp.ModifyDate', 'ModifyDate', 'Modify Date',
+                     'The date and time the resource was last modified. Note:' \
+                     ' The value of this property is not necessarily the same' \
+                     "as the file's system modification date because it is " \
+                     'set before the file is saved.', 'Date',
+                     '2005-09-07T15:09:51-07:00')
+        del tag.value
+        self.failIf(hasattr(tag, 'value'))
 
-    def test_del_values_with_metadata(self):
-        # TODO
-        raise NotImplementedError()
+    def test_del_value_with_metadata(self):
+        tag = XmpTag('Xmp.xmp.ModifyDate', 'ModifyDate', 'Modify Date',
+                     'The date and time the resource was last modified. Note:' \
+                     ' The value of this property is not necessarily the same' \
+                     "as the file's system modification date because it is " \
+                     'set before the file is saved.', 'Date',
+                     '2005-09-07T15:09:51-07:00')
+        tag.metadata = ImageMetadataMock()
+        tag.metadata._set_xmp_tag_value(tag.key, tag.to_string())
+        self.assertEqual(tag.metadata.tags, {tag.key: '2005-09-07T15:09:51-07:00'})
+        del tag.value
+        self.failIf(hasattr(tag, 'value'))
+        self.failIf(tag.metadata.tags.has_key(tag.key))

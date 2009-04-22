@@ -63,6 +63,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("xmpKeys", &Image::xmpKeys)
         .def("getXmpTag", &Image::getXmpTag)
         .def("setXmpTagValue", &Image::setXmpTagValue)
+        .def("deleteXmpTag", &Image::deleteXmpTag)
 
 //        .def("getThumbnailData", &Image::getThumbnailData)
 //        .def("setThumbnailData", &Image::setThumbnailData)

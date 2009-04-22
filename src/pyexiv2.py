@@ -1210,8 +1210,14 @@ class ImageMetadata(object):
             pass
 
     def _delete_xmp_tag(self, key):
-        # TODO
-        raise NotImplementedError()
+        if key not in self.xmp_keys:
+            raise KeyError('Cannot delete an inexistent tag')
+        self._image.deleteXmpTag(key)
+        try:
+            del self._tags['xmp'][key]
+        except KeyError:
+            # The tag was not cached.
+            pass
 
     def __delitem__(self, key):
         """

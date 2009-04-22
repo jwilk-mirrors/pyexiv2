@@ -375,6 +375,23 @@ void Image::setXmpTagValue(std::string key, std::string value)
     _xmpData[key] = value;
 }
 
+void Image::deleteXmpTag(std::string key)
+{
+    if(!_dataRead)
+    {
+        throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
+    Exiv2::XmpMetadata::iterator i = _xmpData.findKey(xmpKey);
+    if(i != _xmpData.end())
+    {
+        _xmpData.erase(i);
+    }
+    else
+        throw Exiv2::Error(KEY_NOT_FOUND, key);
+}
+
 /*
 boost::python::tuple Image::getThumbnailData()
 {

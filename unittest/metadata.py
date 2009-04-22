@@ -82,6 +82,12 @@ class ImageMock(object):
     def setXmpTagValue(self, key, value):
         self.tags['xmp'][key] = value
 
+    def deleteXmpTag(self, key):
+        try:
+            del self.tags['xmp'][key]
+        except KeyError:
+            pass
+
 
 class TestImageMetadata(unittest.TestCase):
 
@@ -555,16 +561,31 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._image.tags['xmp'][key], value)
 
     def test_delete_xmp_tag_inexistent(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        key = 'Xmp.xmp.CreatorTool'
+        self.failUnlessRaises(KeyError, self.metadata._delete_xmp_tag, key)
 
     def test_delete_xmp_tag_not_cached(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        key = 'Xmp.dc.subject'
+        self.assertEqual(self.metadata._tags['xmp'], {})
+        self.assert_(self.metadata._image.tags['xmp'].has_key(key))
+        self.metadata._delete_xmp_tag(key)
+        self.assertEqual(self.metadata._tags['xmp'], {})
+        self.failIf(self.metadata._image.tags['xmp'].has_key(key))
 
     def test_delete_xmp_tag_cached(self):
-        # TODO
-        raise(NotImplementedError())
+        self.metadata.read()
+        self._set_xmp_tags()
+        key = 'Xmp.dc.subject'
+        self.assert_(self.metadata._image.tags['xmp'].has_key(key))
+        tag = self.metadata._get_xmp_tag(key)
+        self.assertEqual(self.metadata._tags['xmp'][key], tag)
+        self.metadata._delete_xmp_tag(key)
+        self.assertEqual(self.metadata._tags['xmp'], {})
+        self.failIf(self.metadata._image.tags['xmp'].has_key(key))
 
     ###########################
     # Test dictionary interface

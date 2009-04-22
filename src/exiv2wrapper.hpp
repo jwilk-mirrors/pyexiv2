@@ -115,6 +115,10 @@ public:
 
     void setXmpTagValue(std::string key, std::string value);
 
+    // Delete the required XMP tag.
+    // Throw an exception if the tag was not set.
+    void deleteXmpTag(std::string key);
+
     // Read and write access to the thumbnail embedded in the image.
 
     // Return a tuple containing the format of the thumbnail ("TIFF" or
