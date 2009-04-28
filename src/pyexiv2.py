@@ -246,6 +246,54 @@ class Rational(object):
         return '%d/%d' % (self.numerator, self.denominator)
 
 
+class ListenerInterface(object):
+    # Define an interface that an object that wants to listen to changes on a
+    # notifying list should implement.
+
+    def item_changed(self, index, item):
+        raise NotImplementedError()
+
+    def item_deleted(self, index):
+        raise NotImplementedError()
+
+    # TODO: define other methods.
+
+
+class NotifyingList(list):
+
+    """
+    DOCME
+    Not asynchronous.
+    """
+
+    # file:///usr/share/doc/python2.5/html/lib/typesseq-mutable.html
+    # http://docs.python.org/reference/datamodel.html#additional-methods-for-emulation-of-sequence-types
+
+    def __init__(self, items=[]):
+        super(NotifyingList, self).__init__(items)
+        self._listeners = set()
+
+    def register_listener(self, listener):
+        self._listeners.add(listener)
+
+    def unregister_listener(self, listener):
+        self._listeners.remove(listener)
+
+    def _notify_listeners(self, method_name, *args):
+        for listener in self._listeners:
+            getattr(listener, method_name)(*args)
+
+    def __setitem__(self, index, item):
+        # FIXME: support slice arguments
+        super(NotifyingList, self).__setitem__(index, item)
+        self._notify_listeners('item_changed', index, item)
+
+    def __delitem__(self, index):
+        # FIXME: support slice arguments
+        super(NotifyingList, self).__delitem__(index)
+        self._notify_listeners('item_deleted', index)
+
+
 class MetadataTag(object):
 
     """
@@ -516,7 +564,7 @@ class IptcValueError(ValueError):
                (self.xtype, self.value)
 
 
-class IptcTag(MetadataTag):
+class IptcTag(MetadataTag, ListenerInterface):
 
     """
     An IPTC metadata tag can have several values (tags that have the repeatable
@@ -533,8 +581,8 @@ class IptcTag(MetadataTag):
         Constructor.
         """
         super(IptcTag, self).__init__(key, name, label, description, xtype, values)
-        # FIXME: make values either a tuple (immutable) or a notifying list
-        self._values = map(lambda x: IptcTag._convert_to_python(x, xtype), values)
+        self._values = NotifyingList(map(lambda x: IptcTag._convert_to_python(x, xtype), values))
+        self._values.register_listener(self)
 
     def _get_values(self):
         return self._values
@@ -548,11 +596,21 @@ class IptcTag(MetadataTag):
     def _del_values(self):
         if self.metadata is not None:
             self.metadata._delete_iptc_tag(self.key)
+        self._values.unregister_listener(self)
         del self._values
 
     # DOCME
     values = property(fget=_get_values, fset=_set_values, fdel=_del_values,
                      doc=None)
+
+    # Implement the listener interface.
+
+    def item_changed(self, index, item):
+        # An item of self._values was changed.
+        # The following is a quick, non optimal solution.
+        # FIXME: do not update the whole list, only the item that changed.
+        self._set_values(self._values)
+
 
     @staticmethod
     def _convert_to_python(value, xtype):

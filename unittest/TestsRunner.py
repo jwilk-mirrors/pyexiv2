@@ -35,6 +35,7 @@ import unittest
 #from Bug183332_TestCase import Bug183332_TestCase
 #from Bug183618_TestCase import Bug183618_TestCase
 from rational import TestRational
+from notifying_list import TestNotifyingList
 from exif import TestExifTag
 from iptc import TestIptcTag
 from xmp import TestXmpTag
@@ -51,6 +52,7 @@ if __name__ == '__main__':
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183332_TestCase))
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183618_TestCase))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestRational))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestNotifyingList))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestExifTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIptcTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpTag))
