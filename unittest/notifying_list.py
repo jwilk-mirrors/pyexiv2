@@ -52,6 +52,9 @@ class SimpleListener(ListenerInterface):
     def extended(self, items):
         self._notify('extended', items)
 
+    def item_inserted(self, index, item):
+        self._notify('item_inserted', index, item)
+
 
 class TestNotifyingList(unittest.TestCase):
 
@@ -69,6 +72,7 @@ class TestNotifyingList(unittest.TestCase):
         self.failUnlessRaises(NotImplementedError, self.values.__delitem__, 5)
         self.failUnlessRaises(NotImplementedError, self.values.append, 17)
         self.failUnlessRaises(NotImplementedError, self.values.extend, [11, 22])
+        self.failUnlessRaises(NotImplementedError, self.values.insert, 4, 24)
         # TODO: test all operations (insertion, slicing, ...)
 
     def test_one_listener(self):
@@ -86,7 +90,10 @@ class TestNotifyingList(unittest.TestCase):
         self.values.extend([11, 22])
         self.failUnlessEqual(listener.notifications, 4)
         self.failUnlessEqual(listener.last, ('extended', ([11, 22],)))
-        # TODO: test all operations (insertion, slicing, ...)
+        self.values.insert(4, 24)
+        self.failUnlessEqual(listener.notifications, 5)
+        self.failUnlessEqual(listener.last, ('item_inserted', (4, 24)))
+        # TODO: test all operations (slicing, ...)
 
     def test_multiple_listeners(self):
         # Register a random number of listeners
@@ -109,4 +116,8 @@ class TestNotifyingList(unittest.TestCase):
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 4)
             self.failUnlessEqual(listener.last, ('extended', ([11, 22],)))
-        # TODO: test all operations (insertion, slicing, ...)
+        self.values.insert(4, 24)
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 5)
+            self.failUnlessEqual(listener.last, ('item_inserted', (4, 24)))
+        # TODO: test all operations (slicing, ...)

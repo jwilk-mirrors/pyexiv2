@@ -262,6 +262,9 @@ class ListenerInterface(object):
     def extended(self, items):
         raise NotImplementedError()
 
+    def item_inserted(self, index, item):
+        raise NotImplementedError()
+
     # TODO: define other methods.
 
 
@@ -306,6 +309,10 @@ class NotifyingList(list):
     def extend(self, items):
         super(NotifyingList, self).extend(items)
         self._notify_listeners('extended', items)
+
+    def insert(self, index, item):
+        super(NotifyingList, self).insert(index, item)
+        self._notify_listeners('item_inserted', index, item)
 
 
 class MetadataTag(object):
