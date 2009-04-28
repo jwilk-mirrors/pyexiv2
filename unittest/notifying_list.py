@@ -79,18 +79,23 @@ class TestNotifyingList(unittest.TestCase):
         listener = SimpleListener()
         self.values.register_listener(listener)
         self.values[3] = 13
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 3, 2])
         self.failUnlessEqual(listener.notifications, 1)
         self.failUnlessEqual(listener.last, ('item_changed', (3, 13)))
         del self.values[5]
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2])
         self.failUnlessEqual(listener.notifications, 2)
         self.failUnlessEqual(listener.last, ('item_deleted', (5,)))
         self.values.append(17)
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17])
         self.failUnlessEqual(listener.notifications, 3)
         self.failUnlessEqual(listener.last, ('item_appended', (17,)))
         self.values.extend([11, 22])
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17, 11, 22])
         self.failUnlessEqual(listener.notifications, 4)
         self.failUnlessEqual(listener.last, ('extended', ([11, 22],)))
         self.values.insert(4, 24)
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 24, 57, 2, 17, 11, 22])
         self.failUnlessEqual(listener.notifications, 5)
         self.failUnlessEqual(listener.last, ('item_inserted', (4, 24)))
         # TODO: test all operations (slicing, ...)
@@ -101,22 +106,27 @@ class TestNotifyingList(unittest.TestCase):
         for listener in listeners:
             self.values.register_listener(listener)
         self.values[3] = 13
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 3, 2])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 1)
             self.failUnlessEqual(listener.last, ('item_changed', (3, 13)))
         del self.values[5]
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 2)
             self.failUnlessEqual(listener.last, ('item_deleted', (5,)))
         self.values.append(17)
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 3)
             self.failUnlessEqual(listener.last, ('item_appended', (17,)))
         self.values.extend([11, 22])
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17, 11, 22])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 4)
             self.failUnlessEqual(listener.last, ('extended', ([11, 22],)))
         self.values.insert(4, 24)
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 24, 57, 2, 17, 11, 22])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 5)
             self.failUnlessEqual(listener.last, ('item_inserted', (4, 24)))
