@@ -49,6 +49,9 @@ class SimpleListener(ListenerInterface):
     def item_appended(self, item):
         self._notify('item_appended', item)
 
+    def extended(self, items):
+        self._notify('extended', items)
+
 
 class TestNotifyingList(unittest.TestCase):
 
@@ -65,6 +68,7 @@ class TestNotifyingList(unittest.TestCase):
         self.failUnlessRaises(NotImplementedError, self.values.__setitem__, 3, 13)
         self.failUnlessRaises(NotImplementedError, self.values.__delitem__, 5)
         self.failUnlessRaises(NotImplementedError, self.values.append, 17)
+        self.failUnlessRaises(NotImplementedError, self.values.extend, [11, 22])
         # TODO: test all operations (insertion, slicing, ...)
 
     def test_one_listener(self):
@@ -79,6 +83,9 @@ class TestNotifyingList(unittest.TestCase):
         self.values.append(17)
         self.failUnlessEqual(listener.notifications, 3)
         self.failUnlessEqual(listener.last, ('item_appended', (17,)))
+        self.values.extend([11, 22])
+        self.failUnlessEqual(listener.notifications, 4)
+        self.failUnlessEqual(listener.last, ('extended', ([11, 22],)))
         # TODO: test all operations (insertion, slicing, ...)
 
     def test_multiple_listeners(self):
@@ -98,4 +105,8 @@ class TestNotifyingList(unittest.TestCase):
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 3)
             self.failUnlessEqual(listener.last, ('item_appended', (17,)))
+        self.values.extend([11, 22])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 4)
+            self.failUnlessEqual(listener.last, ('extended', ([11, 22],)))
         # TODO: test all operations (insertion, slicing, ...)
