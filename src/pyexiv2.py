@@ -256,6 +256,9 @@ class ListenerInterface(object):
     def item_deleted(self, index):
         raise NotImplementedError()
 
+    def item_appended(self, item):
+        raise NotImplementedError()
+
     # TODO: define other methods.
 
 
@@ -292,6 +295,10 @@ class NotifyingList(list):
         # FIXME: support slice arguments
         super(NotifyingList, self).__delitem__(index)
         self._notify_listeners('item_deleted', index)
+
+    def append(self, item):
+        super(NotifyingList, self).append(item)
+        self._notify_listeners('item_appended', item)
 
 
 class MetadataTag(object):

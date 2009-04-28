@@ -33,16 +33,21 @@ class SimpleListener(ListenerInterface):
 
     # Total number of notifications
     notifications = 0
-    # Last notification: (method_name, *args)
+    # Last notification: (method_name, args)
     last = None
 
-    def item_changed(self, index, item):
+    def _notify(self, method_name, *args):
         self.notifications += 1
-        self.last = ('item_changed', index, item)
+        self.last = (method_name, args)
+
+    def item_changed(self, index, item):
+        self._notify('item_changed', index, item)
 
     def item_deleted(self, index):
-        self.notifications += 1
-        self.last = ('item_deleted', index)
+        self._notify('item_deleted', index)
+
+    def item_appended(self, item):
+        self._notify('item_appended', item)
 
 
 class TestNotifyingList(unittest.TestCase):
@@ -59,6 +64,7 @@ class TestNotifyingList(unittest.TestCase):
         self.values.register_listener(ListenerInterface())
         self.failUnlessRaises(NotImplementedError, self.values.__setitem__, 3, 13)
         self.failUnlessRaises(NotImplementedError, self.values.__delitem__, 5)
+        self.failUnlessRaises(NotImplementedError, self.values.append, 17)
         # TODO: test all operations (insertion, slicing, ...)
 
     def test_one_listener(self):
@@ -66,10 +72,13 @@ class TestNotifyingList(unittest.TestCase):
         self.values.register_listener(listener)
         self.values[3] = 13
         self.failUnlessEqual(listener.notifications, 1)
-        self.failUnlessEqual(listener.last, ('item_changed', 3, 13))
+        self.failUnlessEqual(listener.last, ('item_changed', (3, 13)))
         del self.values[5]
         self.failUnlessEqual(listener.notifications, 2)
-        self.failUnlessEqual(listener.last, ('item_deleted', 5))
+        self.failUnlessEqual(listener.last, ('item_deleted', (5,)))
+        self.values.append(17)
+        self.failUnlessEqual(listener.notifications, 3)
+        self.failUnlessEqual(listener.last, ('item_appended', (17,)))
         # TODO: test all operations (insertion, slicing, ...)
 
     def test_multiple_listeners(self):
@@ -80,9 +89,13 @@ class TestNotifyingList(unittest.TestCase):
         self.values[3] = 13
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 1)
-            self.failUnlessEqual(listener.last, ('item_changed', 3, 13))
+            self.failUnlessEqual(listener.last, ('item_changed', (3, 13)))
         del self.values[5]
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 2)
-            self.failUnlessEqual(listener.last, ('item_deleted', 5))
+            self.failUnlessEqual(listener.last, ('item_deleted', (5,)))
+        self.values.append(17)
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 3)
+            self.failUnlessEqual(listener.last, ('item_appended', (17,)))
         # TODO: test all operations (insertion, slicing, ...)
