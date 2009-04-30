@@ -268,6 +268,9 @@ class ListenerInterface(object):
     def item_popped(self, index):
         raise NotImplementedError()
 
+    def item_removed(self, item):
+        raise NotImplementedError()
+
     # TODO: define other methods.
 
 
@@ -323,6 +326,10 @@ class NotifyingList(list):
         item = super(NotifyingList, self).pop(index)
         self._notify_listeners('item_popped', index)
         return item
+
+    def remove(self, item):
+        super(NotifyingList, self).remove(item)
+        self._notify_listeners('item_removed', item)
 
 
 class MetadataTag(object):

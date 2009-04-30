@@ -58,6 +58,9 @@ class SimpleListener(ListenerInterface):
     def item_popped(self, index):
         self._notify('item_popped', index)
 
+    def item_removed(self, item):
+        self._notify('item_removed', item)
+
 
 class TestNotifyingList(unittest.TestCase):
 
@@ -150,5 +153,17 @@ class TestNotifyingList(unittest.TestCase):
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 7)
             self.failUnlessEqual(listener.last, ('item_popped', (4,)))
+
+        self.values.remove(9)
+        self.failUnlessEqual(self.values, [5, 7, 13, 57, 2, 17, 11])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 8)
+            self.failUnlessEqual(listener.last, ('item_removed', (9,)))
+
+        self.failUnlessRaises(ValueError, self.values.remove, 33)
+        self.failUnlessEqual(self.values, [5, 7, 13, 57, 2, 17, 11])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 8)
+            self.failUnlessEqual(listener.last, ('item_removed', (9,)))
 
         # TODO: test all operations (slicing, ...)
