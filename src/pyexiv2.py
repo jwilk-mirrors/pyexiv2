@@ -265,6 +265,9 @@ class ListenerInterface(object):
     def item_inserted(self, index, item):
         raise NotImplementedError()
 
+    def item_popped(self, index):
+        raise NotImplementedError()
+
     # TODO: define other methods.
 
 
@@ -313,6 +316,13 @@ class NotifyingList(list):
     def insert(self, index, item):
         super(NotifyingList, self).insert(index, item)
         self._notify_listeners('item_inserted', index, item)
+
+    def pop(self, index=None):
+        if index is None:
+            index = len(self) - 1
+        item = super(NotifyingList, self).pop(index)
+        self._notify_listeners('item_popped', index)
+        return item
 
 
 class MetadataTag(object):

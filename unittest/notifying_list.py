@@ -55,6 +55,9 @@ class SimpleListener(ListenerInterface):
     def item_inserted(self, index, item):
         self._notify('item_inserted', index, item)
 
+    def item_popped(self, index):
+        self._notify('item_popped', index)
+
 
 class TestNotifyingList(unittest.TestCase):
 
@@ -73,6 +76,8 @@ class TestNotifyingList(unittest.TestCase):
         self.failUnlessRaises(NotImplementedError, self.values.append, 17)
         self.failUnlessRaises(NotImplementedError, self.values.extend, [11, 22])
         self.failUnlessRaises(NotImplementedError, self.values.insert, 4, 24)
+        self.failUnlessRaises(NotImplementedError, self.values.pop)
+        self.failUnlessRaises(NotImplementedError, self.values.pop, 3)
         # TODO: test all operations (insertion, slicing, ...)
 
     def test_multiple_listeners(self):
@@ -105,4 +110,14 @@ class TestNotifyingList(unittest.TestCase):
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 5)
             self.failUnlessEqual(listener.last, ('item_inserted', (4, 24)))
+        self.values.pop()
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 24, 57, 2, 17, 11])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 6)
+            self.failUnlessEqual(listener.last, ('item_popped', (9,)))
+        self.values.pop(4)
+        self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17, 11])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 7)
+            self.failUnlessEqual(listener.last, ('item_popped', (4,)))
         # TODO: test all operations (slicing, ...)
