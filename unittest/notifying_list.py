@@ -65,7 +65,8 @@ class TestNotifyingList(unittest.TestCase):
 
     def test_listener_interface(self):
         self.values.register_listener(ListenerInterface())
-        self.failUnlessRaises(NotImplementedError, self.values.__setitem__, 3, 13)
+        self.failUnlessRaises(NotImplementedError,
+                              self.values.__setitem__, 3, 13)
         self.failUnlessRaises(NotImplementedError, self.values.__delitem__, 5)
         self.failUnlessRaises(NotImplementedError, self.values.append, 17)
         self.failUnlessRaises(NotImplementedError, self.values.extend, [11, 22])
@@ -114,13 +115,15 @@ class TestNotifyingList(unittest.TestCase):
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17, 11, 22])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 4)
-            self.failUnlessEqual(listener.last, ('items_inserted', (7, [11, 22])))
+            self.failUnlessEqual(listener.last,
+                                 ('items_inserted', (7, [11, 22])))
 
         self.failUnlessRaises(TypeError, self.values.extend, 26)
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17, 11, 22])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 4)
-            self.failUnlessEqual(listener.last, ('items_inserted', (7, [11, 22])))
+            self.failUnlessEqual(listener.last,
+                                 ('items_inserted', (7, [11, 22])))
 
         self.values.insert(4, 24)
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 24, 57, 2, 17, 11, 22])
@@ -158,4 +161,51 @@ class TestNotifyingList(unittest.TestCase):
             self.failUnlessEqual(listener.notifications, 8)
             self.failUnlessEqual(listener.last, ('items_deleted', (2, 3)))
 
-        # TODO: test all operations (slicing, ...)
+        self.values.reverse()
+        self.failUnlessEqual(self.values, [11, 17, 2, 57, 13, 7, 5])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 9)
+            self.failUnlessEqual(listener.last, ('reordered', ()))
+
+        self.values.sort()
+        self.failUnlessEqual(self.values, [2, 5, 7, 11, 13, 17, 57])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 10)
+            self.failUnlessEqual(listener.last, ('reordered', ()))
+
+        self.values.sort(cmp=lambda x, y: y - x)
+        self.failUnlessEqual(self.values, [57, 17, 13, 11, 7, 5, 2])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 11)
+            self.failUnlessEqual(listener.last, ('reordered', ()))
+
+        self.values.sort(key=lambda x: x * x)
+        self.failUnlessEqual(self.values, [2, 5, 7, 11, 13, 17, 57])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 12)
+            self.failUnlessEqual(listener.last, ('reordered', ()))
+
+        self.values.sort(reverse=True)
+        self.failUnlessEqual(self.values, [57, 17, 13, 11, 7, 5, 2])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 13)
+            self.failUnlessEqual(listener.last, ('reordered', ()))
+
+        self.values += [44, 31, 19]
+        self.failUnlessEqual(self.values, [57, 17, 13, 11, 7, 5, 2, 44, 31, 19])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 14)
+            self.failUnlessEqual(listener.last,
+                                 ('items_inserted', (7, [44, 31, 19])))
+
+        self.values *= 3
+        self.failUnlessEqual(self.values,
+                             [57, 17, 13, 11, 7, 5, 2, 44, 31, 19,
+                              57, 17, 13, 11, 7, 5, 2, 44, 31, 19,
+                              57, 17, 13, 11, 7, 5, 2, 44, 31, 19])
+        for listener in listeners:
+            self.failUnlessEqual(listener.notifications, 15)
+            self.failUnlessEqual(listener.last,
+                                 ('items_inserted',
+                                  (10, [57, 17, 13, 11, 7, 5, 2, 44, 31, 19,
+                                        57, 17, 13, 11, 7, 5, 2, 44, 31, 19])))

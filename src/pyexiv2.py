@@ -281,6 +281,8 @@ class NotifyingList(list):
     # file:///usr/share/doc/python2.5/html/lib/typesseq-mutable.html
     # http://docs.python.org/reference/datamodel.html#additional-methods-for-emulation-of-sequence-types
 
+    # FIXME: support negatives indexes where relevant
+
     def __init__(self, items=[]):
         super(NotifyingList, self).__init__(items)
         self._listeners = set()
@@ -332,16 +334,24 @@ class NotifyingList(list):
         self._notify_listeners('items_deleted', index, index + 1)
 
     def reverse(self):
-        raise NotImplementedError()
+        super(NotifyingList, self).reverse()
+        self._notify_listeners('reordered')
 
     def sort(self, cmp=None, key=None, reverse=False):
-        raise NotImplementedError()
+        super(NotifyingList, self).sort(cmp, key, reverse)
+        self._notify_listeners('reordered')
 
     def __iadd__(self, other):
-        raise NotImplementedError()
+        index = len(self)
+        self = super(NotifyingList, self).__iadd__(other)
+        self._notify_listeners('items_inserted', index, other)
+        return self
 
     def __imul__(self, coefficient):
-        raise NotImplementedError()
+        index = len(self)
+        self = super(NotifyingList, self).__imul__(coefficient)
+        self._notify_listeners('items_inserted', index, self[index:])
+        return self
 
     def __setslice__(self, i, j, sequence):
         raise NotImplementedError()
