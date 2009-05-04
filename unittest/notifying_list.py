@@ -40,26 +40,17 @@ class SimpleListener(ListenerInterface):
         self.notifications += 1
         self.last = (method_name, args)
 
-    def item_changed(self, index, item):
-        self._notify('item_changed', index, item)
+    def items_changed(self, start_index, items):
+        self._notify('items_changed', start_index, items)
 
-    def item_deleted(self, index):
-        self._notify('item_deleted', index)
+    def items_deleted(self, start_index, end_index):
+        self._notify('items_deleted', start_index, end_index)
 
-    def item_appended(self, item):
-        self._notify('item_appended', item)
+    def items_inserted(self, start_index, items):
+        self._notify('items_inserted', start_index, items)
 
-    def extended(self, items):
-        self._notify('extended', items)
-
-    def item_inserted(self, index, item):
-        self._notify('item_inserted', index, item)
-
-    def item_popped(self, index):
-        self._notify('item_popped', index)
-
-    def item_removed(self, item):
-        self._notify('item_removed', item)
+    def reordered(self):
+        self._notify('reordered')
 
 
 class TestNotifyingList(unittest.TestCase):
@@ -80,6 +71,7 @@ class TestNotifyingList(unittest.TestCase):
         self.failUnlessRaises(NotImplementedError, self.values.extend, [11, 22])
         self.failUnlessRaises(NotImplementedError, self.values.insert, 4, 24)
         self.failUnlessRaises(NotImplementedError, self.values.pop)
+        self.failUnlessRaises(NotImplementedError, self.values.remove, 9)
         # TODO: test all operations (insertion, slicing, ...)
 
     def test_multiple_listeners(self):
@@ -92,78 +84,78 @@ class TestNotifyingList(unittest.TestCase):
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 3, 2])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 1)
-            self.failUnlessEqual(listener.last, ('item_changed', (3, 13)))
+            self.failUnlessEqual(listener.last, ('items_changed', (3, [13])))
 
         self.failUnlessRaises(IndexError, self.values.__setitem__, 9, 27)
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 3, 2])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 1)
-            self.failUnlessEqual(listener.last, ('item_changed', (3, 13)))
+            self.failUnlessEqual(listener.last, ('items_changed', (3, [13])))
 
         del self.values[5]
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 2)
-            self.failUnlessEqual(listener.last, ('item_deleted', (5,)))
+            self.failUnlessEqual(listener.last, ('items_deleted', (5, 6)))
 
         self.failUnlessRaises(IndexError, self.values.__delitem__, 9)
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 2)
-            self.failUnlessEqual(listener.last, ('item_deleted', (5,)))
+            self.failUnlessEqual(listener.last, ('items_deleted', (5, 6)))
 
         self.values.append(17)
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 3)
-            self.failUnlessEqual(listener.last, ('item_appended', (17,)))
+            self.failUnlessEqual(listener.last, ('items_inserted', (6, [17])))
 
         self.values.extend([11, 22])
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17, 11, 22])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 4)
-            self.failUnlessEqual(listener.last, ('extended', ([11, 22],)))
+            self.failUnlessEqual(listener.last, ('items_inserted', (7, [11, 22])))
 
         self.failUnlessRaises(TypeError, self.values.extend, 26)
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17, 11, 22])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 4)
-            self.failUnlessEqual(listener.last, ('extended', ([11, 22],)))
+            self.failUnlessEqual(listener.last, ('items_inserted', (7, [11, 22])))
 
         self.values.insert(4, 24)
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 24, 57, 2, 17, 11, 22])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 5)
-            self.failUnlessEqual(listener.last, ('item_inserted', (4, 24)))
+            self.failUnlessEqual(listener.last, ('items_inserted', (4, [24])))
 
         self.values.pop()
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 24, 57, 2, 17, 11])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 6)
-            self.failUnlessEqual(listener.last, ('item_popped', (9,)))
+            self.failUnlessEqual(listener.last, ('items_deleted', (9, 10)))
 
         self.values.pop(4)
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17, 11])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 7)
-            self.failUnlessEqual(listener.last, ('item_popped', (4,)))
+            self.failUnlessEqual(listener.last, ('items_deleted', (4, 5)))
 
         self.failUnlessRaises(IndexError, self.values.pop, 33)
         self.failUnlessEqual(self.values, [5, 7, 9, 13, 57, 2, 17, 11])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 7)
-            self.failUnlessEqual(listener.last, ('item_popped', (4,)))
+            self.failUnlessEqual(listener.last, ('items_deleted', (4, 5)))
 
         self.values.remove(9)
         self.failUnlessEqual(self.values, [5, 7, 13, 57, 2, 17, 11])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 8)
-            self.failUnlessEqual(listener.last, ('item_removed', (9,)))
+            self.failUnlessEqual(listener.last, ('items_deleted', (2, 3)))
 
         self.failUnlessRaises(ValueError, self.values.remove, 33)
         self.failUnlessEqual(self.values, [5, 7, 13, 57, 2, 17, 11])
         for listener in listeners:
             self.failUnlessEqual(listener.notifications, 8)
-            self.failUnlessEqual(listener.last, ('item_removed', (9,)))
+            self.failUnlessEqual(listener.last, ('items_deleted', (2, 3)))
 
         # TODO: test all operations (slicing, ...)

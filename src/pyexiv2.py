@@ -250,28 +250,25 @@ class ListenerInterface(object):
     # Define an interface that an object that wants to listen to changes on a
     # notifying list should implement.
 
-    def item_changed(self, index, item):
+    """
+    Changes that can happen on a list:
+     - items changed
+     - items deleted
+     - items inserted
+     - reordered
+    """
+
+    def items_changed(self, start_index, items):
         raise NotImplementedError()
 
-    def item_deleted(self, index):
+    def items_deleted(self, start_index, end_index):
         raise NotImplementedError()
 
-    def item_appended(self, item):
+    def items_inserted(self, start_index, items):
         raise NotImplementedError()
 
-    def extended(self, items):
+    def reordered(self):
         raise NotImplementedError()
-
-    def item_inserted(self, index, item):
-        raise NotImplementedError()
-
-    def item_popped(self, index):
-        raise NotImplementedError()
-
-    def item_removed(self, item):
-        raise NotImplementedError()
-
-    # TODO: define other methods.
 
 
 class NotifyingList(list):
@@ -301,35 +298,56 @@ class NotifyingList(list):
     def __setitem__(self, index, item):
         # FIXME: support slice arguments
         super(NotifyingList, self).__setitem__(index, item)
-        self._notify_listeners('item_changed', index, item)
+        self._notify_listeners('items_changed', index, [item])
 
     def __delitem__(self, index):
         # FIXME: support slice arguments
         super(NotifyingList, self).__delitem__(index)
-        self._notify_listeners('item_deleted', index)
+        self._notify_listeners('items_deleted', index, index + 1)
 
     def append(self, item):
+        index = len(self)
         super(NotifyingList, self).append(item)
-        self._notify_listeners('item_appended', item)
+        self._notify_listeners('items_inserted', index, [item])
 
     def extend(self, items):
+        index = len(self)
         super(NotifyingList, self).extend(items)
-        self._notify_listeners('extended', items)
+        self._notify_listeners('items_inserted', index, items)
 
     def insert(self, index, item):
         super(NotifyingList, self).insert(index, item)
-        self._notify_listeners('item_inserted', index, item)
+        self._notify_listeners('items_inserted', index, [item])
 
     def pop(self, index=None):
         if index is None:
             index = len(self) - 1
         item = super(NotifyingList, self).pop(index)
-        self._notify_listeners('item_popped', index)
+        self._notify_listeners('items_deleted', index, index + 1)
         return item
 
     def remove(self, item):
+        index = self.index(item)
         super(NotifyingList, self).remove(item)
-        self._notify_listeners('item_removed', item)
+        self._notify_listeners('items_deleted', index, index + 1)
+
+    def reverse(self):
+        raise NotImplementedError()
+
+    def sort(self, cmp=None, key=None, reverse=False):
+        raise NotImplementedError()
+
+    def __iadd__(self, other):
+        raise NotImplementedError()
+
+    def __imul__(self, coefficient):
+        raise NotImplementedError()
+
+    def __setslice__(self, i, j, sequence):
+        raise NotImplementedError()
+
+    def __delslice__(self, i, j):
+        raise NotImplementedError()
 
 
 class MetadataTag(object):
