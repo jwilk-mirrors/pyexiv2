@@ -59,7 +59,18 @@ class TestNotifyingList(unittest.TestCase):
     def test_no_listener(self):
         # No listener is registered, nothing should happen.
         self.values[3] = 13
-        # TODO: test all operations (insertion, deletion, slicing, ...)
+        del self.values[5]
+        self.values.append(17)
+        self.values.extend([11, 22])
+        self.values.insert(4, 24)
+        self.values.pop()
+        self.values.remove(9)
+        self.values.reverse()
+        self.values.sort()
+        self.values += [8, 4]
+        self.values *= 3
+        self.values[3:4] = [8, 4]
+        del self.values[3:5]
 
     def test_listener_interface(self):
         self.values.register_listener(ListenerInterface())
@@ -71,7 +82,14 @@ class TestNotifyingList(unittest.TestCase):
         self.failUnlessRaises(NotImplementedError, self.values.insert, 4, 24)
         self.failUnlessRaises(NotImplementedError, self.values.pop)
         self.failUnlessRaises(NotImplementedError, self.values.remove, 9)
-        # TODO: test all operations (insertion, slicing, ...)
+        self.failUnlessRaises(NotImplementedError, self.values.reverse)
+        self.failUnlessRaises(NotImplementedError, self.values.sort)
+        self.failUnlessRaises(NotImplementedError, self.values.__iadd__, [8, 4])
+        self.failUnlessRaises(NotImplementedError, self.values.__imul__, 3)
+        self.failUnlessRaises(NotImplementedError, self.values.__setslice__,
+                              3, 4, [8, 4])
+        self.failUnlessRaises(NotImplementedError, self.values.__delslice__,
+                              3, 5)
 
     def _register_listeners(self):
         # Register a random number of listeners
