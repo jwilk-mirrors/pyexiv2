@@ -281,8 +281,6 @@ class NotifyingList(list):
     # file:///usr/share/doc/python2.5/html/lib/typesseq-mutable.html
     # http://docs.python.org/reference/datamodel.html#additional-methods-for-emulation-of-sequence-types
 
-    # FIXME: support negatives indexes where relevant
-
     def __init__(self, items=[]):
         super(NotifyingList, self).__init__(items)
         self._listeners = set()
@@ -297,13 +295,23 @@ class NotifyingList(list):
         for listener in self._listeners:
             getattr(listener, method_name)(*args)
 
+    def _positive_index(self, index):
+        # Convert a negative index to its positive representation.
+        length = len(self)
+        if index < 0:
+            return length + index
+        elif index > length:
+            return length
+        else:
+            return index
+
     def __setitem__(self, index, item):
-        # FIXME: support slice arguments
+        # FIXME: support slice arguments for extended slicing
         super(NotifyingList, self).__setitem__(index, item)
         self._notify_listeners('items_changed', index, [item])
 
     def __delitem__(self, index):
-        # FIXME: support slice arguments
+        # FIXME: support slice arguments for extended slicing
         super(NotifyingList, self).__delitem__(index)
         self._notify_listeners('items_deleted', index, index + 1)
 
@@ -318,14 +326,18 @@ class NotifyingList(list):
         self._notify_listeners('items_inserted', index, items)
 
     def insert(self, index, item):
+        start = self._positive_index(index)
         super(NotifyingList, self).insert(index, item)
-        self._notify_listeners('items_inserted', index, [item])
+        self._notify_listeners('items_inserted', start, [item])
 
     def pop(self, index=None):
         if index is None:
-            index = len(self) - 1
-        item = super(NotifyingList, self).pop(index)
-        self._notify_listeners('items_deleted', index, index + 1)
+            start = len(self) - 1
+            item = super(NotifyingList, self).pop()
+        else:
+            start = self._positive_index(index)
+            item = super(NotifyingList, self).pop(index)
+        self._notify_listeners('items_deleted', start, start + 1)
         return item
 
     def remove(self, item):
@@ -353,11 +365,32 @@ class NotifyingList(list):
         self._notify_listeners('items_inserted', index, self[index:])
         return self
 
-    def __setslice__(self, i, j, sequence):
-        raise NotImplementedError()
+    def __setslice__(self, i, j, items):
+        # __setslice__ is deprecated but needs to be overridden for completeness
+        start, end = self._positive_index(i), self._positive_index(j)
+        deleted = self[start:end]
+        super(NotifyingList, self).__setslice__(i, j, items)
+        old_size = end - start
+        new_size = len(items)
+        diff = new_size - old_size
+        if diff == 0:
+            self._notify_listeners('items_changed', start, items)
+        elif diff < 0:
+            if new_size > 0:
+                self._notify_listeners('items_changed', start, items)
+            self._notify_listeners('items_deleted', start + new_size, end)
+        elif diff > 0:
+            if old_size > 0:
+                self._notify_listeners('items_deleted', start, end)
+            self._notify_listeners('items_inserted', start, items)
 
     def __delslice__(self, i, j):
-        raise NotImplementedError()
+        # __delslice__ is deprecated but needs to be overridden for completeness
+        start, end = self._positive_index(i), self._positive_index(j)
+        deleted = self[start:end]
+        super(NotifyingList, self).__delslice__(i, j)
+        if deleted:
+            self._notify_listeners('items_deleted', start, end)
 
 
 class MetadataTag(object):
