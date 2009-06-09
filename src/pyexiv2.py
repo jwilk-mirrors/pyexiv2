@@ -246,6 +246,103 @@ class Rational(object):
         return '%d/%d' % (self.numerator, self.denominator)
 
 
+class ListenerInterface(object):
+    # Define an interface that an object that wants to listen to changes on
+    # another object should implement.
+
+    def contents_changed(self):
+        raise NotImplementedError()
+
+
+class NotifyingList(list):
+
+    """
+    A simplistic implementation of a notifying list.
+    Not asynchronous.
+    """
+
+    # file:///usr/share/doc/python2.5/html/lib/typesseq-mutable.html
+    # http://docs.python.org/reference/datamodel.html#additional-methods-for-emulation-of-sequence-types
+
+    def __init__(self, items=[]):
+        super(NotifyingList, self).__init__(items)
+        self._listeners = set()
+
+    def register_listener(self, listener):
+        self._listeners.add(listener)
+
+    def unregister_listener(self, listener):
+        self._listeners.remove(listener)
+
+    def _notify_listeners(self, *args):
+        for listener in self._listeners:
+            listener.contents_changed(*args)
+
+    def __setitem__(self, index, item):
+        # FIXME: support slice arguments for extended slicing
+        super(NotifyingList, self).__setitem__(index, item)
+        self._notify_listeners()
+
+    def __delitem__(self, index):
+        # FIXME: support slice arguments for extended slicing
+        super(NotifyingList, self).__delitem__(index)
+        self._notify_listeners()
+
+    def append(self, item):
+        super(NotifyingList, self).append(item)
+        self._notify_listeners()
+
+    def extend(self, items):
+        super(NotifyingList, self).extend(items)
+        self._notify_listeners()
+
+    def insert(self, index, item):
+        super(NotifyingList, self).insert(index, item)
+        self._notify_listeners()
+
+    def pop(self, index=None):
+        if index is None:
+            item = super(NotifyingList, self).pop()
+        else:
+            item = super(NotifyingList, self).pop(index)
+        self._notify_listeners()
+        return item
+
+    def remove(self, item):
+        super(NotifyingList, self).remove(item)
+        self._notify_listeners()
+
+    def reverse(self):
+        super(NotifyingList, self).reverse()
+        self._notify_listeners()
+
+    def sort(self, cmp=None, key=None, reverse=False):
+        super(NotifyingList, self).sort(cmp, key, reverse)
+        self._notify_listeners()
+
+    def __iadd__(self, other):
+        self = super(NotifyingList, self).__iadd__(other)
+        self._notify_listeners()
+        return self
+
+    def __imul__(self, coefficient):
+        self = super(NotifyingList, self).__imul__(coefficient)
+        self._notify_listeners()
+        return self
+
+    def __setslice__(self, i, j, items):
+        # __setslice__ is deprecated but needs to be overridden for completeness
+        super(NotifyingList, self).__setslice__(i, j, items)
+        self._notify_listeners()
+
+    def __delslice__(self, i, j):
+        # __delslice__ is deprecated but needs to be overridden for completeness
+        deleted = self[i:j]
+        super(NotifyingList, self).__delslice__(i, j)
+        if deleted:
+            self._notify_listeners()
+
+
 class MetadataTag(object):
 
     """
@@ -553,6 +650,13 @@ class IptcTag(MetadataTag):
     # DOCME
     values = property(fget=_get_values, fset=_set_values, fdel=_del_values,
                      doc=None)
+
+    # Implement the listener interface.
+
+    def contents_changed(self):
+        # The contents of self._values was changed.
+        # The following is a quick, non optimal solution.
+        self._set_values(self._values)
 
     @staticmethod
     def _convert_to_python(value, xtype):
