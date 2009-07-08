@@ -28,6 +28,8 @@
 """
 Manipulation of EXIF, IPTC and XMP metadata embedded in image files.
 
+FIXME: update this docstring.
+
 This module provides a single class, Image, and utility functions to manipulate
 EXIF, IPTC and XMP metadata embedded in image files such as JPEG and TIFF files.
 EXIF, IPTC and XMP metadata can be accessed in both read and write modes.
@@ -347,15 +349,30 @@ class MetadataTag(object):
 
     """
     A generic metadata tag.
-    DOCME
+    It is meant to be subclassed to implement specific tag types behaviours.
+
+    @ivar key:         a unique key that identifies the tag
+    @type key:         C{str}
+    @ivar name:        the short internal name that identifies the tag within
+                       its scope
+    @type name:        C{str}
+    @ivar label:       a human readable label for the tag
+    @type label:       C{str}
+    @ivar description: a description of the function of the tag
+    @type description: C{str}
+    @ivar xtype:       the data type name
+    @type xtype:       C{str}
+    @ivar raw_value:   the raw value of the tag as provided by exiv2
+    @type raw_value:   C{str}
+    @ivar metadata:    reference to the containing metadata if any
+    @type metadata:    L{pyexiv2.ImageMetadata}
     """
 
     def __init__(self, key, name, label, description, xtype, value):
-        """
-        Constructor.
-        """
         self.key = key
         self.name = name
+        # FIXME: all attributes that may contain a localized string should be
+        #        unicode.
         self.label = label
         self.description = description
         self.xtype = xtype
