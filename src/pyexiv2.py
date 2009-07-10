@@ -413,12 +413,13 @@ class MetadataTag(object):
         self.description = description
         self.xtype = xtype
         self.raw_value = value
-        # Reference to the containing ImageMetadata object
         self.metadata = None
 
     def __str__(self):
         """
-        Return a string representation of the metadata tag.
+        Return a string representation of the tag for debugging purposes.
+
+        @rtype: C{str}
         """
         r = 'Key = ' + self.key + os.linesep + \
             'Name = ' + self.name + os.linesep + \
@@ -430,6 +431,16 @@ class MetadataTag(object):
 
 
 class ExifValueError(ValueError):
+
+    """
+    Exception raised when failing to parse the value of an EXIF tag.
+
+    @ivar value: the value that fails to be parsed
+    @type value: C{str}
+    @ivar xtype: the EXIF type of the tag
+    @type xtype: C{str}
+    """
+
     def __init__(self, value, xtype):
         self.value = value
         self.xtype = xtype
@@ -442,8 +453,12 @@ class ExifValueError(ValueError):
 class ExifTag(MetadataTag):
 
     """
-    An EXIF metadata tag has an additional field that contains the value
-    of the tag formatted as a human readable string.
+    An EXIF metadata tag.
+    This tag has an additional field that contains the value of the tag
+    formatted as a human readable string.
+
+    @ivar fvalue: the value of the tag formatted as a human readable string
+    @type fvalue: C{str}
     """
 
     # According to the EXIF specification, the only accepted format for an Ascii
@@ -454,16 +469,15 @@ class ExifTag(MetadataTag):
                          '%Y-%m-%dT%H:%M:%SZ')
 
     def __init__(self, key, name, label, description, xtype, value, fvalue):
-        """
-        Constructor.
-        """
-        super(ExifTag, self).__init__(key, name, label, description, xtype, value)
+        super(ExifTag, self).__init__(key, name, label,
+                                      description, xtype, value)
         self.fvalue = fvalue
         if xtype in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
             # May contain multiple values
             values = value.split()
             if len(values) > 1:
-                self._value = map(lambda x: ExifTag._convert_to_python(x, xtype), values)
+                self._value = \
+                    map(lambda x: ExifTag._convert_to_python(x, xtype), values)
                 return
         self._value = ExifTag._convert_to_python(value, xtype, fvalue)
 
@@ -481,16 +495,16 @@ class ExifTag(MetadataTag):
             self.metadata._delete_exif_tag(self.key)
         del self._value
 
-    # DOCME
+    """the value of the tag converted to its corresponding python type"""
     value = property(fget=_get_value, fset=_set_value, fdel=_del_value,
                      doc=None)
 
     @staticmethod
     def _convert_to_python(value, xtype, fvalue):
         """
-        Convert a value to its corresponding python type.
+        Convert a raw value to its corresponding python type.
 
-        @param value:  the value to be converted, as a string
+        @param value:  the raw value to be converted
         @type value:   C{str}
         @param xtype:  the EXIF type of the value
         @type xtype:   C{str}
@@ -553,7 +567,8 @@ class ExifTag(MetadataTag):
     @staticmethod
     def _convert_to_string(value, xtype):
         """
-        Convert a value to its corresponding string representation.
+        Convert a value to its corresponding string representation, suitable to
+        pass to libexiv2.
 
         @param value: the value to be converted
         @type value:  depends on xtype (DOCME)
@@ -638,13 +653,16 @@ class ExifTag(MetadataTag):
         """
         Return a string representation of the EXIF tag suitable to pass to
         libexiv2 to set the value of the tag.
-        DOCME
+
+        @rtype: C{str}
         """
         return ExifTag._convert_to_string(self.value, self.xtype)
 
     def __str__(self):
         """
-        Return a string representation of the EXIF tag.
+        Return a string representation of the EXIF tag for debugging purposes.
+
+        @rtype: C{str}
         """
         r = 'Key = ' + self.key + os.linesep + \
             'Name = ' + self.name + os.linesep + \
