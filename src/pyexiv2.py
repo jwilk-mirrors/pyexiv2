@@ -73,30 +73,30 @@ __exiv2_version__ = libexiv2python.__exiv2_version__
 class FixedOffset(datetime.tzinfo):
 
     """
-    Fixed offset from a local time east from UTC.
+    Fixed positive or negative offset from a local time east from UTC.
 
-    Represent a fixed (positive or negative) offset from a local time in hours
-    and minutes.
+    @ivar sign:    the sign of the offset ('+' or '-')
+    @type sign:    C{str}
+    @ivar hours:   the absolute number of hours of the offset
+    @type hours:   C{int}
+    @ivar minutes: the absolute number of minutes of the offset
+    @type minutes: C{int}
 
-    Public methods:
-    utcoffset -- return offset of local time from UTC, in minutes east of UTC
-    dst -- return the daylight saving time (DST) adjustment, here always 0
-    tzname -- return a string representation of the offset with format '±%H:%M'
     """
 
     def __init__(self, sign='+', hours=0, minutes=0):
         """
-        Constructor.
-
-        Construct a FixedOffset object from an offset sign ('+' or '-') and an
-        offset absolute value expressed in hours and minutes.
+        Initialize an offset from a sign ('+' or '-') and an absolute value
+        expressed in hours and minutes.
         No check on the validity of those values is performed, it is the
-        responsibility of the caller to pass correct values to the constructor.
+        responsibility of the caller to pass valid values.
 
-        Keyword arguments:
-        sign -- the sign of the offset ('+' or '-')
-        hours -- the absolute number of hours of the offset
-        minutes -- the absolute number of minutes of the offset
+        @param sign:    the sign of the offset ('+' or '-')
+        @type sign:     C{str}
+        @param hours:   an absolute number of hours
+        @type hours:    C{int}
+        @param minutes: an absolute number of minutes
+        @type minutes:  C{int}
         """
         self.sign = sign
         self.hours = hours
@@ -105,14 +105,13 @@ class FixedOffset(datetime.tzinfo):
     def utcoffset(self, dt):
         """
         Return offset of local time from UTC, in minutes east of UTC.
+        If local time is west of UTC, this value will be negative.
 
-        Return offset of local time from UTC, in minutes east of UTC.
-        If local time is west of UTC, this should be negative.
-        The value returned is a datetime.timedelta object specifying a whole
-        number of minutes in the range -1439 to 1439 inclusive.
+        @param dt: the local time
+        @type dt:  C{datetime.time}
 
-        Keyword arguments:
-        dt -- the datetime.time object representing the local time
+        @return: a whole number of minutes in the range -1439 to 1439 inclusive
+        @rtype:  C{datetime.timedelta}
         """
         total = self.hours * 60 + self.minutes
         if self.sign == '-':
@@ -122,24 +121,26 @@ class FixedOffset(datetime.tzinfo):
     def dst(self, dt):
         """
         Return the daylight saving time (DST) adjustment.
+        In this implementation, it is always nil.
 
-        Return the daylight saving time (DST) adjustment.
-        In this implementation, it is always nil, and the method return
-        datetime.timedelta(0).
+        @param dt: the local time
+        @type dt:  C{datetime.time}
 
-        Keyword arguments:
-        dt -- the datetime.time object representing the local time
+        @return: the DST adjustment (always nil)
+        @rtype:  C{datetime.timedelta}
         """
         return datetime.timedelta(0)
 
     def tzname(self, dt):
         """
-        Return a string representation of the offset.
+        Return a string representation of the offset in the format '±%H:%M'.
+        If the offset is nil, the representation is, by convention, 'Z'.
 
-        Return a string representation of the offset with format '±%H:%M'.
+        @param dt: the local time
+        @type dt:  C{datetime.time}
 
-        Keyword arguments:
-        dt -- the datetime.time object representing the local time
+        @return: a human-readable representation of the offset
+        @rtype:  C{str}
         """
         if self.hours == 0 and self.minutes == 0:
             return 'Z'
@@ -147,6 +148,15 @@ class FixedOffset(datetime.tzinfo):
             return '%s%02d:%02d' % (self.sign, self.hours, self.minutes)
 
     def __equal__(self, other):
+        """
+        Test equality between this offset and another offset.
+
+        @param other: another offset
+        @type other:  L{FixedOffset}
+
+        @return: C{True} if the offset are equal, C{False} otherwise
+        @rtype:  C{bool}
+        """
         return (self.sign == other.sign) and (self.hours == other.hours) and \
             (self.minutes == other.minutes)
 
@@ -154,29 +164,32 @@ class FixedOffset(datetime.tzinfo):
 def UndefinedToString(undefined):
     """
     Convert an undefined string into its corresponding sequence of bytes.
+    The undefined string must contain the ascii codes of a sequence of bytes,
+    each followed by a blank space (e.g. "48 50 50 49 " will be converted into
+    "0221").
+    The Undefined type is part of the EXIF specification.
 
-    Convert a string containing the ascii codes of a sequence of bytes, each
-    followed by a blank space, into the corresponding string (e.g.
-    "48 50 50 49 " will be converted into "0221").
-    The Undefined type is defined in the EXIF specification.
+    @param undefined: an undefined string
+    @type undefined:  C{str}
 
-    Keyword arguments:
-    undefined -- the string containing the ascii codes of a sequence of bytes
+    @return: the corresponding decoded string
+    @rtype:  C{str}
     """
     return ''.join(map(lambda x: chr(int(x)), undefined.rstrip().split(' ')))
 
 
 def StringToUndefined(sequence):
     """
-    Convert a string containing a sequence of bytes into its undefined form.
+    Convert a string into its undefined form.
+    The undefined form contains a sequence of ascii codes, each followed by a
+    blank space (e.g. "0221" will be converted into "48 50 50 49 ").
+    The Undefined type is part of the EXIF specification.
 
-    Convert a string containing a sequence of bytes into the corresponding
-    sequence of ascii codes, each followed by a blank space (e.g. "0221" will
-    be converted into "48 50 50 49 ").
-    The Undefined type is defined in the EXIF specification.
+    @param sequence: a sequence of bytes
+    @type sequence:  C{str}
 
-    Keyword arguments:
-    sequence -- the string containing the sequence of bytes
+    @return: the corresponding undefined string
+    @rtype:  C{str}
     """
     return ''.join(map(lambda x: '%d ' % ord(x), sequence))
 
@@ -249,10 +262,17 @@ class Rational(object):
 
 
 class ListenerInterface(object):
-    # Define an interface that an object that wants to listen to changes on
-    # another object should implement.
+
+    """
+    Interface that an object that wants to listen to changes on another object
+    should implement.
+    """
 
     def contents_changed(self):
+        """
+        React on changes on the object observed.
+        Override to implement specific bejaviours.
+        """
         raise NotImplementedError()
 
 
