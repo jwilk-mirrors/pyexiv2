@@ -280,9 +280,11 @@ class NotifyingList(list):
 
     """
     A simplistic implementation of a notifying list.
-    Not asynchronous.
+    Any changes to the list are notified in a synchronous way to all previously
+    registered listeners. A listener must implement the L{ListenerInterface}.
     """
 
+    # Useful documentation:
     # file:///usr/share/doc/python2.5/html/lib/typesseq-mutable.html
     # http://docs.python.org/reference/datamodel.html#additional-methods-for-emulation-of-sequence-types
 
@@ -291,9 +293,23 @@ class NotifyingList(list):
         self._listeners = set()
 
     def register_listener(self, listener):
+        """
+        Register a new listener to be notified of changes.
+
+        @param listener: any object that listens for changes
+        @type listener:  any class that implements the L{ListenerInterface}
+        """
         self._listeners.add(listener)
 
     def unregister_listener(self, listener):
+        """
+        Unregister a previously registered listener.
+
+        @param listener: a previously registered listener
+        @type listener:  any class that implements the L{ListenerInterface}
+
+        @raise KeyError: if the listener was not previously registered
+        """
         self._listeners.remove(listener)
 
     def _notify_listeners(self, *args):
