@@ -675,6 +675,16 @@ class ExifTag(MetadataTag):
 
 
 class IptcValueError(ValueError):
+
+    """
+    Exception raised when failing to parse the value of an IPTC tag.
+
+    @ivar value: the value that fails to be parsed
+    @type value: C{str}
+    @ivar xtype: the IPTC type of the tag
+    @type xtype: C{str}
+    """
+
     def __init__(self, value, xtype):
         self.value = value
         self.xtype = xtype
@@ -687,8 +697,8 @@ class IptcValueError(ValueError):
 class IptcTag(MetadataTag):
 
     """
-    An IPTC metadata tag can have several values (tags that have the repeatable
-    property).
+    An IPTC metadata tag.
+    This tag can have several values (tags that have the repeatable property).
     """
 
     # strptime is not flexible enough to handle all valid Time formats, we use a
@@ -697,11 +707,9 @@ class IptcTag(MetadataTag):
     _time_re = re.compile(r'(?P<hours>\d{2}):(?P<minutes>\d{2}):(?P<seconds>\d{2})(?P<tzd>%s)' % _time_zone_re)
 
     def __init__(self, key, name, label, description, xtype, values):
-        """
-        Constructor.
-        """
-        super(IptcTag, self).__init__(key, name, label, description, xtype, values)
-        # FIXME: make values either a tuple (immutable) or a notifying list
+        super(IptcTag, self).__init__(key, name, label,
+                                      description, xtype, values)
+        # FIXME: make values a notifying list
         self._values = map(lambda x: IptcTag._convert_to_python(x, xtype), values)
 
     def _get_values(self):
@@ -711,6 +719,7 @@ class IptcTag(MetadataTag):
         if self.metadata is not None:
             raw_values = map(lambda x: IptcTag._convert_to_string(x, self.xtype), new_values)
             self.metadata._set_iptc_tag_values(self.key, raw_values)
+        # FIXME: make values a notifying list if needed
         self._values = new_values
 
     def _del_values(self):
@@ -718,13 +727,16 @@ class IptcTag(MetadataTag):
             self.metadata._delete_iptc_tag(self.key)
         del self._values
 
-    # DOCME
+    """the list of values of the tag converted to their corresponding python
+    type"""
     values = property(fget=_get_values, fset=_set_values, fdel=_del_values,
                      doc=None)
 
-    # Implement the listener interface.
-
     def contents_changed(self):
+        """
+        Implementation of the L{ListenerInterface}.
+        React on changes to the list of values of the tag.
+        """
         # The contents of self._values was changed.
         # The following is a quick, non optimal solution.
         self._set_values(self._values)
@@ -732,9 +744,9 @@ class IptcTag(MetadataTag):
     @staticmethod
     def _convert_to_python(value, xtype):
         """
-        Convert a value to its corresponding python type.
+        Convert a raw value to its corresponding python type.
 
-        @param value: the value to be converted, as a string
+        @param value: the raw value to be converted
         @type value:  C{str}
         @param xtype: the IPTC type of the value
         @type xtype:  C{str}
@@ -797,7 +809,8 @@ class IptcTag(MetadataTag):
     @staticmethod
     def _convert_to_string(value, xtype):
         """
-        Convert a value to its corresponding string representation.
+        Convert a value to its corresponding string representation, suitable to
+        pass to libexiv2.
 
         @param value: the value to be converted
         @type value:  depends on xtype (DOCME)
@@ -855,14 +868,18 @@ class IptcTag(MetadataTag):
     def to_string(self):
         """
         Return a list of string representations of the IPTC tag values suitable
-        to pass to libexiv2 to set the values of the tag.
-        DOCME
+        to pass to libexiv2 to set the value of the tag.
+
+        @rtype: C{list} of C{str}
         """
-        return map(lambda x: IptcTag._convert_to_string(x, self.xtype), self.values)
+        return map(lambda x: IptcTag._convert_to_string(x, self.xtype),
+                   self.values)
 
     def __str__(self):
         """
-        Return a string representation of the IPTC tag.
+        Return a string representation of the IPTC tag for debugging purposes.
+
+        @rtype: C{str}
         """
         r = 'Key = ' + self.key + os.linesep + \
             'Name = ' + self.name + os.linesep + \
