@@ -709,8 +709,10 @@ class IptcTag(MetadataTag):
     def __init__(self, key, name, label, description, xtype, values):
         super(IptcTag, self).__init__(key, name, label,
                                       description, xtype, values)
-        # FIXME: make values a notifying list
-        self._values = map(lambda x: IptcTag._convert_to_python(x, xtype), values)
+        # Make values a notifying list
+        values = map(lambda x: IptcTag._convert_to_python(x, xtype), values)
+        self._values = NotifyingList(values)
+        self._values.register_listener(self)
 
     def _get_values(self):
         return self._values
@@ -719,8 +721,11 @@ class IptcTag(MetadataTag):
         if self.metadata is not None:
             raw_values = map(lambda x: IptcTag._convert_to_string(x, self.xtype), new_values)
             self.metadata._set_iptc_tag_values(self.key, raw_values)
-        # FIXME: make values a notifying list if needed
-        self._values = new_values
+        # Make values a notifying list if needed
+        if isinstance(new_values, NotifyingList):
+            self._values = new_values
+        else:
+            self._values = NotifyingList(new_values)
 
     def _del_values(self):
         if self.metadata is not None:
