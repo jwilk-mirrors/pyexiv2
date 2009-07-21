@@ -1237,10 +1237,19 @@ class XmpTag(MetadataTag):
 class ImageMetadata(object):
 
     """
-    DOCME
+    A container for all the metadata attached to an image.
+
+    It provides convenient methods for the manipulation of EXIF, IPTC and XMP
+    metadata embedded in image files such as JPEG and TIFF files, using Python
+    types.
+    It also provides access to the thumbnails embedded in an image.
     """
 
     def __init__(self, filename):
+        """
+        @param filename: absolute path to an image file
+        @type filename:  C{str} or C{unicode}
+        """
         self.filename = filename
         if type(filename) is unicode:
             self.filename = filename.encode('utf-8')
@@ -1255,7 +1264,10 @@ class ImageMetadata(object):
 
     def read(self):
         """
-        DOCME
+        Read the metadata embedded in the associated image file.
+        It is necessary to call this method once before attempting to access
+        the metadata (an exception will be raised if trying to access metadata
+        before calling this method).
         """
         if self._image is None:
             self._image = self._instantiate_image(self.filename)
@@ -1263,22 +1275,25 @@ class ImageMetadata(object):
 
     def write(self):
         """
-        DOCME
+        Write the metadata back to the associated image file.
         """
         self._image.writeMetadata()
 
+    """List the keys of the available EXIF tags embedded in the image."""
     @property
     def exif_keys(self):
         if self._keys['exif'] is None:
             self._keys['exif'] = self._image.exifKeys()
         return self._keys['exif']
 
+    """List the keys of the available IPTC tags embedded in the image."""
     @property
     def iptc_keys(self):
         if self._keys['iptc'] is None:
             self._keys['iptc'] = self._image.iptcKeys()
         return self._keys['iptc']
 
+    """List the keys of the available XMP tags embedded in the image."""
     @property
     def xmp_keys(self):
         if self._keys['xmp'] is None:
@@ -1286,6 +1301,8 @@ class ImageMetadata(object):
         return self._keys['xmp']
 
     def _get_exif_tag(self, key):
+        # Return the EXIF tag for the given key.
+        # Throw a KeyError if the tag doesn't exist.
         try:
             return self._tags['exif'][key]
         except KeyError:
@@ -1295,6 +1312,8 @@ class ImageMetadata(object):
             return tag
 
     def _get_iptc_tag(self, key):
+        # Return the IPTC tag for the given key.
+        # Throw a KeyError if the tag doesn't exist.
         try:
             return self._tags['iptc'][key]
         except KeyError:
@@ -1304,6 +1323,8 @@ class ImageMetadata(object):
             return tag
 
     def _get_xmp_tag(self, key):
+        # Return the XMP tag for the given key.
+        # Throw a KeyError if the tag doesn't exist.
         try:
             return self._tags['xmp'][key]
         except KeyError:
@@ -1315,7 +1336,15 @@ class ImageMetadata(object):
     def __getitem__(self, key):
         """
         Get a metadata tag for a given key.
-        DOCME
+
+        @param key: a metadata key in the dotted form C{family.group.tag} where
+                    family may be C{exif}, C{iptc} or C{xmp}.
+        @type key:  C{str}
+
+        @return: the metadata tag corresponding to the key
+        @rtype:  a subclass of L{pyexiv2.MetadataTag}
+
+        @raise KeyError: if the tag doesn't exist
         """
         family = key.split('.')[0].lower()
         try:
