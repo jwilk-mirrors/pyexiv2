@@ -896,6 +896,15 @@ class IptcTag(MetadataTag):
 
 
 class XmpValueError(ValueError):
+
+    """
+    Exception raised when failing to parse the value of an XMP tag.
+
+    @ivar value: the value that fails to be parsed
+    @type value: C{str}
+    @ivar xtype: the XMP type of the tag
+    @type xtype: C{str}
+    """
     def __init__(self, value, xtype):
         self.value = value
         self.xtype = xtype
@@ -908,7 +917,7 @@ class XmpValueError(ValueError):
 class XmpTag(MetadataTag):
 
     """
-    An XMP metadata tag can have several values.
+    An XMP metadata tag.
     """
 
     # strptime is not flexible enough to handle all valid Date formats, we use a
@@ -918,9 +927,6 @@ class XmpTag(MetadataTag):
     _date_re = re.compile(r'(?P<year>\d{4})(-(?P<month>\d{2})(-(?P<day>\d{2})(T(?P<time>%s))?)?)?' % _time_re)
 
     def __init__(self, key, name, label, description, xtype, value):
-        """
-        Constructor.
-        """
         super(XmpTag, self).__init__(key, name, label, description, xtype, value)
         self._value = XmpTag._convert_to_python(value, xtype)
 
@@ -938,16 +944,16 @@ class XmpTag(MetadataTag):
             self.metadata._delete_xmp_tag(self.key)
         del self._value
 
-    # DOCME
+    """the value of the tag converted to its corresponding python type"""
     value = property(fget=_get_value, fset=_set_value, fdel=_del_value,
                      doc=None)
 
     @staticmethod
     def _convert_to_python(value, xtype):
         """
-        Convert a value to its corresponding python type.
+        Convert a raw value to its corresponding python type.
 
-        @param value: the value to be converted, as a string
+        @param value: the raw value to be converted
         @type value:  C{str}
         @param xtype: the XMP type of the value
         @type xtype:  C{str}
@@ -958,6 +964,7 @@ class XmpTag(MetadataTag):
         @raise L{XmpValueError}: if the conversion fails
         """
         if xtype.startswith('bag '):
+            # FIXME: make the value a notifying list.
             if value == '':
                 return []
             values = value.split(', ')
@@ -1103,7 +1110,8 @@ class XmpTag(MetadataTag):
     @staticmethod
     def _convert_to_string(value, xtype):
         """
-        Convert a value to its corresponding string representation.
+        Convert a value to its corresponding string representation, suitable to
+        pass to libexiv2.
 
         @param value: the value to be converted
         @type value:  depends on xtype (DOCME)
@@ -1206,13 +1214,16 @@ class XmpTag(MetadataTag):
         """
         Return a string representation of the XMP tag suitable to pass to
         libexiv2 to set the value of the tag.
-        DOCME
+
+        @rtype: C{str}
         """
         return XmpTag._convert_to_string(self.value, self.xtype)
 
     def __str__(self):
         """
-        Return a string representation of the XMP tag.
+        Return a string representation of the XMP tag for debugging purposes.
+
+        @rtype: C{str}
         """
         r = 'Key = ' + self.key + os.linesep + \
             'Name = ' + self.name + os.linesep + \
