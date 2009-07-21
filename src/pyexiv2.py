@@ -1353,6 +1353,7 @@ class ImageMetadata(object):
             raise KeyError(key)
 
     def _set_exif_tag(self, tag):
+        # Set an EXIF tag. If the tag already exists, its value is overwritten.
         if type(tag) is not ExifTag:
             raise TypeError('Expecting an ExifTag')
         self._image.setExifTagValue(tag.key, tag.to_string())
@@ -1372,6 +1373,8 @@ class ImageMetadata(object):
         self._image.setExifTagValue(key, value)
 
     def _set_iptc_tag(self, tag):
+        # Set an IPTC tag. If the tag already exists, its values are
+        # overwritten.
         if type(tag) is not IptcTag:
             raise TypeError('Expecting an IptcTag')
         self._image.setIptcTagValues(tag.key, tag.to_string())
@@ -1395,6 +1398,7 @@ class ImageMetadata(object):
         self._image.setIptcTagValues(key, values)
 
     def _set_xmp_tag(self, tag):
+        # Set an XMP tag. If the tag already exists, its value is overwritten.
         if type(tag) is not XmpTag:
             raise TypeError('Expecting an XmpTag')
         self._image.setXmpTagValue(tag.key, tag.to_string())
