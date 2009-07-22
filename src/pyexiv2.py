@@ -1488,27 +1488,3 @@ class ImageMetadata(object):
         except AttributeError:
             raise KeyError(key)
 
-
-class Image(libexiv2python.Image):
-
-    """
-    DEPRECATED. DO NOT USE.
-    """
-
-    def copyMetadataTo(self, destImage):
-        # TODO: add optional parameters exif=True, iptc=True, xmp=True, so that
-        # one can choose to copy only part of the metadata.
-        """
-        Duplicate all the tags and the comment from this image to another one.
-
-        Read all the values of the EXIF and IPTC tags and the comment and write
-        them back to the new image.
-
-        Keyword arguments:
-        destImage -- the destination image to write the copied metadata back to
-        """
-        for key in self.exifKeys():
-            destImage[key] = self[key]
-        for key in self.iptcKeys():
-            destImage[key] = self[key]
-        destImage.setComment(self.getComment())

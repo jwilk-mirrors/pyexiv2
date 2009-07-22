@@ -1,5 +1,6 @@
 todo list
 
+- Reimplement copyMetadataTo in C++
 - Unit test the C++ wrapper (in python, if possible)
 - Use logging to log, among other things, decoding and type conversion errors
 - The constructor of the Image class should accept a buffered file
