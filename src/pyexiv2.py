@@ -26,35 +26,36 @@
 # ******************************************************************************
 
 """
-Manipulation of EXIF, IPTC and XMP metadata embedded in image files.
+Manipulation of EXIF, IPTC and XMP metadata and thumbnails embedded in images.
 
-FIXME: update this docstring.
+The L{ImageMetadata} class provides read/write access to all the metadata and
+the various thumbnails embedded in an image file such as JPEG and TIFF files.
 
-This module provides a single class, Image, and utility functions to manipulate
-EXIF, IPTC and XMP metadata embedded in image files such as JPEG and TIFF files.
-EXIF, IPTC and XMP metadata can be accessed in both read and write modes.
+Metadata is accessed through subclasses of L{MetadataTag} and the tag values are
+conveniently wrapped in python objects.
+A tag containing a date/time information for the image
+(e.g. C{Exif.Photo.DateTimeOriginal}) will be represented by a python
+C{datetime.datetime} object.
 
-This module is a higher-level interface to the Python binding of the excellent
+This module is a python layer on top of the low-level python binding of the
 C++ library Exiv2, libpyexiv2.
-Its only class, Image, inherits from libpyexiv2.Image and provides convenient
-methods for the manipulation of EXIF and IPTC metadata using Python's built-in
-types and modules such as datetime.
-These methods should be preferred to the ones directly provided by
-libpyexiv2.Image.
 
 A typical use of this binding would be:
 
 >>> import pyexiv2
->>> import datetime
->>> image = pyexiv2.Image('test/smiley.jpg')
->>> image.readMetadata()
->>> print image.exifKeys()
-['Exif.Image.ImageDescription', 'Exif.Image.XResolution', 'Exif.Image.YResolution', 'Exif.Image.ResolutionUnit', 'Exif.Image.Software', 'Exif.Image.DateTime', 'Exif.Image.Artist', 'Exif.Image.Copyright', 'Exif.Image.ExifTag', 'Exif.Photo.Flash', 'Exif.Photo.PixelXDimension', 'Exif.Photo.PixelYDimension']
->>> print image['Exif.Image.DateTime']
+>>> metadata = pyexiv2.ImageMetadata('test/smiley.jpg')
+>>> metadata.read()
+>>> print metadata.exif_keys
+['Exif.Image.ImageDescription', 'Exif.Image.XResolution',
+ 'Exif.Image.YResolution', 'Exif.Image.ResolutionUnit', 'Exif.Image.Software',
+ 'Exif.Image.DateTime', 'Exif.Image.Artist', 'Exif.Image.Copyright',
+ 'Exif.Image.ExifTag', 'Exif.Photo.Flash', 'Exif.Photo.PixelXDimension',
+ 'Exif.Photo.PixelYDimension']
+>>> print metadata['Exif.Image.DateTime'].value
 2004-07-13 21:23:44
->>> image['Exif.Image.DateTime'] = datetime.datetime.today()
->>> image.writeMetadata()
-
+>>> import datetime
+>>> metadata['Exif.Image.DateTime'].value = datetime.datetime.today()
+>>> metadata.write()
 """
 
 import libexiv2python
