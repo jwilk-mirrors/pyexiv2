@@ -1411,7 +1411,6 @@ class ImageMetadata(object):
         # Warning: this is not meant to be called directly as it doesn't update
         # the internal cache (which would leave the object in an inconsistent
         # state).
-        # TODO
         if key not in self.xmp_keys:
             raise KeyError('Cannot set the value of an inexistent tag')
         if type(value) is not str:
