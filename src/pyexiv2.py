@@ -1421,8 +1421,15 @@ class ImageMetadata(object):
     def __setitem__(self, key, tag):
         """
         Set a metadata tag for a given key.
-        Override existing values.
-        DOCME.
+        If the tag was previously set, it is overwritten.
+
+        @param key: a metadata key in the dotted form C{family.group.tag} where
+                    family may be C{exif}, C{iptc} or C{xmp}.
+        @type key:  C{str}
+        @param tag: a metadata tag
+        @type tag:  a subclass of L{pyexiv2.MetadataTag}
+
+        @raise KeyError: if the key is invalid
         """
         family = key.split('.')[0].lower()
         try:
@@ -1431,6 +1438,8 @@ class ImageMetadata(object):
             raise KeyError(key)
 
     def _delete_exif_tag(self, key):
+        # Delete an EXIF tag.
+        # Throw a KeyError if the tag doesn't exist.
         if key not in self.exif_keys:
             raise KeyError('Cannot delete an inexistent tag')
         self._image.deleteExifTag(key)
@@ -1441,6 +1450,8 @@ class ImageMetadata(object):
             pass
 
     def _delete_iptc_tag(self, key):
+        # Delete an IPTC tag.
+        # Throw a KeyError if the tag doesn't exist.
         if key not in self.iptc_keys:
             raise KeyError('Cannot delete an inexistent tag')
         self._image.deleteIptcTag(key)
@@ -1451,6 +1462,8 @@ class ImageMetadata(object):
             pass
 
     def _delete_xmp_tag(self, key):
+        # Delete an XMP tag.
+        # Throw a KeyError if the tag doesn't exist.
         if key not in self.xmp_keys:
             raise KeyError('Cannot delete an inexistent tag')
         self._image.deleteXmpTag(key)
@@ -1462,8 +1475,13 @@ class ImageMetadata(object):
 
     def __delitem__(self, key):
         """
-        Delete a metadata tag with a given key.
-        DOCME.
+        Delete a metadata tag for a given key.
+
+        @param key: a metadata key in the dotted form C{family.group.tag} where
+                    family may be C{exif}, C{iptc} or C{xmp}.
+        @type key:  C{str}
+
+        @raise KeyError: if the tag with the given key doesn't exist
         """
         family = key.split('.')[0].lower()
         try:
