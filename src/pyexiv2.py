@@ -211,7 +211,7 @@ class Rational(object):
         @param denominator: the denominator
         @type denominator:  C{long}
 
-        @raise C{ZeroDivisionError}: if the denominator equals zero
+        @raise ZeroDivisionError: if the denominator equals zero
         """
         if denominator == 0:
             msg = 'Denominator of a rational number cannot be zero.'
@@ -514,7 +514,7 @@ class ExifTag(MetadataTag):
         @return: the value converted to its corresponding python type
         @rtype:  depends on xtype (DOCME)
 
-        @raise L{ExifValueError}: if the conversion fails
+        @raise ExifValueError: if the conversion fails
         """
         if xtype == 'Ascii':
             # The value may contain a Datetime
@@ -578,7 +578,7 @@ class ExifTag(MetadataTag):
         @return: the value converted to its corresponding string representation
         @rtype:  C{str}
 
-        @raise L{ExifValueError}: if the conversion fails
+        @raise ExifValueError: if the conversion fails
         """
         if xtype == 'Ascii':
             if type(value) is datetime.datetime:
@@ -759,7 +759,7 @@ class IptcTag(MetadataTag):
         @return: the value converted to its corresponding python type
         @rtype:  depends on xtype (DOCME)
 
-        @raise L{IptcValueError}: if the conversion fails
+        @raise IptcValueError: if the conversion fails
         """
         if xtype == 'Short':
             try:
@@ -825,7 +825,7 @@ class IptcTag(MetadataTag):
         @return: the value converted to its corresponding string representation
         @rtype:  C{str}
 
-        @raise L{IptcValueError}: if the conversion fails
+        @raise IptcValueError: if the conversion fails
         """
         if xtype == 'Short':
             if type(value) is int:
@@ -961,7 +961,7 @@ class XmpTag(MetadataTag):
         @return: the value converted to its corresponding python type
         @rtype:  depends on xtype (DOCME)
 
-        @raise L{XmpValueError}: if the conversion fails
+        @raise XmpValueError: if the conversion fails
         """
         if xtype.startswith('bag '):
             # FIXME: make the value a notifying list.
@@ -1121,7 +1121,7 @@ class XmpTag(MetadataTag):
         @return: the value converted to its corresponding string representation
         @rtype:  C{str}
 
-        @raise L{XmpValueError}: if the conversion fails
+        @raise XmpValueError: if the conversion fails
         """
         if xtype.startswith('bag '):
             if type(value) in (list, tuple):
