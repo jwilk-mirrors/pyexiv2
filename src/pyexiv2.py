@@ -404,22 +404,22 @@ class MetadataTag(object):
     @type label:       C{str}
     @ivar description: a description of the function of the tag
     @type description: C{str}
-    @ivar xtype:       the data type name
-    @type xtype:       C{str}
+    @ivar type:        the data type name
+    @type type:        C{str}
     @ivar raw_value:   the raw value of the tag as provided by exiv2
     @type raw_value:   C{str}
     @ivar metadata:    reference to the containing metadata if any
     @type metadata:    L{pyexiv2.ImageMetadata}
     """
 
-    def __init__(self, key, name, label, description, xtype, value):
+    def __init__(self, key, name, label, description, type, value):
         self.key = key
         self.name = name
         # FIXME: all attributes that may contain a localized string should be
         #        unicode.
         self.label = label
         self.description = description
-        self.xtype = xtype
+        self.type = type
         self.raw_value = value
         self.metadata = None
 
@@ -433,7 +433,7 @@ class MetadataTag(object):
             'Name = ' + self.name + os.linesep + \
             'Label = ' + self.label + os.linesep + \
             'Description = ' + self.description + os.linesep + \
-            'Type = ' + self.xtype + os.linesep + \
+            'Type = ' + self.type + os.linesep + \
             'Raw value = ' + str(self.raw_value)
         return r
 
@@ -445,17 +445,17 @@ class ExifValueError(ValueError):
 
     @ivar value: the value that fails to be parsed
     @type value: C{str}
-    @ivar xtype: the EXIF type of the tag
-    @type xtype: C{str}
+    @ivar type:  the EXIF type of the tag
+    @type type:  C{str}
     """
 
-    def __init__(self, value, xtype):
+    def __init__(self, value, type):
         self.value = value
-        self.xtype = xtype
+        self.type = type
 
     def __str__(self):
         return 'Invalid value for EXIF type [%s]: [%s]' % \
-               (self.xtype, self.value)
+               (self.type, self.value)
 
 
 class ExifTag(MetadataTag):
@@ -476,25 +476,25 @@ class ExifTag(MetadataTag):
                          '%Y-%m-%d %H:%M:%S',
                          '%Y-%m-%dT%H:%M:%SZ')
 
-    def __init__(self, key, name, label, description, xtype, value, fvalue):
+    def __init__(self, key, name, label, description, type, value, fvalue):
         super(ExifTag, self).__init__(key, name, label,
-                                      description, xtype, value)
+                                      description, type, value)
         self.fvalue = fvalue
-        if xtype in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
+        if type in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
             # May contain multiple values
             values = value.split()
             if len(values) > 1:
                 self._value = \
-                    map(lambda x: ExifTag._convert_to_python(x, xtype, fvalue), values)
+                    map(lambda x: ExifTag._convert_to_python(x, type, fvalue), values)
                 return
-        self._value = ExifTag._convert_to_python(value, xtype, fvalue)
+        self._value = ExifTag._convert_to_python(value, type, fvalue)
 
     def _get_value(self):
         return self._value
 
     def _set_value(self, new_value):
         if self.metadata is not None:
-            raw_value = ExifTag._convert_to_string(new_value, self.xtype)
+            raw_value = ExifTag._convert_to_string(new_value, self.type)
             self.metadata._set_exif_tag_value(self.key, raw_value)
         self._value = new_value
 
@@ -664,7 +664,7 @@ class ExifTag(MetadataTag):
 
         @rtype: C{str}
         """
-        return ExifTag._convert_to_string(self.value, self.xtype)
+        return ExifTag._convert_to_string(self.value, self.type)
 
     def __str__(self):
         """
@@ -676,7 +676,7 @@ class ExifTag(MetadataTag):
             'Name = ' + self.name + os.linesep + \
             'Label = ' + self.label + os.linesep + \
             'Description = ' + self.description + os.linesep + \
-            'Type = ' + self.xtype + os.linesep + \
+            'Type = ' + self.type + os.linesep + \
             'Value = ' + str(self.value) + os.linesep + \
             'Formatted value = ' + self.fvalue
         return r
@@ -689,17 +689,17 @@ class IptcValueError(ValueError):
 
     @ivar value: the value that fails to be parsed
     @type value: C{str}
-    @ivar xtype: the IPTC type of the tag
-    @type xtype: C{str}
+    @ivar type:  the IPTC type of the tag
+    @type type:  C{str}
     """
 
-    def __init__(self, value, xtype):
+    def __init__(self, value, type):
         self.value = value
-        self.xtype = xtype
+        self.type = type
 
     def __str__(self):
         return 'Invalid value for IPTC type [%s]: [%s]' % \
-               (self.xtype, self.value)
+               (self.type, self.value)
 
 
 class IptcTag(MetadataTag):
@@ -714,11 +714,11 @@ class IptcTag(MetadataTag):
     _time_zone_re = r'(?P<sign>\+|-)(?P<ohours>\d{2}):(?P<ominutes>\d{2})'
     _time_re = re.compile(r'(?P<hours>\d{2}):(?P<minutes>\d{2}):(?P<seconds>\d{2})(?P<tzd>%s)' % _time_zone_re)
 
-    def __init__(self, key, name, label, description, xtype, values):
+    def __init__(self, key, name, label, description, type, values):
         super(IptcTag, self).__init__(key, name, label,
-                                      description, xtype, values)
+                                      description, type, values)
         # Make values a notifying list
-        values = map(lambda x: IptcTag._convert_to_python(x, xtype), values)
+        values = map(lambda x: IptcTag._convert_to_python(x, type), values)
         self._values = NotifyingList(values)
         self._values.register_listener(self)
 
@@ -727,7 +727,7 @@ class IptcTag(MetadataTag):
 
     def _set_values(self, new_values):
         if self.metadata is not None:
-            raw_values = map(lambda x: IptcTag._convert_to_string(x, self.xtype), new_values)
+            raw_values = map(lambda x: IptcTag._convert_to_string(x, self.type), new_values)
             self.metadata._set_iptc_tag_values(self.key, raw_values)
         # Make values a notifying list if needed
         if isinstance(new_values, NotifyingList):
@@ -885,7 +885,7 @@ class IptcTag(MetadataTag):
 
         @rtype: C{list} of C{str}
         """
-        return map(lambda x: IptcTag._convert_to_string(x, self.xtype),
+        return map(lambda x: IptcTag._convert_to_string(x, self.type),
                    self.values)
 
     def __str__(self):
@@ -898,7 +898,7 @@ class IptcTag(MetadataTag):
             'Name = ' + self.name + os.linesep + \
             'Label = ' + self.label + os.linesep + \
             'Description = ' + self.description + os.linesep + \
-            'Type = ' + self.xtype + os.linesep + \
+            'Type = ' + self.type + os.linesep + \
             'Values = ' + str(self.values)
         return r
 
@@ -910,16 +910,16 @@ class XmpValueError(ValueError):
 
     @ivar value: the value that fails to be parsed
     @type value: C{str}
-    @ivar xtype: the XMP type of the tag
-    @type xtype: C{str}
+    @ivar type: the XMP type of the tag
+    @type type: C{str}
     """
-    def __init__(self, value, xtype):
+    def __init__(self, value, type):
         self.value = value
-        self.xtype = xtype
+        self.type = type
 
     def __str__(self):
         return 'Invalid value for XMP type [%s]: [%s]' % \
-               (self.xtype, self.value)
+               (self.type, self.value)
 
 
 class XmpTag(MetadataTag):
@@ -934,16 +934,16 @@ class XmpTag(MetadataTag):
     _time_re = r'(?P<hours>\d{2})(:(?P<minutes>\d{2})(:(?P<seconds>\d{2})(.(?P<decimal>\d+))?)?(?P<tzd>%s))?' % _time_zone_re
     _date_re = re.compile(r'(?P<year>\d{4})(-(?P<month>\d{2})(-(?P<day>\d{2})(T(?P<time>%s))?)?)?' % _time_re)
 
-    def __init__(self, key, name, label, description, xtype, value):
-        super(XmpTag, self).__init__(key, name, label, description, xtype, value)
-        self._value = XmpTag._convert_to_python(value, xtype)
+    def __init__(self, key, name, label, description, type, value):
+        super(XmpTag, self).__init__(key, name, label, description, type, value)
+        self._value = XmpTag._convert_to_python(value, type)
 
     def _get_value(self):
         return self._value
 
     def _set_value(self, new_value):
         if self.metadata is not None:
-            raw_value = XmpTag._convert_to_string(new_value, self.xtype)
+            raw_value = XmpTag._convert_to_string(new_value, self.type)
             self.metadata._set_xmp_tag_value(self.key, raw_value)
         self._value = new_value
 
@@ -1225,7 +1225,7 @@ class XmpTag(MetadataTag):
 
         @rtype: C{str}
         """
-        return XmpTag._convert_to_string(self.value, self.xtype)
+        return XmpTag._convert_to_string(self.value, self.type)
 
     def __str__(self):
         """
@@ -1237,7 +1237,7 @@ class XmpTag(MetadataTag):
             'Name = ' + self.name + os.linesep + \
             'Label = ' + self.label + os.linesep + \
             'Description = ' + self.description + os.linesep + \
-            'Type = ' + self.xtype + os.linesep + \
+            'Type = ' + self.type + os.linesep + \
             'Values = ' + str(self.values)
         return r
 
