@@ -478,7 +478,7 @@ class ExifTag(MetadataTag):
             values = value.split()
             if len(values) > 1:
                 self._value = \
-                    map(lambda x: ExifTag._convert_to_python(x, xtype), values)
+                    map(lambda x: ExifTag._convert_to_python(x, xtype, fvalue), values)
                 return
         self._value = ExifTag._convert_to_python(value, xtype, fvalue)
 
