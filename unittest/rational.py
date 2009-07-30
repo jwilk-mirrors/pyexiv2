@@ -48,6 +48,12 @@ class TestRational(unittest.TestCase):
         self.assertEqual(str(Rational(3, 5)), '3/5')
         self.assertEqual(str(Rational(-3, 5)), '-3/5')
 
+    def test_to_float(self):
+        self.assertEqual(Rational(3, 6).to_float(), 0.5)
+        self.assertEqual(Rational(11, 11).to_float(), 1.0)
+        self.assertEqual(Rational(-2, 8).to_float(), -0.25)
+        self.assertEqual(Rational(0, 3).to_float(), 0.0)
+
     def test_equality(self):
         r1 = Rational(2, 1)
         r2 = Rational(2, 1)

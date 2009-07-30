@@ -240,6 +240,13 @@ class Rational(object):
         gd = match.groupdict()
         return Rational(long(gd['numerator']), long(gd['denominator']))
 
+    def to_float(self):
+        """
+        @return: a floating point number approximation of the value
+        @rtype:  C{float}
+        """
+        return float(self.numerator) / self.denominator
+
     def __eq__(self, other):
         """
         Compare two rational numbers for equality.
