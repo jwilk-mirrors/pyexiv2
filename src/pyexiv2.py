@@ -480,14 +480,18 @@ class ExifTag(MetadataTag):
         super(ExifTag, self).__init__(key, name, label,
                                       description, type, value)
         self.fvalue = fvalue
-        if type in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
+        self._init_values()
+
+    def _init_values(self):
+        # Initial conversion of the raw values to their corresponding python
+        # types.
+        if self.type in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
             # May contain multiple values
-            values = value.split()
+            values = self.raw_value.split()
             if len(values) > 1:
-                self._value = \
-                    map(lambda x: ExifTag._convert_to_python(x, type, fvalue), values)
+                self._value = map(self._convert_to_python, values)
                 return
-        self._value = ExifTag._convert_to_python(value, type, fvalue)
+        self._value = self._convert_to_python(self.raw_value)
 
     def _get_value(self):
         return self._value
@@ -507,24 +511,19 @@ class ExifTag(MetadataTag):
     value = property(fget=_get_value, fset=_set_value, fdel=_del_value,
                      doc=None)
 
-    @staticmethod
-    def _convert_to_python(value, xtype, fvalue):
+    def _convert_to_python(self, value):
         """
         Convert a raw value to its corresponding python type.
 
         @param value:  the raw value to be converted
         @type value:   C{str}
-        @param xtype:  the EXIF type of the value
-        @type xtype:   C{str}
-        @param fvalue: the value formatted as a human-readable string by exiv2
-        @type fvalue:  C{str}
 
         @return: the value converted to its corresponding python type
-        @rtype:  depends on xtype (DOCME)
+        @rtype:  depends on C{self.type} (DOCME)
 
         @raise ExifValueError: if the conversion fails
         """
-        if xtype == 'Ascii':
+        if self.type == 'Ascii':
             # The value may contain a Datetime
             for format in ExifTag._datetime_formats:
                 try:
@@ -537,40 +536,40 @@ class ExifTag(MetadataTag):
             try:
                 return unicode(value, 'utf-8')
             except TypeError:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        elif xtype == 'Byte':
+        elif self.type == 'Byte':
             return value
 
-        elif xtype == 'Short':
+        elif self.type == 'Short':
             try:
                 return int(value)
             except ValueError:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        elif xtype in ('Long', 'SLong'):
+        elif self.type in ('Long', 'SLong'):
             try:
                 return long(value)
             except ValueError:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        elif xtype in ('Rational', 'SRational'):
+        elif self.type in ('Rational', 'SRational'):
             try:
                 r = Rational.from_string(value)
             except (ValueError, ZeroDivisionError):
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
             else:
-                if xtype == 'Rational' and r.numerator < 0:
-                    raise ExifValueError(value, xtype)
+                if self.type == 'Rational' and r.numerator < 0:
+                    raise ExifValueError(value, self.type)
                 return r
 
-        elif xtype == 'Undefined':
+        elif self.type == 'Undefined':
             try:
-                return unicode(fvalue, 'utf-8')
+                return unicode(self.fvalue, 'utf-8')
             except TypeError:
-                raise ExifValueError(fvalue, xtype)
+                raise ExifValueError(self.fvalue, self.type)
 
-        raise ExifValueError(value, xtype)
+        raise ExifValueError(value, self.type)
 
     @staticmethod
     def _convert_to_string(value, xtype):

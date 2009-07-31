@@ -29,6 +29,15 @@ from pyexiv2 import ExifTag, ExifValueError, Rational
 import datetime
 
 
+class ExifTagMock(ExifTag):
+
+    def __init__(self, key, type, fvalue=''):
+        super(ExifTagMock, self).__init__(key, '', '', '', type, '', fvalue)
+
+    def _init_values(self):
+        pass
+
+
 class ImageMetadataMock(object):
 
     tags = {}
@@ -46,23 +55,27 @@ class ImageMetadataMock(object):
 class TestExifTag(unittest.TestCase):
 
     def test_convert_to_python_ascii(self):
-        xtype = 'Ascii'
+        type = 'Ascii'
+
         # Valid values: datetimes
-        self.assertEqual(ExifTag._convert_to_python('2009-03-01 12:46:51', xtype, None),
+        tag = ExifTagMock('Exif.Image.DateTime', type)
+        self.assertEqual(tag._convert_to_python('2009-03-01 12:46:51'),
                          datetime.datetime(2009, 03, 01, 12, 46, 51))
-        self.assertEqual(ExifTag._convert_to_python('2009:03:01 12:46:51', xtype, None),
+        self.assertEqual(tag._convert_to_python('2009:03:01 12:46:51'),
                          datetime.datetime(2009, 03, 01, 12, 46, 51))
-        self.assertEqual(ExifTag._convert_to_python('2009-03-01T12:46:51Z', xtype, None),
+        self.assertEqual(tag._convert_to_python('2009-03-01T12:46:51Z'),
                          datetime.datetime(2009, 03, 01, 12, 46, 51))
+
         # Valid values: strings
-        self.assertEqual(ExifTag._convert_to_python('Some text.', xtype, None), u'Some text.')
-        self.assertEqual(ExifTag._convert_to_python('Some text with exotic chàräctérʐ.', xtype, None),
-                         u'Some text with exotic chàräctérʐ.')
+        tag = ExifTagMock('Exif.Image.Copyright', type)
+        self.assertEqual(tag._convert_to_python('Some text.'), u'Some text.')
+        self.assertEqual(tag._convert_to_python('Some text with exotic chàräctérʐ.'), u'Some text with exotic chàräctérʐ.')
+
         # Invalid values: datetimes
-        self.assertEqual(ExifTag._convert_to_python('2009-13-01 12:46:51', xtype, None),
+        tag = ExifTagMock('Exif.Image.DateTime', type)
+        self.assertEqual(tag._convert_to_python('2009-13-01 12:46:51'),
                          u'2009-13-01 12:46:51')
-        self.assertEqual(ExifTag._convert_to_python('2009-12-01', xtype, None),
-                         u'2009-12-01')
+        self.assertEqual(tag._convert_to_python('2009-12-01'), u'2009-12-01')
 
     def test_convert_to_string_ascii(self):
         xtype = 'Ascii'
@@ -81,9 +94,11 @@ class TestExifTag(unittest.TestCase):
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, None, xtype)
 
     def test_convert_to_python_byte(self):
-        xtype = 'Byte'
+        type = 'Byte'
+
         # Valid values
-        self.assertEqual(ExifTag._convert_to_python('Some text', xtype, None), 'Some text')
+        tag = ExifTagMock('Exif.Image.DateTime', type)
+        self.assertEqual(tag._convert_to_python('D'), 'D')
 
     def test_convert_to_string_byte(self):
         xtype = 'Byte'
@@ -94,15 +109,18 @@ class TestExifTag(unittest.TestCase):
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, None, xtype)
 
     def test_convert_to_python_short(self):
-        xtype = 'Short'
+        type = 'Short'
+
         # Valid values
-        self.assertEqual(ExifTag._convert_to_python('23', xtype, None), 23)
-        self.assertEqual(ExifTag._convert_to_python('+5628', xtype, None), 5628)
+        tag = ExifTagMock('Exif.Image.BitsPerSample', type)
+        self.assertEqual(tag._convert_to_python('8'), 8)
+        self.assertEqual(tag._convert_to_python('+5628'), 5628)
+
         # Invalid values
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, 'abc', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5,64', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '47.0001', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '1E3', xtype, None)
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'abc')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '5,64')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '47.0001')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '1E3')
 
     def test_convert_to_string_short(self):
         xtype = 'Short'
@@ -114,15 +132,18 @@ class TestExifTag(unittest.TestCase):
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, 3.14, xtype)
 
     def test_convert_to_python_long(self):
-        xtype = 'Long'
+        type = 'Long'
+
         # Valid values
-        self.assertEqual(ExifTag._convert_to_python('23', xtype, None), 23)
-        self.assertEqual(ExifTag._convert_to_python('+5628', xtype, None), 5628)
+        tag = ExifTagMock('Exif.Image.ImageWidth', type)
+        self.assertEqual(tag._convert_to_python('8'), 8)
+        self.assertEqual(tag._convert_to_python('+5628'), 5628)
+
         # Invalid values
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, 'abc', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5,64', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '47.0001', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '1E3', xtype, None)
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'abc')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '5,64')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '47.0001')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '1E3')
 
     def test_convert_to_string_long(self):
         xtype = 'Long'
@@ -135,16 +156,19 @@ class TestExifTag(unittest.TestCase):
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, 3.14, xtype)
 
     def test_convert_to_python_slong(self):
-        xtype = 'SLong'
+        type = 'SLong'
+
         # Valid values
-        self.assertEqual(ExifTag._convert_to_python('23', xtype, None), 23)
-        self.assertEqual(ExifTag._convert_to_python('+5628', xtype, None), 5628)
-        self.assertEqual(ExifTag._convert_to_python('-437', xtype, None), -437)
+        tag = ExifTagMock('Exif.OlympusCs.ManometerReading', type)
+        self.assertEqual(tag._convert_to_python('23'), 23)
+        self.assertEqual(tag._convert_to_python('+5628'), 5628)
+        self.assertEqual(tag._convert_to_python('-437'), -437)
+
         # Invalid values
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, 'abc', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5,64', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '47.0001', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '1E3', xtype, None)
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'abc')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '5,64')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '47.0001')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '1E3')
 
     def test_convert_to_string_slong(self):
         xtype = 'SLong'
@@ -157,14 +181,17 @@ class TestExifTag(unittest.TestCase):
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, 3.14, xtype)
 
     def test_convert_to_python_rational(self):
-        xtype = 'Rational'
+        type = 'Rational'
+
         # Valid values
-        self.assertEqual(ExifTag._convert_to_python('5/3', xtype, None), Rational(5, 3))
+        tag = ExifTagMock('Exif.Image.XResolution', type)
+        self.assertEqual(tag._convert_to_python('5/3'), Rational(5, 3))
+
         # Invalid values
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, 'invalid', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '-5/3', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5 / 3', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5/-3', xtype, None)
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'invalid')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '-5/3')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '5 / 3')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '5/-3')
 
     def test_convert_to_string_rational(self):
         xtype = 'Rational'
@@ -175,14 +202,17 @@ class TestExifTag(unittest.TestCase):
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, Rational(-5, 3), xtype)
 
     def test_convert_to_python_srational(self):
-        xtype = 'SRational'
+        type = 'SRational'
+
         # Valid values
-        self.assertEqual(ExifTag._convert_to_python('5/3', xtype, None), Rational(5, 3))
-        self.assertEqual(ExifTag._convert_to_python('-5/3', xtype, None), Rational(-5, 3))
+        tag = ExifTagMock('Exif.Image.BaselineExposure', type)
+        self.assertEqual(tag._convert_to_python('5/3'), Rational(5, 3))
+        self.assertEqual(tag._convert_to_python('-5/3'), Rational(-5, 3))
+
         # Invalid values
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, 'invalid', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5 / 3', xtype, None)
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, '5/-3', xtype, None)
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'invalid')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '5 / 3')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '5/-3')
 
     def test_convert_to_string_srational(self):
         xtype = 'SRational'
@@ -193,14 +223,17 @@ class TestExifTag(unittest.TestCase):
         self.failUnlessRaises(ExifValueError, ExifTag._convert_to_string, 'invalid', xtype)
 
     def test_convert_to_python_undefined(self):
-        xtype = 'Undefined'
+        type = 'Undefined'
+
         # Valid values
-        self.assertEqual(ExifTag._convert_to_python('48 49 48 48 ', xtype, '1.00'),
-                         u'1.00')
-        self.assertEqual(ExifTag._convert_to_python('3 ', xtype, 'Digital still camera'),
-                         u'Digital still camera')
+        tag = ExifTagMock('Exif.Photo.ExifVersion', type, '1.00')
+        self.assertEqual(tag._convert_to_python('48 49 48 48 '), u'1.00')
+        tag = ExifTagMock('Exif.Photo.DeviceSettingDescription', type, 'Digital still camera')
+        self.assertEqual(tag._convert_to_python('3 '), u'Digital still camera')
+
         # Invalid values
-        self.failUnlessRaises(ExifValueError, ExifTag._convert_to_python, 'abc', xtype, None)
+        tag = ExifTagMock('Exif.Photo.ExifVersion', type, None)
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'abc')
 
     def test_convert_to_string_undefined(self):
         xtype = 'Undefined'
