@@ -66,6 +66,11 @@ class TestExifTag(unittest.TestCase):
         self.assertEqual(tag._convert_to_python('2009-03-01T12:46:51Z'),
                          datetime.datetime(2009, 03, 01, 12, 46, 51))
 
+        # Valid values: dates
+        tag = ExifTagMock('Exif.GPSInfo.GPSDateStamp', type)
+        self.assertEqual(tag._convert_to_python('2009:08:04'),
+                         datetime.date(2009, 8, 4))
+
         # Valid values: strings
         tag = ExifTagMock('Exif.Image.Copyright', type)
         self.assertEqual(tag._convert_to_python('Some text.'), u'Some text.')
@@ -78,6 +83,11 @@ class TestExifTag(unittest.TestCase):
                          u'2009-13-01 12:46:51')
         self.assertEqual(tag._convert_to_python('2009-12-01'), u'2009-12-01')
 
+        # Invalid values: dates
+        tag = ExifTagMock('Exif.GPSInfo.GPSDateStamp', type)
+        self.assertEqual(tag._convert_to_python('2009:13:01'), u'2009:13:01')
+        self.assertEqual(tag._convert_to_python('2009-12-01'), u'2009-12-01')
+
     def test_convert_to_string_ascii(self):
         type = 'Ascii'
 
@@ -87,6 +97,11 @@ class TestExifTag(unittest.TestCase):
                          '2009:03:01 12:54:28')
         self.assertEqual(tag._convert_to_string(datetime.date(2009, 03, 01)),
                          '2009:03:01 00:00:00')
+
+        # Valid values: dates
+        tag = ExifTagMock('Exif.GPSInfo.GPSDateStamp', type)
+        self.assertEqual(tag._convert_to_string(datetime.date(2009, 03, 01)),
+                         '2009:03:01')
 
         # Valid values: strings
         tag = ExifTagMock('Exif.Image.Copyright', type)

@@ -476,6 +476,8 @@ class ExifTag(MetadataTag):
                          '%Y-%m-%d %H:%M:%S',
                          '%Y-%m-%dT%H:%M:%SZ')
 
+    _date_formats = ('%Y:%m:%d',)
+
     def __init__(self, key, name, label, description, type, value, fvalue):
         super(ExifTag, self).__init__(key, name, label,
                                       description, type, value)
@@ -525,13 +527,21 @@ class ExifTag(MetadataTag):
         """
         if self.type == 'Ascii':
             # The value may contain a Datetime
-            for format in ExifTag._datetime_formats:
+            for format in self._datetime_formats:
                 try:
                     t = time.strptime(value, format)
                 except ValueError:
                     continue
                 else:
                     return datetime.datetime(*t[:6])
+            # Or a Date (e.g. Exif.GPSInfo.GPSDateStamp)
+            for format in self._date_formats:
+                try:
+                    t = time.strptime(value, format)
+                except ValueError:
+                    continue
+                else:
+                    return datetime.date(*t[:3])
             # Default to string
             try:
                 return unicode(value, 'utf-8')
@@ -586,9 +596,13 @@ class ExifTag(MetadataTag):
         """
         if self.type == 'Ascii':
             if type(value) is datetime.datetime:
-                return value.strftime('%Y:%m:%d %H:%M:%S')
+                return value.strftime(self._datetime_formats[0])
             elif type(value) is datetime.date:
-                return value.strftime('%Y:%m:%d 00:00:00')
+                if self.key == 'Exif.GPSInfo.GPSDateStamp':
+                    # Special case
+                    return value.strftime(self._date_formats[0])
+                else:
+                    return value.strftime('%s 00:00:00' % self._date_formats[0])
             elif type(value) is unicode:
                 try:
                     return value.encode('utf-8')
