@@ -498,7 +498,7 @@ class ExifTag(MetadataTag):
 
     def _set_value(self, new_value):
         if self.metadata is not None:
-            raw_value = ExifTag._convert_to_string(new_value, self.type)
+            raw_value = self._convert_to_string(new_value)
             self.metadata._set_exif_tag_value(self.key, raw_value)
         self._value = new_value
 
@@ -513,7 +513,7 @@ class ExifTag(MetadataTag):
 
     def _convert_to_python(self, value):
         """
-        Convert a raw value to its corresponding python type.
+        Convert one raw value to its corresponding python type.
 
         @param value:  the raw value to be converted
         @type value:   C{str}
@@ -571,23 +571,20 @@ class ExifTag(MetadataTag):
 
         raise ExifValueError(value, self.type)
 
-    @staticmethod
-    def _convert_to_string(value, xtype):
+    def _convert_to_string(self, value):
         """
-        Convert a value to its corresponding string representation, suitable to
-        pass to libexiv2.
+        Convert one value to its corresponding string representation, suitable
+        to pass to libexiv2.
 
         @param value: the value to be converted
-        @type value:  depends on xtype (DOCME)
-        @param xtype: the EXIF type of the value
-        @type xtype:  C{str}
+        @type value:  depends on C{self.type} (DOCME)
 
         @return: the value converted to its corresponding string representation
         @rtype:  C{str}
 
         @raise ExifValueError: if the conversion fails
         """
-        if xtype == 'Ascii':
+        if self.type == 'Ascii':
             if type(value) is datetime.datetime:
                 return value.strftime('%Y:%m:%d %H:%M:%S')
             elif type(value) is datetime.date:
@@ -596,65 +593,65 @@ class ExifTag(MetadataTag):
                 try:
                     return value.encode('utf-8')
                 except UnicodeEncodeError:
-                    raise ExifValueError(value, xtype)
+                    raise ExifValueError(value, self.type)
             elif type(value) is str:
                 return value
             else:
-                raise ExifValueError(value, xtype) 
+                raise ExifValueError(value, self.type) 
 
-        elif xtype == 'Byte':
+        elif self.type == 'Byte':
             if type(value) is unicode:
                 try:
                     return value.encode('utf-8')
                 except UnicodeEncodeError:
-                    raise ExifValueError(value, xtype)
+                    raise ExifValueError(value, self.type)
             elif type(value) is str:
                 return value
             else:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        elif xtype == 'Short':
+        elif self.type == 'Short':
             if type(value) is int and value >= 0:
                 return str(value)
             else:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        elif xtype == 'Long':
+        elif self.type == 'Long':
             if type(value) in (int, long) and value >= 0:
                 return str(value)
             else:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        elif xtype == 'SLong':
+        elif self.type == 'SLong':
             if type(value) in (int, long):
                 return str(value)
             else:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        elif xtype == 'Rational':
+        elif self.type == 'Rational':
             if type(value) is Rational and value.numerator >= 0:
                 return str(value)
             else:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        elif xtype == 'SRational':
+        elif self.type == 'SRational':
             if type(value) is Rational:
                 return str(value)
             else:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        elif xtype == 'Undefined':
+        elif self.type == 'Undefined':
             if type(value) is unicode:
                 try:
                     return value.encode('utf-8')
                 except UnicodeEncodeError:
-                    raise ExifValueError(value, xtype)
+                    raise ExifValueError(value, self.type)
             elif type(value) is str:
                 return value
             else:
-                raise ExifValueError(value, xtype)
+                raise ExifValueError(value, self.type)
 
-        raise ExifValueError(value, xtype)
+        raise ExifValueError(value, self.type)
 
     def to_string(self):
         """
@@ -663,7 +660,7 @@ class ExifTag(MetadataTag):
 
         @rtype: C{str}
         """
-        return ExifTag._convert_to_string(self.value, self.type)
+        return self._convert_to_string(self.value)
 
     def __str__(self):
         """
