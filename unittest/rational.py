@@ -36,6 +36,21 @@ class TestRational(unittest.TestCase):
         self.assertEqual(r.denominator, 1)
         self.assertRaises(ZeroDivisionError, Rational, 1, 0)
 
+    def test_read_only(self):
+        r = Rational(3, 4)
+        try:
+            r.numerator = 5
+        except AttributeError:
+            pass
+        else:
+            self.fail('Numerator is not read-only.')
+        try:
+            r.denominator = 5
+        except AttributeError:
+            pass
+        else:
+            self.fail('Denominator is not read-only.')
+
     def test_from_string(self):
         self.assertEqual(Rational.from_string('4/3'), Rational(4, 3))
         self.assertEqual(Rational.from_string('-4/3'), Rational(-4, 3))

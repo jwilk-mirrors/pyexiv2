@@ -199,6 +199,8 @@ class Rational(object):
 
     """
     A class representing a rational number.
+
+    Its numerator and denominator are read-only properties.
     """
 
     _format_re = re.compile(r'(?P<numerator>-?\d+)/(?P<denominator>\d+)')
@@ -217,8 +219,16 @@ class Rational(object):
         if denominator == 0:
             msg = 'Denominator of a rational number cannot be zero.'
             raise ZeroDivisionError(msg)
-        self.numerator = long(numerator)
-        self.denominator = long(denominator)
+        self._numerator = long(numerator)
+        self._denominator = long(denominator)
+
+    @property
+    def numerator(self):
+        return self._numerator
+
+    @property
+    def denominator(self):
+        return self._denominator
 
     @staticmethod
     def from_string(string):
@@ -245,7 +255,7 @@ class Rational(object):
         @return: a floating point number approximation of the value
         @rtype:  C{float}
         """
-        return float(self.numerator) / self.denominator
+        return float(self._numerator) / self._denominator
 
     def __eq__(self, other):
         """
@@ -259,14 +269,14 @@ class Rational(object):
         @return: C{True} if equal, C{False} otherwise
         @rtype:  C{bool}
         """
-        return (self.numerator * other.denominator) == \
-               (other.numerator * self.denominator)
+        return (self._numerator * other._denominator) == \
+               (other._numerator * self._denominator)
 
     def __str__(self):
         """
         Return a string representation of the rational number.
         """
-        return '%d/%d' % (self.numerator, self.denominator)
+        return '%d/%d' % (self._numerator, self._denominator)
 
 
 class ListenerInterface(object):
