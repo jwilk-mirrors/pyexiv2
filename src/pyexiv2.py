@@ -468,7 +468,7 @@ class ExifValueError(ValueError):
                (self.type, self.value)
 
 
-class ExifTag(MetadataTag):
+class ExifTag(MetadataTag, ListenerInterface):
 
     """
     An EXIF metadata tag.
@@ -501,7 +501,10 @@ class ExifTag(MetadataTag):
             # May contain multiple values
             values = self.raw_value.split()
             if len(values) > 1:
-                self._value = map(self._convert_to_python, values)
+                # Make values a notifying list
+                values = map(self._convert_to_python, values)
+                self._value = NotifyingList(values)
+                self._value.register_listener(self)
                 return
         self._value = self._convert_to_python(self.raw_value)
 
@@ -510,18 +513,48 @@ class ExifTag(MetadataTag):
 
     def _set_value(self, new_value):
         if self.metadata is not None:
-            raw_value = self._convert_to_string(new_value)
+            if isinstance(new_value, (list, tuple)):
+                raw_values = map(self._convert_to_string, new_value)
+                raw_value = ' '.join(raw_values)
+            else:
+                raw_value = self._convert_to_string(new_value)
             self.metadata._set_exif_tag_value(self.key, raw_value)
-        self._value = new_value
+
+        if isinstance(self._value, NotifyingList):
+            self._value.unregister_listener(self)
+
+        if isinstance(new_value, NotifyingList):
+            # Already a notifying list
+            self._value = new_value
+            self._value.register_listener(self)
+        elif isinstance(new_value, (list, tuple)):
+            # Make the values a notifying list 
+            self._value = NotifyingList(new_value)
+            self._value.register_listener(self)
+        else:
+            # Single value
+            self._value = new_value
 
     def _del_value(self):
         if self.metadata is not None:
             self.metadata._delete_exif_tag(self.key)
+
+        if isinstance(self._value, NotifyingList):
+            self._value.unregister_listener(self)
+
         del self._value
 
     """the value of the tag converted to its corresponding python type"""
     value = property(fget=_get_value, fset=_set_value, fdel=_del_value,
                      doc=None)
+
+    def contents_changed(self):
+        """
+        Implementation of the L{ListenerInterface}.
+        React on changes to the list of values of the tag.
+        """
+        # self._value is a list of value and its contents changed.
+        self._set_value(self._value)
 
     def _convert_to_python(self, value):
         """
