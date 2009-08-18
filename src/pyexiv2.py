@@ -439,13 +439,7 @@ class MetadataTag(object):
 
         @rtype: C{str}
         """
-        r = 'Key = ' + self.key + os.linesep + \
-            'Name = ' + self.name + os.linesep + \
-            'Label = ' + self.label + os.linesep + \
-            'Description = ' + self.description + os.linesep + \
-            'Type = ' + self.type + os.linesep + \
-            'Raw value = ' + str(self.raw_value)
-        return r
+        return '<%s [%s] = %s>' % (self.key, self.type, str(self.raw_value))
 
 
 class ExifValueError(ValueError):
@@ -725,14 +719,12 @@ class ExifTag(MetadataTag, ListenerInterface):
 
         @rtype: C{str}
         """
-        r = 'Key = ' + self.key + os.linesep + \
-            'Name = ' + self.name + os.linesep + \
-            'Label = ' + self.label + os.linesep + \
-            'Description = ' + self.description + os.linesep + \
-            'Type = ' + self.type + os.linesep + \
-            'Value = ' + str(self.value) + os.linesep + \
-            'Formatted value = ' + self.fvalue
-        return r
+        left = '%s [%s]' % (self.key, self.type)
+        if self.type == 'Undefined' and len(self._value) > 100:
+            right = '(Binary value suppressed)'
+        else:
+            right = self.fvalue
+        return '<%s = %s>' % (left, right)
 
 
 class IptcValueError(ValueError):
