@@ -1550,3 +1550,21 @@ class ImageMetadata(object):
         except AttributeError:
             raise KeyError(key)
 
+
+if __name__ == '__main__':
+    import sys
+    args = sys.argv
+
+    if len(args) != 2:
+        print 'Usage: %s image_file' % args[0]
+        sys.exit(-1)
+
+    metadata = ImageMetadata(args[1])
+    metadata.read()
+
+    for key in metadata.exif_keys:
+        tag = metadata[key]
+        print '%-45s%-11s%s' % (key, tag.type, str(tag))
+
+    # TODO: print IPTC and XMP tags.
+
