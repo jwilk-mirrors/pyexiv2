@@ -435,11 +435,20 @@ class MetadataTag(object):
 
     def __str__(self):
         """
+        Return a string representation of the value of the tag suitable to pass
+        to libexiv2 to set it.
+
+        @rtype: C{str}
+        """
+        return self.raw_value
+
+    def __repr__(self):
+        """
         Return a string representation of the tag for debugging purposes.
 
         @rtype: C{str}
         """
-        return '<%s [%s] = %s>' % (self.key, self.type, str(self.raw_value))
+        return '<%s [%s] = %s>' % (self.key, self.type, self.raw_value)
 
 
 class ExifValueError(ValueError):
@@ -704,16 +713,16 @@ class ExifTag(MetadataTag, ListenerInterface):
 
         raise ExifValueError(value, self.type)
 
-    def to_string(self):
+    def __str__(self):
         """
-        Return a string representation of the EXIF tag suitable to pass to
-        libexiv2 to set the value of the tag.
+        Return a string representation of the value of the EXIF tag suitable to
+        pass to libexiv2 to set it.
 
         @rtype: C{str}
         """
         return self._convert_to_string(self.value)
 
-    def __str__(self):
+    def __repr__(self):
         """
         Return a string representation of the EXIF tag for debugging purposes.
 
@@ -1409,7 +1418,7 @@ class ImageMetadata(object):
         # Set an EXIF tag. If the tag already exists, its value is overwritten.
         if type(tag) is not ExifTag:
             raise TypeError('Expecting an ExifTag')
-        self._image.setExifTagValue(tag.key, tag.to_string())
+        self._image.setExifTagValue(tag.key, str(tag))
         self._tags['exif'][tag.key] = tag
         tag.metadata = self
 
