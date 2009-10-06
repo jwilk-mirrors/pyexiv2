@@ -289,7 +289,7 @@ class ListenerInterface(object):
     def contents_changed(self):
         """
         React on changes on the object observed.
-        Override to implement specific bejaviours.
+        Override to implement specific behaviours.
         """
         raise NotImplementedError()
 
@@ -588,11 +588,11 @@ class ExifTag(MetadataTag, ListenerInterface):
                     continue
                 else:
                     return datetime.date(*t[:3])
-            # Default to string
-            try:
-                return unicode(value, 'utf-8')
-            except TypeError:
-                raise ExifValueError(value, self.type)
+            # Default to string.
+            # There is currently no charset conversion.
+            # TODO: guess the encoding and decode accordingly into unicode
+            # where relevant.
+            return value
 
         elif self.type == 'Byte':
             return value
@@ -620,10 +620,10 @@ class ExifTag(MetadataTag, ListenerInterface):
                 return r
 
         elif self.type == 'Undefined':
-            try:
-                return unicode(self.fvalue, 'utf-8')
-            except TypeError:
-                raise ExifValueError(self.fvalue, self.type)
+            # There is currently no charset conversion.
+            # TODO: guess the encoding and decode accordingly into unicode
+            # where relevant.
+            return self.fvalue
 
         raise ExifValueError(value, self.type)
 
