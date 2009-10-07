@@ -73,8 +73,8 @@ class TestExifTag(unittest.TestCase):
 
         # Valid values: strings
         tag = ExifTagMock('Exif.Image.Copyright', type)
-        self.assertEqual(tag._convert_to_python('Some text.'), u'Some text.')
-        self.assertEqual(tag._convert_to_python('Some text with exotic chàräctérʐ.'),
+        self.assertEqual(tag._convert_to_python('Some text.'), 'Some text.')
+        self.assertEqual(tag._convert_to_python(u'Some text with exotic chàräctérʐ.'),
                          u'Some text with exotic chàräctérʐ.')
 
         # Invalid values: datetimes
@@ -271,10 +271,6 @@ class TestExifTag(unittest.TestCase):
         tag = ExifTagMock('Exif.Photo.DeviceSettingDescription', type, 'Digital still camera')
         self.assertEqual(tag._convert_to_python('3 '), u'Digital still camera')
 
-        # Invalid values
-        tag = ExifTagMock('Exif.Photo.ExifVersion', type, None)
-        self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'abc')
-
     def test_convert_to_string_undefined(self):
         type = 'Undefined'
 
@@ -316,7 +312,7 @@ class TestExifTag(unittest.TestCase):
                       'Orientation', 'The image orientation viewed in terms ' \
                       'of rows and columns.', 'Short', '1', 'top, left')
         tag.metadata = ImageMetadataMock()
-        tag.metadata._set_exif_tag_value(tag.key, tag.to_string())
+        tag.metadata._set_exif_tag_value(tag.key, str(tag))
         self.assertEqual(tag.metadata.tags, {tag.key: '1'})
         del tag.value
         self.failIf(hasattr(tag, 'value'))
