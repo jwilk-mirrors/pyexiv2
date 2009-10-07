@@ -771,8 +771,13 @@ class IptcTag(MetadataTag):
     def __init__(self, key, name, label, description, type, values):
         super(IptcTag, self).__init__(key, name, label,
                                       description, type, values)
+        self._init_values()
+
+    def _init_values(self):
+        # Initial conversion of the raw values to their corresponding python
+        # types.
+        values = map(self._convert_to_python, self.raw_value)
         # Make values a notifying list
-        values = map(lambda x: IptcTag._convert_to_python(x, type), values)
         self._values = NotifyingList(values)
         self._values.register_listener(self)
 
@@ -808,34 +813,31 @@ class IptcTag(MetadataTag):
         # The following is a quick, non optimal solution.
         self._set_values(self._values)
 
-    @staticmethod
-    def _convert_to_python(value, xtype):
+    def _convert_to_python(self, value):
         """
         Convert a raw value to its corresponding python type.
 
         @param value: the raw value to be converted
         @type value:  C{str}
-        @param xtype: the IPTC type of the value
-        @type xtype:  C{str}
 
         @return: the value converted to its corresponding python type
-        @rtype:  depends on xtype (DOCME)
+        @rtype:  depends on C{self.type} (DOCME)
 
         @raise IptcValueError: if the conversion fails
         """
-        if xtype == 'Short':
+        if self.type == 'Short':
             try:
                 return int(value)
             except ValueError:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
 
-        elif xtype == 'String':
+        elif self.type == 'String':
             try:
                 return unicode(value, 'utf-8')
             except TypeError:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
 
-        elif xtype == 'Date':
+        elif self.type == 'Date':
             # According to the IPTC specification, the format for a string field
             # representing a date is '%Y%m%d'. However, the string returned by
             # exiv2 using method DateValue::toString() is formatted using
@@ -845,33 +847,33 @@ class IptcTag(MetadataTag):
                 t = time.strptime(value, format)
                 return datetime.date(*t[:3])
             except ValueError:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
 
-        elif xtype == 'Time':
+        elif self.type == 'Time':
             # According to the IPTC specification, the format for a string field
             # representing a time is '%H%M%S±%H%M'. However, the string returned
             # by exiv2 using method TimeValue::toString() is formatted using
             # pattern '%H:%M:%S±%H:%M'.
             match = IptcTag._time_re.match(value)
             if match is None:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
             gd = match.groupdict()
             try:
                 tzinfo = FixedOffset(gd['sign'], int(gd['ohours']),
                                      int(gd['ominutes']))
             except TypeError:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
             try:
                 return datetime.time(int(gd['hours']), int(gd['minutes']),
                                      int(gd['seconds']), tzinfo=tzinfo)
             except (TypeError, ValueError):
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
 
-        elif xtype == 'Undefined':
+        elif self.type == 'Undefined':
             # Binary data, return it unmodified
             return value
 
-        raise IptcValueError(value, xtype)
+        raise IptcValueError(value, self.type)
 
     @staticmethod
     def _convert_to_string(value, xtype):

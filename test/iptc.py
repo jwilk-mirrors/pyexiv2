@@ -29,6 +29,15 @@ from pyexiv2 import IptcTag, IptcValueError, FixedOffset
 import datetime
 
 
+class IptcTagMock(IptcTag):
+
+    def __init__(self, key, type):
+        super(IptcTagMock, self).__init__(key, '', '', '', type, [])
+
+    def _init_values(self):
+        pass
+
+
 class ImageMetadataMock(object):
 
     tags = {}
@@ -46,16 +55,19 @@ class ImageMetadataMock(object):
 class TestIptcTag(unittest.TestCase):
 
     def test_convert_to_python_short(self):
-        xtype = 'Short'
+        type = 'Short'
+
         # Valid values
-        self.assertEqual(IptcTag._convert_to_python('23', xtype), 23)
-        self.assertEqual(IptcTag._convert_to_python('+5628', xtype), 5628)
-        self.assertEqual(IptcTag._convert_to_python('-4', xtype), -4)
+        tag = IptcTagMock('Iptc.Envelope.FileFormat', type)
+        self.assertEqual(tag._convert_to_python('23'), 23)
+        self.assertEqual(tag._convert_to_python('+5628'), 5628)
+        self.assertEqual(tag._convert_to_python('-4'), -4)
+
         # Invalid values
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, 'abc', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '5,64', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '47.0001', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '1E3', xtype)
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, 'abc')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '5,64')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '47.0001')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '1E3')
 
     def test_convert_to_string_short(self):
         xtype = 'Short'
@@ -67,13 +79,16 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, 3.14, xtype)
 
     def test_convert_to_python_string(self):
-        xtype = 'String'
+        type = 'String'
+
         # Valid values
-        self.assertEqual(IptcTag._convert_to_python('Some text.', xtype), u'Some text.')
-        self.assertEqual(IptcTag._convert_to_python('Some text with exotic chàräctérʐ.', xtype),
+        tag = IptcTagMock('Iptc.Application2.Subject', type)
+        self.assertEqual(tag._convert_to_python('Some text.'), 'Some text.')
+        self.assertEqual(tag._convert_to_python('Some text with exotic chàräctérʐ.'),
                          u'Some text with exotic chàräctérʐ.')
+
         # Invalid values
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, None, xtype)
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, None)
 
     def test_convert_to_string_string(self):
         xtype = 'String'
@@ -87,17 +102,20 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, None, xtype)
 
     def test_convert_to_python_date(self):
-        xtype = 'Date'
+        type = 'Date'
+
         # Valid values
-        self.assertEqual(IptcTag._convert_to_python('1999-10-13', xtype),
+        tag = IptcTagMock('Iptc.Envelope.DateSent', type)
+        self.assertEqual(tag._convert_to_python('1999-10-13'),
                          datetime.date(1999, 10, 13))
+
         # Invalid values
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, 'invalid', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '11/10/1983', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '-1000', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-02', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-10-32', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '2009-02-24T22:12:54', xtype)
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, 'invalid')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '11/10/1983')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '-1000')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '2009-02')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '2009-10-32')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '2009-02-24T22:12:54')
 
     def test_convert_to_string_date(self):
         xtype = 'Date'
@@ -115,21 +133,24 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, None, xtype)
 
     def test_convert_to_python_time(self):
-        xtype = 'Time'
+        type = 'Time'
+
         # Valid values
-        self.assertEqual(IptcTag._convert_to_python('05:03:54+00:00', xtype),
+        tag = IptcTagMock('Iptc.Envelope.TimeSent', type)
+        self.assertEqual(tag._convert_to_python('05:03:54+00:00'),
                          datetime.time(5, 3, 54, tzinfo=FixedOffset()))
-        self.assertEqual(IptcTag._convert_to_python('05:03:54+06:00', xtype),
+        self.assertEqual(tag._convert_to_python('05:03:54+06:00'),
                          datetime.time(5, 3, 54, tzinfo=FixedOffset('+', 6, 0)))
-        self.assertEqual(IptcTag._convert_to_python('05:03:54-10:30', xtype),
+        self.assertEqual(tag._convert_to_python('05:03:54-10:30'),
                          datetime.time(5, 3, 54, tzinfo=FixedOffset('-', 10, 30)))
+
         # Invalid values
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, 'invalid', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '23:12:42', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '25:12:42+00:00', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '21:77:42+00:00', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '21:12:98+00:00', xtype)
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, '081242+0000', xtype)
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, 'invalid')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '23:12:42')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '25:12:42+00:00')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '21:77:42+00:00')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '21:12:98+00:00')
+        self.failUnlessRaises(IptcValueError, tag._convert_to_python, '081242+0000')
 
     def test_convert_to_string_time(self):
         xtype = 'Time'
@@ -155,14 +176,16 @@ class TestIptcTag(unittest.TestCase):
         self.assertEqual(IptcTag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset('-', 4, 0)), xtype),
                          '105204-0400')
         # Invalid values
-        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_python, 'invalid', xtype)
+        self.failUnlessRaises(IptcValueError, IptcTag._convert_to_string, 'invalid', xtype)
 
     def test_convert_to_python_undefined(self):
-        xtype = 'Undefined'
+        type = 'Undefined'
+
         # Valid values
-        self.assertEqual(IptcTag._convert_to_python('Some binary data.', xtype),
+        tag = IptcTagMock('Iptc.Envelope.CharacterSet', type)
+        self.assertEqual(tag._convert_to_python('Some binary data.'),
                          'Some binary data.')
-        self.assertEqual(IptcTag._convert_to_python('�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}', xtype),
+        self.assertEqual(tag._convert_to_python('�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}'),
                          '�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}')
 
     def test_convert_to_string_undefined(self):
