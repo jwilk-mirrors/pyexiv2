@@ -933,8 +933,8 @@ class IptcTag(MetadataTag):
 
     def to_string(self):
         """
-        Return a list of string representations of the IPTC tag values suitable
-        to pass to libexiv2 to set the value of the tag.
+        Return a list of string representations of the values of the IPTC tag
+        suitable to pass to libexiv2 to set it.
 
         @rtype: C{list} of C{str}
         """
@@ -942,17 +942,19 @@ class IptcTag(MetadataTag):
 
     def __str__(self):
         """
+        Return a string representation of the list of values of the IPTC tag.
+
+        @rtype: C{str}
+        """
+        return ', '.join(self.to_string())
+
+    def __repr__(self):
+        """
         Return a string representation of the IPTC tag for debugging purposes.
 
         @rtype: C{str}
         """
-        r = 'Key = ' + self.key + os.linesep + \
-            'Name = ' + self.name + os.linesep + \
-            'Label = ' + self.label + os.linesep + \
-            'Description = ' + self.description + os.linesep + \
-            'Type = ' + self.type + os.linesep + \
-            'Values = ' + str(self.values)
-        return r
+        return '<%s [%s] = %s>' % (self.key, self.type, str(self))
 
 
 class XmpValueError(ValueError):
