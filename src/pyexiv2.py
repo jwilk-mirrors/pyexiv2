@@ -786,7 +786,7 @@ class IptcTag(MetadataTag):
 
     def _set_values(self, new_values):
         if self.metadata is not None:
-            raw_values = map(lambda x: IptcTag._convert_to_string(x, self.type), new_values)
+            raw_values = map(self._convert_to_string, new_values)
             self.metadata._set_iptc_tag_values(self.key, raw_values)
         # Make values a notifying list if needed
         if isinstance(new_values, NotifyingList):
@@ -815,7 +815,7 @@ class IptcTag(MetadataTag):
 
     def _convert_to_python(self, value):
         """
-        Convert a raw value to its corresponding python type.
+        Convert one raw value to its corresponding python type.
 
         @param value: the raw value to be converted
         @type value:  C{str}
@@ -875,47 +875,44 @@ class IptcTag(MetadataTag):
 
         raise IptcValueError(value, self.type)
 
-    @staticmethod
-    def _convert_to_string(value, xtype):
+    def _convert_to_string(self, value):
         """
-        Convert a value to its corresponding string representation, suitable to
-        pass to libexiv2.
+        Convert one value to its corresponding string representation, suitable
+        to pass to libexiv2.
 
         @param value: the value to be converted
-        @type value:  depends on xtype (DOCME)
-        @param xtype: the IPTC type of the value
-        @type xtype:  C{str}
+        @type value:  depends on C{self.type} (DOCME)
 
         @return: the value converted to its corresponding string representation
         @rtype:  C{str}
 
         @raise IptcValueError: if the conversion fails
         """
-        if xtype == 'Short':
+        if self.type == 'Short':
             if type(value) is int:
                 return str(value)
             else:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
 
-        elif xtype == 'String':
+        elif self.type == 'String':
             if type(value) is unicode:
                 try:
                     return value.encode('utf-8')
                 except UnicodeEncodeError:
-                    raise IptcValueError(value, xtype)
+                    raise IptcValueError(value, self.type)
             elif type(value) is str:
                 return value
             else:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
 
-        elif xtype == 'Date':
+        elif self.type == 'Date':
             if type(value) in (datetime.date, datetime.datetime):
                 # ISO 8601 date format
                 return value.strftime('%Y%m%d')
             else:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
 
-        elif xtype == 'Time':
+        elif self.type == 'Time':
             if type(value) in (datetime.time, datetime.datetime):
                 r = value.strftime('%H%M%S')
                 if value.tzinfo is not None:
@@ -924,15 +921,15 @@ class IptcTag(MetadataTag):
                     r += '+0000'
                 return r
             else:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
 
-        elif xtype == 'Undefined':
+        elif self.type == 'Undefined':
             if type(value) is str:
                 return value
             else:
-                raise IptcValueError(value, xtype)
+                raise IptcValueError(value, self.type)
 
-        raise IptcValueError(value, xtype)
+        raise IptcValueError(value, self.type)
 
     def to_string(self):
         """
@@ -941,8 +938,7 @@ class IptcTag(MetadataTag):
 
         @rtype: C{list} of C{str}
         """
-        return map(lambda x: IptcTag._convert_to_string(x, self.type),
-                   self.values)
+        return map(self._convert_to_string, self.values)
 
     def __str__(self):
         """
