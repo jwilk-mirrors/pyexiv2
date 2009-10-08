@@ -88,10 +88,7 @@ class TestIptcTag(unittest.TestCase):
         tag = IptcTagMock('Iptc.Application2.Subject', type)
         self.assertEqual(tag._convert_to_python('Some text.'), 'Some text.')
         self.assertEqual(tag._convert_to_python('Some text with exotic chàräctérʐ.'),
-                         u'Some text with exotic chàräctérʐ.')
-
-        # Invalid values
-        self.failUnlessRaises(IptcValueError, tag._convert_to_python, None)
+                         'Some text with exotic chàräctérʐ.')
 
     def test_convert_to_string_string(self):
         type = 'String'

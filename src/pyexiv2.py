@@ -832,10 +832,10 @@ class IptcTag(MetadataTag):
                 raise IptcValueError(value, self.type)
 
         elif self.type == 'String':
-            try:
-                return unicode(value, 'utf-8')
-            except TypeError:
-                raise IptcValueError(value, self.type)
+            # There is currently no charset conversion.
+            # TODO: guess the encoding and decode accordingly into unicode
+            # where relevant.
+            return value
 
         elif self.type == 'Date':
             # According to the IPTC specification, the format for a string field
@@ -1566,5 +1566,9 @@ if __name__ == '__main__':
         tag = metadata[key]
         print '%-45s%-11s%s' % (key, tag.type, str(tag))
 
-    # TODO: print IPTC and XMP tags.
+    for key in metadata.iptc_keys:
+        tag = metadata[key]
+        print '%-45s%-11s%s' % (key, tag.type, str(tag))
+
+    # TODO: print XMP tags.
 
