@@ -3,6 +3,7 @@
 
 import sys
 import os.path
+from glob import glob
 
 env = Environment()
 
@@ -18,7 +19,7 @@ env.Append(LIBS=libs)
 cpp_sources = ['exiv2wrapper.cpp', 'exiv2wrapper_python.cpp']
 libpyexiv2 = env.SharedLibrary('exiv2python', cpp_sources)
 
-# Install the shared library and the Python module, invoked using
+# Install the shared library and the Python modules, invoked using
 # 'scons install'. If DESTDIR is specified on the command line when invoking
 # scons, it will be prepended to each installed target file. See
 # http://www.gnu.org/prep/standards/html_node/DESTDIR.html for reference.
@@ -28,5 +29,6 @@ if (dest_dir is None) or (not os.path.isabs(dest_dir)):
     install_dir = python_lib_path
 else:
     install_dir = os.path.join(dest_dir, python_lib_path[1:])
-env.Install(install_dir, [libpyexiv2, 'pyexiv2.py'])
+env.Install(install_dir, [libpyexiv2])
+env.Install(os.path.join(install_dir, 'pyexiv2'), glob('pyexiv2/*.py'))
 env.Alias('install', install_dir)
