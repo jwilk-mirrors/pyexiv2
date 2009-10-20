@@ -25,7 +25,10 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import ExifTag, ExifValueError, Rational
+
+from pyexiv2.exif import ExifTag, ExifValueError
+from pyexiv2.utils import Rational
+
 import datetime
 
 

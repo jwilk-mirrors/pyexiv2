@@ -25,7 +25,12 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import ImageMetadata, ExifTag, IptcTag, XmpTag
+
+from pyexiv2.metadata import ImageMetadata
+from pyexiv2.exif import ExifTag
+from pyexiv2.iptc import IptcTag
+from pyexiv2.xmp import XmpTag
+
 import datetime
 
 
