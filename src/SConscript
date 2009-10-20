@@ -8,7 +8,7 @@ from distutils.sysconfig import get_python_inc, get_python_lib
 env = Environment()
 
 # Include directories to look for 'Python.h' in
-env.Append(CPPPATH=[get_python_inc()])
+env.Append(CPPPATH=[get_python_inc(plat_specific=True)])
 
 # Libraries to link against
 libs = ['boost_python', 'exiv2']
@@ -22,7 +22,7 @@ libpyexiv2 = env.SharedLibrary('exiv2python', cpp_sources)
 # 'scons install'. If DESTDIR is specified on the command line when invoking
 # scons, it will be prepended to each installed target file. See
 # http://www.gnu.org/prep/standards/html_node/DESTDIR.html for reference.
-python_lib_path = get_python_lib()
+python_lib_path = get_python_lib(plat_specific=True)
 dest_dir = ARGUMENTS.get('DESTDIR')
 if (dest_dir is None) or (not os.path.isabs(dest_dir)):
     install_dir = python_lib_path
