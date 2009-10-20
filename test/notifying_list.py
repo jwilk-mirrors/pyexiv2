@@ -25,7 +25,7 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import ListenerInterface, NotifyingList
+from pyexiv2.utils import ListenerInterface, NotifyingList
 import random
 
 

@@ -25,7 +25,10 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import IptcTag, IptcValueError, FixedOffset
+
+from pyexiv2.iptc import IptcTag, IptcValueError
+from pyexiv2.utils import FixedOffset
+
 import datetime
 
 

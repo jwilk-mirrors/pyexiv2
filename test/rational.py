@@ -25,7 +25,8 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import Rational
+
+from pyexiv2.utils import Rational
 
 
 class TestRational(unittest.TestCase):

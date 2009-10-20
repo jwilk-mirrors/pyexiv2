@@ -25,7 +25,10 @@
 # ******************************************************************************
 
 import unittest
-from pyexiv2 import XmpTag, XmpValueError, FixedOffset
+
+from pyexiv2.xmp import XmpTag, XmpValueError
+from pyexiv2.utils import FixedOffset
+
 import datetime
 
 
