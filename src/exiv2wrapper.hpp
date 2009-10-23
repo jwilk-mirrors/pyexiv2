@@ -97,7 +97,7 @@ public:
 
     // Set the IPTC tag's values. If the tag was not previously set, it is
     // created.
-    void setIptcTagValues(std::string key, boost::python::tuple values);
+    void setIptcTagValues(std::string key, boost::python::list values);
 
     // Delete (all the repetitions of) the required IPTC tag.
     // Throw an exception if the tag was not set.

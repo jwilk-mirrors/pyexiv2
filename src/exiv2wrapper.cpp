@@ -255,7 +255,7 @@ boost::python::tuple Image::getIptcTag(std::string key)
         throw Exiv2::Error(METADATA_NOT_READ);
 }*/
 
-void Image::setIptcTagValues(std::string key, boost::python::tuple values)
+void Image::setIptcTagValues(std::string key, boost::python::list values)
 {
     if (!_dataRead)
     {
