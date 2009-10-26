@@ -213,6 +213,12 @@ class TestIptcTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, None)
 
+    def test_set_single_value_raises(self):
+        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
+                      'city of object data origin according to guidelines ' \
+                      'established by the provider.', 'String', ['Seattle'])
+        self.failUnlessRaises(TypeError, tag._set_values, 'Barcelona')
+
     def test_set_values_no_metadata(self):
         tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
                       'city of object data origin according to guidelines ' \

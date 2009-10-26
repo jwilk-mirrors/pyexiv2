@@ -81,6 +81,8 @@ class IptcTag(MetadataTag, ListenerInterface):
         return self._values
 
     def _set_values(self, new_values):
+        if not isinstance(new_values, (list, tuple)):
+            raise TypeError('Expecting a list of values')
         if self.metadata is not None:
             raw_values = map(self._convert_to_string, new_values)
             self.metadata._set_iptc_tag_values(self.key, raw_values)
