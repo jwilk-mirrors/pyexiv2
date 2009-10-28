@@ -205,8 +205,12 @@ class IptcTag(MetadataTag, ListenerInterface):
 
         elif self.type == 'Date':
             if type(value) in (datetime.date, datetime.datetime):
-                # ISO 8601 date format
-                return value.strftime('%Y%m%d')
+                # ISO 8601 date format.
+                # According to the IPTC specification, the format for a string
+                # field representing a date is '%Y%m%d'. However, the string
+                # expected by exiv2's DateValue::read(string) should be
+                # formatted using pattern '%Y-%m-%d'.
+                return value.strftime('%Y-%m-%d')
             else:
                 raise IptcValueError(value, self.type)
 

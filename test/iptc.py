@@ -129,13 +129,13 @@ class TestIptcTag(unittest.TestCase):
         # Valid values
         tag = IptcTagMock('Iptc.Envelope.DateSent', type)
         self.assertEqual(tag._convert_to_string(datetime.date(2009, 2, 4)),
-                         '20090204')
+                         '2009-02-04')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13)),
-                         '19991013')
+                         '1999-10-13')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2009, 2, 4)),
-                         '20090204')
+                         '2009-02-04')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2009, 2, 4, 10, 52, 37)),
-                         '20090204')
+                         '2009-02-04')
 
         # Invalid values
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, 'invalid')
