@@ -75,5 +75,36 @@ BOOST_PYTHON_MODULE(libexiv2python)
 //        .def("setComment", &Image::setComment)
 //        .def("clearComment", &Image::clearComment)
     ;
+
+    class_<ExifTag>("ExifTag", init<std::string>())
+
+        .def("_setValue", &ExifTag::setValue)
+
+        .def("_getKey", &ExifTag::getKey)
+        .def("_getType", &ExifTag::getType)
+        .def("_getName", &ExifTag::getName)
+        .def("_getTitle", &ExifTag::getTitle)
+        .def("_getLabel", &ExifTag::getLabel)
+        .def("_getDescription", &ExifTag::getDescription)
+        .def("_getSectionName", &ExifTag::getSectionName)
+        .def("_getSectionDescription", &ExifTag::getSectionDescription)
+        .def("_getValue", &ExifTag::getValue)
+    ;
+
+    class_<IptcTag>("IptcTag", init<std::string>())
+
+        .def("_setValue", &IptcTag::setValue)
+
+        .def("_getKey", &IptcTag::getKey)
+        .def("_getType", &IptcTag::getType)
+        .def("_getName", &IptcTag::getName)
+        .def("_getTitle", &IptcTag::getTitle)
+        .def("_getDescription", &IptcTag::getDescription)
+        .def("_getPhotoshopName", &IptcTag::getPhotoshopName)
+        .def("_isRepeatable", &IptcTag::isRepeatable)
+        .def("_getRecordName", &IptcTag::getRecordName)
+        .def("_getRecordDescription", &IptcTag::getRecordDescription)
+        .def("_getValue", &IptcTag::getValue)
+    ;
 }
 

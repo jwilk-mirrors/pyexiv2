@@ -468,6 +468,147 @@ void Image::setThumbnailFromJpegFile(const std::string path)
 }
 */
 
+
+ExifTag::ExifTag(const std::string& key): _key(key), _datum(_key)
+{
+    const uint16_t tag = _datum.tag();
+    const Exiv2::IfdId ifd = _datum.ifdId();
+    _type = Exiv2::TypeInfo::typeName(Exiv2::ExifTags::tagType(tag, ifd));
+    _name = Exiv2::ExifTags::tagName(tag, ifd);
+    _title = Exiv2::ExifTags::tagTitle(tag, ifd);
+    _label = Exiv2::ExifTags::tagLabel(tag, ifd);
+    _description = Exiv2::ExifTags::tagDesc(tag, ifd);
+    _sectionName = Exiv2::ExifTags::sectionName(tag, ifd);
+    _sectionDescription = Exiv2::ExifTags::sectionDesc(tag, ifd);
+    _value = _datum.toString();
+}
+
+void ExifTag::setValue(const std::string& value)
+{
+    _datum.setValue(value);
+    _value = _datum.toString();
+}
+
+const std::string ExifTag::getKey()
+{
+    return _key.key();
+}
+
+const std::string ExifTag::getType()
+{
+    return _type;
+}
+
+const std::string ExifTag::getName()
+{
+    return _name;
+}
+
+const std::string ExifTag::getTitle()
+{
+    return _title;
+}
+
+const std::string ExifTag::getLabel()
+{
+    return _label;
+}
+
+const std::string ExifTag::getDescription()
+{
+    return _description;
+}
+
+const std::string ExifTag::getSectionName()
+{
+    return _sectionName;
+}
+
+const std::string ExifTag::getSectionDescription()
+{
+    return _sectionDescription;
+}
+
+const std::string ExifTag::getValue()
+{
+    return _value;
+}
+
+
+IptcTag::IptcTag(const std::string& key): _key(key), _datum(_key)
+{
+    const uint16_t tag = _datum.tag();
+    const uint16_t record = _datum.record();
+    _type = Exiv2::TypeInfo::typeName(Exiv2::IptcDataSets::dataSetType(tag, record));
+    _name = Exiv2::IptcDataSets::dataSetName(tag, record);
+    _title = Exiv2::IptcDataSets::dataSetTitle(tag, record);
+    _description = Exiv2::IptcDataSets::dataSetDesc(tag, record);
+    // What is the photoshop name anyway? Where is it used?
+    _photoshopName = Exiv2::IptcDataSets::dataSetPsName(tag, record);
+    _repeatable = Exiv2::IptcDataSets::dataSetRepeatable(tag, record);
+    _recordName = Exiv2::IptcDataSets::recordName(record);
+    _recordDescription = Exiv2::IptcDataSets::recordDesc(record);
+    _value = _datum.toString();
+}
+
+void IptcTag::setValue(const std::string& value)
+{
+    _datum.setValue(value);
+    _value = _datum.toString();
+}
+
+const std::string IptcTag::getKey()
+{
+    return _key.key();
+}
+
+const std::string IptcTag::getType()
+{
+    return _type;
+}
+
+const std::string IptcTag::getName()
+{
+    return _name;
+}
+
+const std::string IptcTag::getTitle()
+{
+    return _title;
+}
+
+const std::string IptcTag::getDescription()
+{
+    return _description;
+}
+
+const std::string IptcTag::getPhotoshopName()
+{
+    return _photoshopName;
+}
+
+const bool IptcTag::isRepeatable()
+{
+    return _repeatable;
+}
+
+const std::string IptcTag::getRecordName()
+{
+    return _recordName;
+}
+
+const std::string IptcTag::getRecordDescription()
+{
+    return _recordDescription;
+}
+
+const std::string IptcTag::getValue()
+{
+    return _value;
+}
+
+
+
 // TODO: update the errors code to reflect changes from src/error.cpp in libexiv2
 void translateExiv2Error(Exiv2::Error const& error)
 {

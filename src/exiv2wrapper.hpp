@@ -155,6 +155,73 @@ private:
     bool _dataRead;
 };
 
+
+class ExifTag
+{
+public:
+    // Constructor
+    ExifTag(const std::string& key);
+
+    void setValue(const std::string& value);
+
+    const std::string getKey();
+    const std::string getType();
+    const std::string getName();
+    const std::string getTitle();
+    const std::string getLabel();
+    const std::string getDescription();
+    const std::string getSectionName();
+    const std::string getSectionDescription();
+    const std::string getValue();
+
+private:
+    Exiv2::ExifKey _key;
+    Exiv2::Exifdatum _datum;
+    std::string _type;
+    std::string _name;
+    std::string _title;
+    std::string _label;
+    std::string _description;
+    std::string _sectionName;
+    std::string _sectionDescription;
+    std::string _value;
+};
+
+
+class IptcTag
+{
+public:
+    // Constructor
+    IptcTag(const std::string& key);
+
+    void setValue(const std::string& value);
+
+    const std::string getKey();
+    const std::string getType();
+    const std::string getName();
+    const std::string getTitle();
+    const std::string getDescription();
+    const std::string getPhotoshopName();
+    const bool isRepeatable();
+    const std::string getRecordName();
+    const std::string getRecordDescription();
+    const std::string getValue();
+
+private:
+    Exiv2::IptcKey _key;
+    Exiv2::Iptcdatum _datum;
+    std::string _type;
+    std::string _name;
+    std::string _title;
+    std::string _description;
+    std::string _photoshopName;
+    bool _repeatable;
+    std::string _recordName;
+    std::string _recordDescription;
+    std::string _value;
+};
+
+
 // Translate an Exiv2 generic exception into a Python exception
 void translateExiv2Error(Exiv2::Error const& error);
 
