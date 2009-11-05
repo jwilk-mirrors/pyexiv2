@@ -24,8 +24,9 @@
 #
 # ******************************************************************************
 
-from pyexiv2.tag import MetadataTag
-from pyexiv2.utils import ListenerInterface, NotifyingList, Rational
+import libexiv2python
+
+from pyexiv2.utils import Rational, NotifyingList, ListenerInterface
 
 import time
 import datetime
@@ -51,15 +52,10 @@ class ExifValueError(ValueError):
                (self.type, self.value)
 
 
-class ExifTag(MetadataTag, ListenerInterface):
+class ExifTag(libexiv2python.ExifTag, ListenerInterface):
 
     """
-    An EXIF metadata tag.
-    This tag has an additional field that contains the value of the tag
-    formatted as a human readable string.
-
-    @ivar fvalue: the value of the tag formatted as a human readable string
-    @type fvalue: C{str}
+    DOCME
     """
 
     # According to the EXIF specification, the only accepted format for an Ascii
@@ -71,72 +67,106 @@ class ExifTag(MetadataTag, ListenerInterface):
 
     _date_formats = ('%Y:%m:%d',)
 
-    def __init__(self, key, name, label, description, type, value, fvalue):
-        super(ExifTag, self).__init__(key, name, label,
-                                      description, type, value)
-        self.fvalue = fvalue
-        self._init_values()
+    def __init__(self, key, value=None):
+        """
+        DOCME
+        """
+        super(ExifTag, self).__init__(key)
+        if value is not None:
+            self._set_value(value)
+        else:
+            self._raw_value = None
+            self._value = None
+        self.metadata = None
 
-    def _init_values(self):
-        # Initial conversion of the raw values to their corresponding python
-        # types.
+    @property
+    def key(self):
+        return self._getKey()
+
+    @property
+    def type(self):
+        return self._getType()
+
+    @property
+    def name(self):
+        return self._getName()
+
+    @property
+    def title(self):
+        return self._getTitle()
+
+    @property
+    def label(self):
+        return self._getLabel()
+
+    @property
+    def description(self):
+        return self._getDescription()
+
+    @property
+    def section_name(self):
+        return self._getSectionName()
+
+    @property
+    def section_description(self):
+        return self._getSectionDescription()
+
+    def _get_raw_value(self):
+        return self._raw_value
+
+    def _set_raw_value(self, value):
+        self._raw_value = value
         if self.type in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
             # May contain multiple values
-            values = self.raw_value.split()
+            values = value.split()
             if len(values) > 1:
                 # Make values a notifying list
                 values = map(self._convert_to_python, values)
                 self._value = NotifyingList(values)
                 self._value.register_listener(self)
                 return
-        self._value = self._convert_to_python(self.raw_value)
+        self._value = self._convert_to_python(value)
+
+    raw_value = property(fget=_get_raw_value, fset=_set_raw_value, doc=None)
 
     def _get_value(self):
         return self._value
 
-    def _set_value(self, new_value):
+    def _set_value(self, value):
+        if isinstance(value, (list, tuple)):
+            raw_values = map(self._convert_to_string, value)
+            self._raw_value = ' '.join(raw_values)
+        else:
+            self._raw_value = self._convert_to_string(value)
+        self._setRawValue(self._raw_value)
+
         if self.metadata is not None:
-            if isinstance(new_value, (list, tuple)):
-                raw_values = map(self._convert_to_string, new_value)
-                raw_value = ' '.join(raw_values)
-            else:
-                raw_value = self._convert_to_string(new_value)
-            self.metadata._set_exif_tag_value(self.key, raw_value)
+            self.metadata._set_exif_tag_value(self.key, self._raw_value)
 
         if isinstance(self._value, NotifyingList):
             self._value.unregister_listener(self)
 
-        if isinstance(new_value, NotifyingList):
+        if isinstance(value, NotifyingList):
             # Already a notifying list
-            self._value = new_value
+            self._value = value
             self._value.register_listener(self)
-        elif isinstance(new_value, (list, tuple)):
+        elif isinstance(value, (list, tuple)):
             # Make the values a notifying list 
-            self._value = NotifyingList(new_value)
+            self._value = NotifyingList(value)
             self._value.register_listener(self)
         else:
             # Single value
-            self._value = new_value
+            self._value = value
 
-    def _del_value(self):
-        if self.metadata is not None:
-            self.metadata._delete_exif_tag(self.key)
+    value = property(fget=_get_value, fset=_set_value, doc=None)
 
-        if isinstance(self._value, NotifyingList):
-            self._value.unregister_listener(self)
-
-        del self._value
-
-    """the value of the tag converted to its corresponding python type"""
-    value = property(fget=_get_value, fset=_set_value, fdel=_del_value,
-                     doc=None)
-
+    # Implement the ListenerInterface
     def contents_changed(self):
         """
         Implementation of the L{ListenerInterface}.
         React on changes to the list of values of the tag.
         """
-        # self._value is a list of value and its contents changed.
+        # self._value is a list of values and its contents changed.
         self._set_value(self._value)
 
     def _convert_to_python(self, value):
@@ -300,7 +330,7 @@ class ExifTag(MetadataTag, ListenerInterface):
 
         @rtype: C{str}
         """
-        return self._convert_to_string(self.value)
+        return self._convert_to_string(self._value)
 
     def __repr__(self):
         """
@@ -309,9 +339,12 @@ class ExifTag(MetadataTag, ListenerInterface):
         @rtype: C{str}
         """
         left = '%s [%s]' % (self.key, self.type)
-        if self.type == 'Undefined' and len(self._value) > 100:
+        if self._value is None:
+            right = '(No value)'
+        elif self.type == 'Undefined' and len(self._value) > 100:
             right = '(Binary value suppressed)'
         else:
-            right = self.fvalue
+             #right = self.fvalue
+             right = str(self)
         return '<%s = %s>' % (left, right)
 
