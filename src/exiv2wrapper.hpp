@@ -162,7 +162,7 @@ public:
     // Constructor
     ExifTag(const std::string& key);
 
-    void setValue(const std::string& value);
+    void setRawValue(const std::string& value);
 
     const std::string getKey();
     const std::string getType();
@@ -172,7 +172,7 @@ public:
     const std::string getDescription();
     const std::string getSectionName();
     const std::string getSectionDescription();
-    const std::string getValue();
+    const std::string getRawValue();
 
 private:
     Exiv2::ExifKey _key;
@@ -184,7 +184,7 @@ private:
     std::string _description;
     std::string _sectionName;
     std::string _sectionDescription;
-    std::string _value;
+    std::string _raw_value;
 };
 
 

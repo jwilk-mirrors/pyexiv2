@@ -26,7 +26,7 @@
 
 import libexiv2python
 
-from pyexiv2.utils import Rational
+from pyexiv2.utils import Rational, NotifyingList, ListenerInterface
 
 import time
 import datetime
@@ -52,7 +52,7 @@ class ExifValueError(ValueError):
                (self.type, self.value)
 
 
-class ExifTag(libexiv2python.ExifTag):
+class ExifTag(libexiv2python.ExifTag, ListenerInterface):
 
     """
     DOCME
@@ -71,20 +71,13 @@ class ExifTag(libexiv2python.ExifTag):
         """
         DOCME
         """
-        #libexiv2python.ExifTag.__init__(key)
         super(ExifTag, self).__init__(key)
         if value is not None:
             self._set_value(value)
         else:
             self._raw_value = None
             self._value = None
-
-    def _convert_to_string(self, value):
-        """
-        DOCME
-        """
-        # TODO: implement me
-        return str(value)
+        self.metadata = None
 
     @property
     def key(self):
@@ -118,15 +111,58 @@ class ExifTag(libexiv2python.ExifTag):
     def section_description(self):
         return self._getSectionDescription()
 
+    def _get_raw_value(self):
+        return self._raw_value
+
+    def _set_raw_value(self, value):
+        self._raw_value = value
+        if self.type in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
+            # May contain multiple values
+            values = value.split()
+            if len(values) > 1:
+                # Make values a notifying list
+                values = map(self._convert_to_python, values)
+                self._value = NotifyingList(values)
+                self._value.register_listener(self)
+                return
+        self._value = self._convert_to_python(value)
+
+    raw_value = property(fget=_get_raw_value, fset=_set_raw_value, doc=None)
+
     def _get_value(self):
         return self._value
 
-    def _set_value(self, new_value):
-        self._value = new_value
-        self._raw_value = self._convert_to_string(new_value)
-        self._setValue(self._raw_value)
+    def _set_value(self, value):
+        if isinstance(value, (list, tuple)):
+            raw_values = map(self._convert_to_string, value)
+            self._raw_value = ' '.join(raw_values)
+        else:
+            self._raw_value = self._convert_to_string(value)
+        self._setRawValue(self._raw_value)
+
+        if self.metadata is not None:
+            self.metadata._set_exif_tag_value(self.key, self._raw_value)
+
+        if isinstance(self._value, NotifyingList):
+            self._value.unregister_listener(self)
+
+        if isinstance(value, NotifyingList):
+            # Already a notifying list
+            self._value = value
+            self._value.register_listener(self)
+        elif isinstance(value, (list, tuple)):
+            # Make the values a notifying list 
+            self._value = NotifyingList(value)
+            self._value.register_listener(self)
+        else:
+            # Single value
+            self._value = value
 
     value = property(fget=_get_value, fset=_set_value, doc=None)
+
+    # Implement the ListenerInterface
+    def contents_changed(self):
+        raise NotImplementedError('TODO: implement me!')
 
     def _convert_to_python(self, value):
         """
@@ -298,7 +334,9 @@ class ExifTag(libexiv2python.ExifTag):
         @rtype: C{str}
         """
         left = '%s [%s]' % (self.key, self.type)
-        if self.type == 'Undefined' and len(self._value) > 100:
+        if self._value is None:
+            right = '(No value)'
+        elif self.type == 'Undefined' and len(self._value) > 100:
             right = '(Binary value suppressed)'
         else:
              #right = self.fvalue
