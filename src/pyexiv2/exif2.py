@@ -162,7 +162,12 @@ class ExifTag(libexiv2python.ExifTag, ListenerInterface):
 
     # Implement the ListenerInterface
     def contents_changed(self):
-        raise NotImplementedError('TODO: implement me!')
+        """
+        Implementation of the L{ListenerInterface}.
+        React on changes to the list of values of the tag.
+        """
+        # self._value is a list of values and its contents changed.
+        self._set_value(self._value)
 
     def _convert_to_python(self, value):
         """
