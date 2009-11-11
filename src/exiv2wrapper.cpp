@@ -481,12 +481,21 @@ ExifTag::ExifTag(const std::string& key): _key(key), _datum(_key)
     _sectionName = Exiv2::ExifTags::sectionName(tag, ifd);
     _sectionDescription = Exiv2::ExifTags::sectionDesc(tag, ifd);
     _raw_value = _datum.toString();
+    if(_datum.getValue().get() != 0)
+    {
+        std::ostringstream buffer;
+        buffer << _datum;
+        _human_value = buffer.str();
+    }
 }
 
 void ExifTag::setRawValue(const std::string& value)
 {
     _datum.setValue(value);
     _raw_value = _datum.toString();
+    std::ostringstream buffer;
+    buffer << _datum;
+    _human_value = buffer.str();
 }
 
 const std::string ExifTag::getKey()
@@ -532,6 +541,11 @@ const std::string ExifTag::getSectionDescription()
 const std::string ExifTag::getRawValue()
 {
     return _raw_value;
+}
+
+const std::string ExifTag::getHumanValue()
+{
+    return _human_value;
 }
 
 

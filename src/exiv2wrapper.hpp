@@ -173,6 +173,7 @@ public:
     const std::string getSectionName();
     const std::string getSectionDescription();
     const std::string getRawValue();
+    const std::string getHumanValue();
 
 private:
     Exiv2::ExifKey _key;
@@ -185,6 +186,7 @@ private:
     std::string _sectionName;
     std::string _sectionDescription;
     std::string _raw_value;
+    std::string _human_value;
 };
 
 

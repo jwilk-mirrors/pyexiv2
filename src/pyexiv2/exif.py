@@ -160,6 +160,10 @@ class ExifTag(libexiv2python.ExifTag, ListenerInterface):
 
     value = property(fget=_get_value, fset=_set_value, doc=None)
 
+    @property
+    def human_value(self):
+        return self._getHumanValue() or None
+
     # Implement the ListenerInterface
     def contents_changed(self):
         """

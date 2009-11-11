@@ -89,6 +89,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_getSectionName", &ExifTag::getSectionName)
         .def("_getSectionDescription", &ExifTag::getSectionDescription)
         .def("_getRawValue", &ExifTag::getRawValue)
+        .def("_getHumanValue", &ExifTag::getHumanValue)
     ;
 
     class_<IptcTag>("IptcTag", init<std::string>())
