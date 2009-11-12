@@ -37,6 +37,74 @@
 namespace exiv2wrapper
 {
 
+class ExifTag
+{
+public:
+    // Constructor
+    ExifTag(const std::string& key, Exiv2::Exifdatum* datum=0);
+
+    void setRawValue(const std::string& value);
+
+    const std::string getKey();
+    const std::string getType();
+    const std::string getName();
+    const std::string getTitle();
+    const std::string getLabel();
+    const std::string getDescription();
+    const std::string getSectionName();
+    const std::string getSectionDescription();
+    const std::string getRawValue();
+    const std::string getHumanValue();
+
+private:
+    Exiv2::ExifKey _key;
+    Exiv2::Exifdatum* _datum;
+    std::string _type;
+    std::string _name;
+    std::string _title;
+    std::string _label;
+    std::string _description;
+    std::string _sectionName;
+    std::string _sectionDescription;
+    std::string _raw_value;
+    std::string _human_value;
+};
+
+
+class IptcTag
+{
+public:
+    // Constructor
+    IptcTag(const std::string& key);
+
+    void setValue(const std::string& value);
+
+    const std::string getKey();
+    const std::string getType();
+    const std::string getName();
+    const std::string getTitle();
+    const std::string getDescription();
+    const std::string getPhotoshopName();
+    const bool isRepeatable();
+    const std::string getRecordName();
+    const std::string getRecordDescription();
+    const std::string getValue();
+
+private:
+    Exiv2::IptcKey _key;
+    Exiv2::Iptcdatum _datum;
+    std::string _type;
+    std::string _name;
+    std::string _title;
+    std::string _description;
+    std::string _photoshopName;
+    bool _repeatable;
+    std::string _recordName;
+    std::string _recordDescription;
+    std::string _value;
+};
+
+
 class Image
 {
 public:
@@ -65,7 +133,8 @@ public:
     // type
     // tagvalue
     // tagvalue (human-readable)
-    boost::python::tuple getExifTag(std::string key);
+    //boost::python::tuple getExifTag(std::string key);
+    const ExifTag getExifTag(std::string key);
 
     // Set the EXIF tag's value. If the tag was not previously set, it is
     // created.
@@ -153,74 +222,6 @@ private:
     // true if the image's internal metadata has already been read,
     // false otherwise
     bool _dataRead;
-};
-
-
-class ExifTag
-{
-public:
-    // Constructor
-    ExifTag(const std::string& key);
-
-    void setRawValue(const std::string& value);
-
-    const std::string getKey();
-    const std::string getType();
-    const std::string getName();
-    const std::string getTitle();
-    const std::string getLabel();
-    const std::string getDescription();
-    const std::string getSectionName();
-    const std::string getSectionDescription();
-    const std::string getRawValue();
-    const std::string getHumanValue();
-
-private:
-    Exiv2::ExifKey _key;
-    Exiv2::Exifdatum _datum;
-    std::string _type;
-    std::string _name;
-    std::string _title;
-    std::string _label;
-    std::string _description;
-    std::string _sectionName;
-    std::string _sectionDescription;
-    std::string _raw_value;
-    std::string _human_value;
-};
-
-
-class IptcTag
-{
-public:
-    // Constructor
-    IptcTag(const std::string& key);
-
-    void setValue(const std::string& value);
-
-    const std::string getKey();
-    const std::string getType();
-    const std::string getName();
-    const std::string getTitle();
-    const std::string getDescription();
-    const std::string getPhotoshopName();
-    const bool isRepeatable();
-    const std::string getRecordName();
-    const std::string getRecordDescription();
-    const std::string getValue();
-
-private:
-    Exiv2::IptcKey _key;
-    Exiv2::Iptcdatum _datum;
-    std::string _type;
-    std::string _name;
-    std::string _title;
-    std::string _description;
-    std::string _photoshopName;
-    bool _repeatable;
-    std::string _recordName;
-    std::string _recordDescription;
-    std::string _value;
 };
 
 

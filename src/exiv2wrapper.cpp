@@ -94,33 +94,21 @@ boost::python::list Image::exifKeys()
     }
 }
 
-boost::python::tuple Image::getExifTag(std::string key)
+const ExifTag Image::getExifTag(std::string key)
 {
-    if(_dataRead)
-    {
-        Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-        if(_exifData.findKey(exifKey) != _exifData.end())
-        {
-            Exiv2::Exifdatum exifDatum = _exifData[key];
-            std::string sTagName = exifDatum.tagName();
-            std::string sTagLabel = exifDatum.tagLabel();
-            std::string sTagDesc(Exiv2::ExifTags::tagDesc(exifKey.tag(), exifKey.ifdId()));
-            std::string sTagType = exifDatum.typeName();
-            std::string sTagValue = exifDatum.toString();
-            std::ostringstream sTagStringValueBuffer;
-            sTagStringValueBuffer << exifDatum;
-            std::string sTagStringValue = sTagStringValueBuffer.str();
-            return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, sTagValue, sTagStringValue);
-        }
-        else
-        {
-            throw Exiv2::Error(KEY_NOT_FOUND, key);
-        }
-    }
-    else
+    if (!_dataRead)
     {
         throw Exiv2::Error(METADATA_NOT_READ);
     }
+
+    Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
+
+    if(_exifData.findKey(exifKey) == _exifData.end())
+    {
+        throw Exiv2::Error(KEY_NOT_FOUND, key);
+    }
+
+    return ExifTag(key, &_exifData[key]);
 }
 
 void Image::setExifTagValue(std::string key, std::string value)
@@ -469,10 +457,19 @@ void Image::setThumbnailFromJpegFile(const std::string path)
 */
 
 
-ExifTag::ExifTag(const std::string& key): _key(key), _datum(_key)
+ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum): _key(key)
 {
-    const uint16_t tag = _datum.tag();
-    const Exiv2::IfdId ifd = _datum.ifdId();
+    if (datum != 0)
+    {
+        _datum = datum;
+    }
+    else
+    {
+        _datum = new Exiv2::Exifdatum(_key);
+    }
+
+    const uint16_t tag = _datum->tag();
+    const Exiv2::IfdId ifd = _datum->ifdId();
     _type = Exiv2::TypeInfo::typeName(Exiv2::ExifTags::tagType(tag, ifd));
     _name = Exiv2::ExifTags::tagName(tag, ifd);
     _title = Exiv2::ExifTags::tagTitle(tag, ifd);
@@ -480,21 +477,21 @@ ExifTag::ExifTag(const std::string& key): _key(key), _datum(_key)
     _description = Exiv2::ExifTags::tagDesc(tag, ifd);
     _sectionName = Exiv2::ExifTags::sectionName(tag, ifd);
     _sectionDescription = Exiv2::ExifTags::sectionDesc(tag, ifd);
-    _raw_value = _datum.toString();
-    if(_datum.getValue().get() != 0)
+    _raw_value = _datum->toString();
+    if(_datum->getValue().get() != 0)
     {
         std::ostringstream buffer;
-        buffer << _datum;
+        buffer << *_datum;
         _human_value = buffer.str();
     }
 }
 
 void ExifTag::setRawValue(const std::string& value)
 {
-    _datum.setValue(value);
-    _raw_value = _datum.toString();
+    _datum->setValue(value);
+    _raw_value = _datum->toString();
     std::ostringstream buffer;
-    buffer << _datum;
+    buffer << *_datum;
     _human_value = buffer.str();
 }
 

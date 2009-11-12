@@ -45,37 +45,6 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
     register_exception_translator<Exiv2::Error>(&translateExiv2Error);
 
-    class_<Image>("Image", init<std::string>())
-
-        .def("readMetadata", &Image::readMetadata)
-        .def("writeMetadata", &Image::writeMetadata)
-
-        .def("exifKeys", &Image::exifKeys)
-        .def("getExifTag", &Image::getExifTag)
-        .def("setExifTagValue", &Image::setExifTagValue)
-        .def("deleteExifTag", &Image::deleteExifTag)
-
-        .def("iptcKeys", &Image::iptcKeys)
-        .def("getIptcTag", &Image::getIptcTag)
-        .def("setIptcTagValues", &Image::setIptcTagValues)
-        .def("deleteIptcTag", &Image::deleteIptcTag)
-
-        .def("xmpKeys", &Image::xmpKeys)
-        .def("getXmpTag", &Image::getXmpTag)
-        .def("setXmpTagValue", &Image::setXmpTagValue)
-        .def("deleteXmpTag", &Image::deleteXmpTag)
-
-//        .def("getThumbnailData", &Image::getThumbnailData)
-//        .def("setThumbnailData", &Image::setThumbnailData)
-//        .def("deleteThumbnail", &Image::deleteThumbnail)
-//        .def("dumpThumbnailToFile", &Image::dumpThumbnailToFile)
-//        .def("setThumbnailFromJpegFile", &Image::setThumbnailFromJpegFile)
-
-//        .def("getComment", &Image::getComment)
-//        .def("setComment", &Image::setComment)
-//        .def("clearComment", &Image::clearComment)
-    ;
-
     class_<ExifTag>("ExifTag", init<std::string>())
 
         .def("_setRawValue", &ExifTag::setRawValue)
@@ -106,6 +75,37 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_getRecordName", &IptcTag::getRecordName)
         .def("_getRecordDescription", &IptcTag::getRecordDescription)
         .def("_getValue", &IptcTag::getValue)
+    ;
+
+    class_<Image>("Image", init<std::string>())
+
+        .def("readMetadata", &Image::readMetadata)
+        .def("writeMetadata", &Image::writeMetadata)
+
+        .def("exifKeys", &Image::exifKeys)
+        .def("getExifTag", &Image::getExifTag)
+        .def("setExifTagValue", &Image::setExifTagValue)
+        .def("deleteExifTag", &Image::deleteExifTag)
+
+        .def("iptcKeys", &Image::iptcKeys)
+        .def("getIptcTag", &Image::getIptcTag)
+        .def("setIptcTagValues", &Image::setIptcTagValues)
+        .def("deleteIptcTag", &Image::deleteIptcTag)
+
+        .def("xmpKeys", &Image::xmpKeys)
+        .def("getXmpTag", &Image::getXmpTag)
+        .def("setXmpTagValue", &Image::setXmpTagValue)
+        .def("deleteXmpTag", &Image::deleteXmpTag)
+
+//        .def("getThumbnailData", &Image::getThumbnailData)
+//        .def("setThumbnailData", &Image::setThumbnailData)
+//        .def("deleteThumbnail", &Image::deleteThumbnail)
+//        .def("dumpThumbnailToFile", &Image::dumpThumbnailToFile)
+//        .def("setThumbnailFromJpegFile", &Image::setThumbnailFromJpegFile)
+
+//        .def("getComment", &Image::getComment)
+//        .def("setComment", &Image::setComment)
+//        .def("clearComment", &Image::clearComment)
     ;
 }
 
