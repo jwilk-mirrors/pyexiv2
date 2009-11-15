@@ -103,7 +103,8 @@ class ImageMetadata(object):
         try:
             return self._tags['exif'][key]
         except KeyError:
-            tag = ExifTag(*self._image.getExifTag(key))
+            _tag = self._image.getExifTag(key)
+            tag = ExifTag._from_existing_tag(_tag)
             tag.metadata = self
             self._tags['exif'][key] = tag
             return tag

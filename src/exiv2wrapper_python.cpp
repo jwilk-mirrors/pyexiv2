@@ -45,7 +45,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
     register_exception_translator<Exiv2::Error>(&translateExiv2Error);
 
-    class_<ExifTag>("ExifTag", init<std::string>())
+    class_<ExifTag>("_ExifTag", init<std::string>())
 
         .def("_setRawValue", &ExifTag::setRawValue)
 

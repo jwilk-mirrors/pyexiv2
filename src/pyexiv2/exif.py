@@ -52,7 +52,7 @@ class ExifValueError(ValueError):
                (self.type, self.value)
 
 
-class ExifTag(libexiv2python.ExifTag, ListenerInterface):
+class ExifTag(ListenerInterface):
 
     """
     DOCME
@@ -67,49 +67,60 @@ class ExifTag(libexiv2python.ExifTag, ListenerInterface):
 
     _date_formats = ('%Y:%m:%d',)
 
-    def __init__(self, key, value=None):
+    def __init__(self, key, value=None, _tag=None):
         """
         DOCME
         """
-        super(ExifTag, self).__init__(key)
+        super(ExifTag, self).__init__()
+        if _tag is not None:
+            self._tag = _tag
+        else:
+            self._tag = libexiv2python._ExifTag(key)
+        self.metadata = None
         if value is not None:
             self._set_value(value)
         else:
             self._raw_value = None
             self._value = None
-        self.metadata = None
+
+    @staticmethod
+    def _from_existing_tag(_tag):
+        # Build a tag from an already existing _ExifTag
+        tag = ExifTag(_tag._getKey(), _tag=_tag)
+        tag.raw_value = _tag._getRawValue()
+        return tag
 
     @property
     def key(self):
-        return self._getKey()
+        return self._tag._getKey()
 
     @property
     def type(self):
-        return self._getType()
+        return self._tag._getType()
 
     @property
     def name(self):
-        return self._getName()
+        return self._tag._getName()
 
     @property
     def title(self):
-        return self._getTitle()
+        return self._tag._getTitle()
 
     @property
     def label(self):
-        return self._getLabel()
+        return self._tag._getLabel()
 
     @property
     def description(self):
-        return self._getDescription()
+        return self._tag._getDescription()
 
     @property
     def section_name(self):
-        return self._getSectionName()
+        return self._tag._getSectionName()
 
     @property
     def section_description(self):
-        return self._getSectionDescription()
+        return self._tag._getSectionDescription()
 
     def _get_raw_value(self):
         return self._raw_value
@@ -138,7 +149,7 @@ class ExifTag(libexiv2python.ExifTag, ListenerInterface):
             self._raw_value = ' '.join(raw_values)
         else:
             self._raw_value = self._convert_to_string(value)
-        self._setRawValue(self._raw_value)
+        self._tag._setRawValue(self._raw_value)
 
         if self.metadata is not None:
             self.metadata._set_exif_tag_value(self.key, self._raw_value)
@@ -162,7 +173,7 @@ class ExifTag(libexiv2python.ExifTag, ListenerInterface):
 
     @property
     def human_value(self):
-        return self._getHumanValue() or None
+        return self._tag._getHumanValue() or None
 
     # Implement the ListenerInterface
     def contents_changed(self):
