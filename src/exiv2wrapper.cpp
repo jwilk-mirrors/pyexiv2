@@ -123,19 +123,19 @@ void Image::setExifTagValue(std::string key, std::string value)
 
 void Image::deleteExifTag(std::string key)
 {
-    if(_dataRead)
+    if (!_dataRead)
     {
-        Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-        Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-        if(i != _exifData.end())
-        {
-            _exifData.erase(i);
-        }
-        else
-            throw Exiv2::Error(KEY_NOT_FOUND, key);
-    }
-    else
         throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
+    Exiv2::ExifMetadata::iterator datum = _exifData.findKey(exifKey);
+    if(datum == _exifData.end())
+    {
+        throw Exiv2::Error(KEY_NOT_FOUND, key);
+    }
+
+    _exifData.erase(datum);
 }
 
 boost::python::list Image::iptcKeys()
