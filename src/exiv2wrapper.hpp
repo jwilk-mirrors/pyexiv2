@@ -127,8 +127,8 @@ public:
     // Throw an exception if the tag is not set.
     const ExifTag getExifTag(std::string key);
 
-    // Set the EXIF tag's value. If the tag was not previously set, it is
-    // created.
+    // Set the EXIF tag's value.
+    // If the tag was not previously set, it is created.
     void setExifTagValue(std::string key, std::string value);
 
     // Delete the required EXIF tag.

@@ -77,11 +77,10 @@ class ExifTag(ListenerInterface):
         else:
             self._tag = libexiv2python._ExifTag(key)
         self.metadata = None
+        self._raw_value = None
+        self._value = None
         if value is not None:
             self._set_value(value)
-        else:
-            self._raw_value = None
-            self._value = None
 
     @staticmethod
     def _from_existing_tag(_tag):

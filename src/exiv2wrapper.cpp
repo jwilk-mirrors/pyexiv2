@@ -113,22 +113,12 @@ const ExifTag Image::getExifTag(std::string key)
 
 void Image::setExifTagValue(std::string key, std::string value)
 {
-    if(_dataRead)
+    if (!_dataRead)
     {
-        Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-        Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-        if(i != _exifData.end())
-        {
-            // First erase the existing tag: in some case (and I don't know
-            // why), the new value won't replace the old one if not previously
-            // erased...
-            // TODO: check if this is still valid with libexiv2 0.18
-            _exifData.erase(i);
-        }
-        _exifData[key] = value;
-    }
-    else
         throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    _exifData[key] = value;
 }
 
 void Image::deleteExifTag(std::string key)
