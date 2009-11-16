@@ -123,17 +123,8 @@ public:
     // image.
     boost::python::list exifKeys();
 
-    // Return a tuple containing the type (as a string) and the value
-    // (as a string as well) of the required EXIF tag.
+    // Return the required EXIF tag.
     // Throw an exception if the tag is not set.
-    // key
-    // tagname
-    // taglabel
-    // tagdesc
-    // type
-    // tagvalue
-    // tagvalue (human-readable)
-    //boost::python::tuple getExifTag(std::string key);
     const ExifTag getExifTag(std::string key);
 
     // Set the EXIF tag's value. If the tag was not previously set, it is
