@@ -75,9 +75,9 @@ class IptcTag
 {
 public:
     // Constructor
-    IptcTag(const std::string& key);
+    IptcTag(const std::string& key, Exiv2::IptcMetadata* data=0);
 
-    void setValue(const std::string& value);
+    void setRawValues(const boost::python::list& values);
 
     const std::string getKey();
     const std::string getType();
@@ -88,11 +88,11 @@ public:
     const bool isRepeatable();
     const std::string getRecordName();
     const std::string getRecordDescription();
-    const std::string getValue();
+    const boost::python::list getRawValues();
 
 private:
     Exiv2::IptcKey _key;
-    Exiv2::Iptcdatum _datum;
+    Exiv2::IptcMetadata* _data; // _data contains only data with _key
     std::string _type;
     std::string _name;
     std::string _title;
@@ -101,7 +101,7 @@ private:
     bool _repeatable;
     std::string _recordName;
     std::string _recordDescription;
-    std::string _value;
+    boost::python::list _values;
 };
 
 

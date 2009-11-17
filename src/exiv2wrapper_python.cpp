@@ -61,9 +61,9 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_getHumanValue", &ExifTag::getHumanValue)
     ;
 
-    class_<IptcTag>("IptcTag", init<std::string>())
+    class_<IptcTag>("_IptcTag", init<std::string>())
 
-        .def("_setValue", &IptcTag::setValue)
+        .def("_setRawValues", &IptcTag::setRawValues)
 
         .def("_getKey", &IptcTag::getKey)
         .def("_getType", &IptcTag::getType)
@@ -74,7 +74,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_isRepeatable", &IptcTag::isRepeatable)
         .def("_getRecordName", &IptcTag::getRecordName)
         .def("_getRecordDescription", &IptcTag::getRecordDescription)
-        .def("_getValue", &IptcTag::getValue)
+        .def("_getRawValues", &IptcTag::getRawValues)
     ;
 
     class_<Image>("Image", init<std::string>())

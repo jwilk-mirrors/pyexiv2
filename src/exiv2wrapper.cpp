@@ -536,10 +536,21 @@ const std::string ExifTag::getHumanValue()
 }
 
 
-IptcTag::IptcTag(const std::string& key): _key(key), _datum(_key)
+IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
 {
-    const uint16_t tag = _datum.tag();
-    const uint16_t record = _datum.record();
+    if (data != 0)
+    {
+        _data = data;
+    }
+    else
+    {
+        _data = new Exiv2::IptcMetadata();
+        _data->push_back(Exiv2::Iptcdatum(_key));
+    }
+
+    Exiv2::IptcMetadata::iterator iterator = _data->begin();
+    const uint16_t tag = iterator->tag();
+    const uint16_t record = iterator->record();
     _type = Exiv2::TypeInfo::typeName(Exiv2::IptcDataSets::dataSetType(tag, record));
     _name = Exiv2::IptcDataSets::dataSetName(tag, record);
     _title = Exiv2::IptcDataSets::dataSetTitle(tag, record);
@@ -549,13 +560,19 @@ IptcTag::IptcTag(const std::string& key): _key(key), _datum(_key)
     _repeatable = Exiv2::IptcDataSets::dataSetRepeatable(tag, record);
     _recordName = Exiv2::IptcDataSets::recordName(record);
     _recordDescription = Exiv2::IptcDataSets::recordDesc(record);
-    _value = _datum.toString();
+
+    while (iterator != _data->end())
+    {
+        _values.append(iterator->toString());
+        ++iterator;
+    }
 }
 
-void IptcTag::setValue(const std::string& value)
+void IptcTag::setRawValues(const boost::python::list& values)
 {
-    _datum.setValue(value);
-    _value = _datum.toString();
+    // TODO!
+    //_datum.setValue(value);
+    //_value = _datum.toString();
 }
 
 const std::string IptcTag::getKey()
@@ -603,9 +620,9 @@ const std::string IptcTag::getRecordDescription()
     return _recordDescription;
 }
 
-const std::string IptcTag::getValue()
+const boost::python::list IptcTag::getRawValues()
 {
-    return _value;
+    return _values;
 }
 
 
