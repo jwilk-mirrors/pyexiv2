@@ -141,16 +141,9 @@ public:
     // even if a tag is present more than once.
     boost::python::list iptcKeys();
 
-    // Return a tuple containing the type (as a string) and the value
-    // (as a string as well) of the required IPTC tag.
+    // Return the required IPTC tag.
     // Throw an exception if the tag is not set.
-    // key
-    // tagname
-    // taglabel
-    // tagdesc
-    // type
-    // tagvalue (list)
-    boost::python::tuple getIptcTag(std::string key);
+    const IptcTag getIptcTag(std::string key);
 
     // Set the IPTC tag's values. If the tag was not previously set, it is
     // created.
