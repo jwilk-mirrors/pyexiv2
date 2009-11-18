@@ -249,7 +249,7 @@ class TestIptcTag(unittest.TestCase):
                       'city of object data origin according to guidelines ' \
                       'established by the provider.', 'String', ['Seattle'])
         tag.metadata = ImageMetadataMock()
-        tag.metadata._set_iptc_tag_values(tag.key, tag.to_string())
+        tag.metadata._set_iptc_tag_values(tag.key, tag.to_string_list())
         self.assertEqual(tag.metadata.tags, {tag.key: ['Seattle']})
         del tag.values
         self.failIf(hasattr(tag, 'values'))

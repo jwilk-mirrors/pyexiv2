@@ -24,7 +24,8 @@
 #
 # ******************************************************************************
 
-from pyexiv2.tag import MetadataTag
+import libexiv2python
+
 from pyexiv2.utils import ListenerInterface, NotifyingList, FixedOffset
 
 import time
@@ -52,7 +53,7 @@ class IptcValueError(ValueError):
                (self.type, self.value)
 
 
-class IptcTag(MetadataTag, ListenerInterface):
+class IptcTag(ListenerInterface):
 
     """
     An IPTC metadata tag.
@@ -64,43 +65,102 @@ class IptcTag(MetadataTag, ListenerInterface):
     _time_zone_re = r'(?P<sign>\+|-)(?P<ohours>\d{2}):(?P<ominutes>\d{2})'
     _time_re = re.compile(r'(?P<hours>\d{2}):(?P<minutes>\d{2}):(?P<seconds>\d{2})(?P<tzd>%s)' % _time_zone_re)
 
-    def __init__(self, key, name, label, description, type, values):
-        super(IptcTag, self).__init__(key, name, label,
-                                      description, type, values)
-        self._init_values()
+    def __init__(self, key, values=None, _tag=None):
+        """
+        DOCME
+        """
+        super(IptcTag, self).__init__()
+        if _tag is not None:
+            self._tag = _tag
+        else:
+            self._tag = libexiv2python._IptcTag(key)
+        self.metadata = None
+        self._raw_values = None
+        self._values = None
+        if values is not None:
+            self._set_values(values)
 
-    def _init_values(self):
-        # Initial conversion of the raw values to their corresponding python
-        # types.
-        values = map(self._convert_to_python, self.raw_value)
-        # Make values a notifying list
-        self._values = NotifyingList(values)
+    @staticmethod
+    def _from_existing_tag(_tag):
+        # Build a tag from an already existing _IptcTag
+        tag = IptcTag(_tag._getKey(), _tag=_tag)
+        tag.raw_values = _tag._getRawValues()
+        return tag
+
+    @property
+    def key(self):
+        return self._tag._getKey()
+
+    @property
+    def type(self):
+        return self._tag._getType()
+
+    @property
+    def name(self):
+        return self._tag._getName()
+
+    @property
+    def title(self):
+        return self._tag._getTitle()
+
+    @property
+    def description(self):
+        return self._tag._getDescription()
+
+    @property
+    def photoshop_name(self):
+        return self._tag._getPhotoshopName()
+
+    @property
+    def repeatable(self):
+        return self._tag._isRepeatable()
+
+    @property
+    def record_name(self):
+        return self._tag._getRecordName()
+
+    @property
+    def record_description(self):
+        return self._tag._getRecordDescription()
+
+    def _get_raw_values(self):
+        return self._raw_values
+
+    def _set_raw_values(self, values):
+        if not isinstance(values, (list, tuple)):
+            raise TypeError('Expecting a list of values')
+        self._raw_values = values
+        self._values = NotifyingList(map(self._convert_to_python, values))
         self._values.register_listener(self)
+
+    raw_values = property(fget=_get_raw_values, fset=_set_raw_values, doc=None)
 
     def _get_values(self):
         return self._values
 
-    def _set_values(self, new_values):
-        if not isinstance(new_values, (list, tuple)):
+    def _set_values(self, values):
+        if not isinstance(values, (list, tuple)):
             raise TypeError('Expecting a list of values')
+
+        self._raw_values = map(self._convert_to_string, values)
+        self._tag._setRawValues(self._raw_values)
+
         if self.metadata is not None:
-            raw_values = map(self._convert_to_string, new_values)
-            self.metadata._set_iptc_tag_values(self.key, raw_values)
-        # Make values a notifying list if needed
-        if isinstance(new_values, NotifyingList):
-            self._values = new_values
+            self.metadata._set_iptc_tag_values(self.key, self._raw_values)
+
+        if isinstance(self._values, NotifyingList):
+            self._values.unregister_listener(self)
+
+        if isinstance(values, NotifyingList):
+            # Already a notifying list
+            self._values = values
         else:
-            self._values = NotifyingList(new_values)
+            # Make the values a notifying list 
+            self._values = NotifyingList(values)
 
-    def _del_values(self):
-        if self.metadata is not None:
-            self.metadata._delete_iptc_tag(self.key)
-        del self._values
+        self._values.register_listener(self)
 
-    """the list of values of the tag converted to their corresponding python
-    type"""
-    values = property(fget=_get_values, fset=_set_values, fdel=_del_values,
-                     doc=None)
+    values = property(fget=_get_values, fset=_set_values, doc=None)
 
     def contents_changed(self):
         """
@@ -233,22 +293,22 @@ class IptcTag(MetadataTag, ListenerInterface):
 
         raise IptcValueError(value, self.type)
 
-    def to_string(self):
+    def to_string_list(self):
         """
         Return a list of string representations of the values of the IPTC tag
         suitable to pass to libexiv2 to set it.
 
         @rtype: C{list} of C{str}
         """
-        return map(self._convert_to_string, self.values)
+        return map(self._convert_to_string, self._values)
 
     def __str__(self):
         """
-        Return a string representation of the list of values of the IPTC tag.
+        Return a string representations of the values of the IPTC tag.
 
         @rtype: C{str}
         """
-        return ', '.join(self.to_string())
+        return ', '.join(self.to_string_list())
 
     def __repr__(self):
         """
@@ -256,5 +316,10 @@ class IptcTag(MetadataTag, ListenerInterface):
 
         @rtype: C{str}
         """
-        return '<%s [%s] = %s>' % (self.key, self.type, str(self))
+        left = '%s [%s]' % (self.key, self.type)
+        if self._values is None:
+            right = '(No values)'
+        else:
+             right = str(self)
+        return '<%s = %s>' % (left, right)
 

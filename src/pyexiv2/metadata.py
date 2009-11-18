@@ -115,7 +115,8 @@ class ImageMetadata(object):
         try:
             return self._tags['iptc'][key]
         except KeyError:
-            tag = IptcTag(*self._image.getIptcTag(key))
+            _tag = self._image.getIptcTag(key)
+            tag = IptcTag._from_existing_tag(_tag)
             tag.metadata = self
             self._tags['iptc'][key] = tag
             return tag
@@ -175,7 +176,7 @@ class ImageMetadata(object):
         # overwritten.
         if type(tag) is not IptcTag:
             raise TypeError('Expecting an IptcTag')
-        self._image.setIptcTagValues(tag.key, tag.to_string())
+        self._image.setIptcTagValues(tag.key, tag.to_string_list())
         self._tags['iptc'][tag.key] = tag
         tag.metadata = self
 
