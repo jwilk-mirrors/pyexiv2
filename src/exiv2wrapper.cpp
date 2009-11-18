@@ -469,22 +469,11 @@ ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum): _key(key)
     _description = Exiv2::ExifTags::tagDesc(tag, ifd);
     _sectionName = Exiv2::ExifTags::sectionName(tag, ifd);
     _sectionDescription = Exiv2::ExifTags::sectionDesc(tag, ifd);
-    _raw_value = _datum->toString();
-    if(_datum->getValue().get() != 0)
-    {
-        std::ostringstream buffer;
-        buffer << *_datum;
-        _human_value = buffer.str();
-    }
 }
 
 void ExifTag::setRawValue(const std::string& value)
 {
     _datum->setValue(value);
-    _raw_value = _datum->toString();
-    std::ostringstream buffer;
-    buffer << *_datum;
-    _human_value = buffer.str();
 }
 
 const std::string ExifTag::getKey()
@@ -529,12 +518,14 @@ const std::string ExifTag::getSectionDescription()
 
 const std::string ExifTag::getRawValue()
 {
-    return _raw_value;
+    return _datum->toString();
 }
 
 const std::string ExifTag::getHumanValue()
 {
-    return _human_value;
+    std::ostringstream buffer;
+    buffer << *_datum;
+    return buffer.str();
 }
 
 
@@ -564,21 +555,13 @@ IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
     _repeatable = Exiv2::IptcDataSets::dataSetRepeatable(tag, record);
     _recordName = Exiv2::IptcDataSets::recordName(record);
     _recordDescription = Exiv2::IptcDataSets::recordDesc(record);
-
-    while (iterator != _data->end())
-    {
-        _values.append(iterator->toString());
-        ++iterator;
-    }
 }
 
 void IptcTag::setRawValues(const boost::python::list& values)
 {
     _data->clear();
-    _values = boost::python::list();
     // TODO: check if the tag is repeatable before assigning more than one
     // datum.
-    boost::python::stl_input_iterator<std::string> iterator(values);
     for(boost::python::stl_input_iterator<std::string> iterator(values);
         iterator != boost::python::stl_input_iterator<std::string>();
         ++iterator)
@@ -586,7 +569,6 @@ void IptcTag::setRawValues(const boost::python::list& values)
         Exiv2::Iptcdatum datum(_key);
         datum.setValue(*iterator);
         _data->push_back(datum);
-        _values.append(datum.toString());
     }
 }
 
@@ -637,7 +619,13 @@ const std::string IptcTag::getRecordDescription()
 
 const boost::python::list IptcTag::getRawValues()
 {
-    return _values;
+    boost::python::list values;
+    for(Exiv2::IptcMetadata::iterator iterator = _data->begin();
+        iterator != _data->end(); ++iterator)
+    {
+        values.append(iterator->toString());
+    }
+    return values;
 }
 
 

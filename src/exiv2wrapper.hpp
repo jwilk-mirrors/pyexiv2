@@ -66,8 +66,6 @@ private:
     std::string _description;
     std::string _sectionName;
     std::string _sectionDescription;
-    std::string _raw_value;
-    std::string _human_value;
 };
 
 
@@ -101,7 +99,6 @@ private:
     bool _repeatable;
     std::string _recordName;
     std::string _recordDescription;
-    boost::python::list _values;
 };
 
 
