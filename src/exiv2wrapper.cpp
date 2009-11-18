@@ -25,6 +25,8 @@
 
 #include "exiv2wrapper.hpp"
 
+#include "boost/python/stl_iterator.hpp"
+
 // Custom error codes for Exiv2 exceptions
 #define METADATA_NOT_READ 101
 #define NON_REPEATABLE 102
@@ -540,6 +542,8 @@ IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
 {
     if (data != 0)
     {
+        // TODO: check if the tag is repeatable before assigning more than one
+        // datum.
         _data = data;
     }
     else
@@ -570,9 +574,20 @@ IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
 
 void IptcTag::setRawValues(const boost::python::list& values)
 {
-    // TODO!
-    //_datum.setValue(value);
-    //_value = _datum.toString();
+    _data->clear();
+    _values = boost::python::list();
+    // TODO: check if the tag is repeatable before assigning more than one
+    // datum.
+    boost::python::stl_input_iterator<std::string> iterator(values);
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        Exiv2::Iptcdatum datum(_key);
+        datum.setValue(*iterator);
+        _data->push_back(datum);
+        _values.append(datum.toString());
+    }
 }
 
 const std::string IptcTag::getKey()
