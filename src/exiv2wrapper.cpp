@@ -533,8 +533,6 @@ IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
 {
     if (data != 0)
     {
-        // TODO: check if the tag is repeatable before assigning more than one
-        // datum.
         _data = data;
     }
     else
@@ -555,13 +553,25 @@ IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
     _repeatable = Exiv2::IptcDataSets::dataSetRepeatable(tag, record);
     _recordName = Exiv2::IptcDataSets::recordName(record);
     _recordDescription = Exiv2::IptcDataSets::recordDesc(record);
+
+    if (!_repeatable && (_data->size() > 1))
+    {
+        // The tag is not repeatable but we are trying to assign it more than
+        // one value.
+        throw Exiv2::Error(NON_REPEATABLE);
+    }
 }
 
 void IptcTag::setRawValues(const boost::python::list& values)
 {
+    if (!_repeatable && (boost::python::len(values) > 1))
+    {
+        // The tag is not repeatable but we are trying to assign it more than
+        // one value.
+        throw Exiv2::Error(NON_REPEATABLE);
+    }
+
     _data->clear();
-    // TODO: check if the tag is repeatable before assigning more than one
-    // datum.
     for(boost::python::stl_input_iterator<std::string> iterator(values);
         iterator != boost::python::stl_input_iterator<std::string>();
         ++iterator)
