@@ -132,48 +132,46 @@ class XmpTag(object):
 
     value = property(fget=_get_value, fset=_set_value, doc=None)
 
-    @staticmethod
-    def _convert_to_python(value, xtype):
+    def _convert_to_python(self, value):
         """
         Convert a raw value to its corresponding python type.
 
         @param value: the raw value to be converted
         @type value:  C{str}
-        @param xtype: the XMP type of the value
-        @type xtype:  C{str}
 
         @return: the value converted to its corresponding python type
-        @rtype:  depends on xtype (DOCME)
+        @rtype:  depends on C{self.type} (DOCME)
 
         @raise XmpValueError: if the conversion fails
         """
-        if xtype.startswith('bag '):
+        if self.type.startswith('bag '):
             # FIXME: make the value a notifying list.
             if value == '':
                 return []
             values = value.split(', ')
-            return map(lambda x: XmpTag._convert_to_python(x, xtype[4:]), values)
+            # TODO
+            raise NotImplementedError('XMP conversion for non empty bags')
 
-        elif xtype == 'Boolean':
+        elif self.type == 'Boolean':
             if value == 'True':
                 return True
             elif value == 'False':
                 return False
             else:
-                raise XmpValueError(value, xtype)
+                raise XmpValueError(value, self.type)
 
-        elif xtype == 'Choice':
+        elif self.type == 'Choice':
             # TODO
-            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+            raise NotImplementedError('XMP conversion for type [%s]' % self.type)
 
-        elif xtype == 'Colorant':
+        elif self.type == 'Colorant':
             # TODO
-            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+            raise NotImplementedError('XMP conversion for type [%s]' % self.type)
 
-        elif xtype == 'Date':
-            match = XmpTag._date_re.match(value)
+        elif self.type == 'Date':
+            match = self._date_re.match(value)
             if match is None:
-                raise XmpValueError(value, xtype)
+                raise XmpValueError(value, self.type)
             gd = match.groupdict()
             if gd['month'] is not None:
                 month = int(gd['month'])
@@ -187,11 +185,11 @@ class XmpTag(object):
                 try:
                     return datetime.date(int(gd['year']), month, day)
                 except ValueError:
-                    raise XmpValueError(value, xtype)
+                    raise XmpValueError(value, self.type)
             else:
                 if gd['minutes'] is None:
                     # Malformed time
-                    raise XmpValueError(value, xtype)
+                    raise XmpValueError(value, self.type)
                 if gd['seconds'] is not None:
                     seconds = int(gd['seconds'])
                 else:
@@ -210,86 +208,84 @@ class XmpTag(object):
                                              int(gd['hours']), int(gd['minutes']),
                                              seconds, microseconds, tzinfo)
                 except ValueError:
-                    raise XmpValueError(value, xtype)
+                    raise XmpValueError(value, self.type)
 
-        elif xtype == 'Dimensions':
+        elif self.type == 'Dimensions':
             # TODO
-            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+            raise NotImplementedError('XMP conversion for type [%s]' % self.type)
 
-        elif xtype == 'Font':
+        elif self.type == 'Font':
             # TODO
-            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+            raise NotImplementedError('XMP conversion for type [%s]' % self.type)
 
-        elif xtype == 'Integer':
+        elif self.type == 'Integer':
             try:
                 return int(value)
             except ValueError:
-                raise XmpValueError(value, xtype)
+                raise XmpValueError(value, self.type)
 
-        elif xtype == 'Lang Alt':
+        elif self.type == 'Lang Alt':
             matches = value.split('lang="')
             nb = len(matches)
             if nb < 2 or matches[0] != '':
-                raise XmpValueError(value, xtype)
+                raise XmpValueError(value, self.type)
             result = {}
             for i, match in enumerate(matches[1:]):
                 try:
                     qualifier, text = match.split('" ', 1)
                 except ValueError:
-                    raise XmpValueError(value, xtype)
+                    raise XmpValueError(value, self.type)
                 else:
                     if not text.rstrip().endswith(','):
                         if (i < nb - 2):
                             # If not the last match, it should end with a comma
-                            raise XmpValueError(value, xtype)
+                            raise XmpValueError(value, self.type)
                         else:
                             result[qualifier] = text
                             try:
                                 result[qualifier] = unicode(text, 'utf-8')
                             except TypeError:
-                                raise XmpValueError(value, xtype)
+                                raise XmpValueError(value, self.type)
                     else:
                         try:
                             result[qualifier] = unicode(text.rstrip()[:-1], 'utf-8')
                         except TypeError:
-                            raise XmpValueError(value, xtype)
+                            raise XmpValueError(value, self.type)
             return result
 
-        elif xtype == 'Locale':
+        elif self.type == 'Locale':
             # TODO
             # See RFC 3066
-            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+            raise NotImplementedError('XMP conversion for type [%s]' % self.type)
 
-        elif xtype == 'MIMEType':
+        elif self.type == 'MIMEType':
             try:
-                mtype, msubtype = value.split('/', 1)
+                return tuple(value.split('/', 1))
             except ValueError:
-                raise XmpValueError(value, xtype)
-            else:
-                return {'type': mtype, 'subtype': msubtype}
+                raise XmpValueError(value, self.type)
 
-        elif xtype == 'Real':
+        elif self.type == 'Real':
             # TODO
-            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+            raise NotImplementedError('XMP conversion for type [%s]' % self.type)
 
-        elif xtype in ('ProperName', 'Text'):
+        elif self.type in ('ProperName', 'Text'):
             try:
                 return unicode(value, 'utf-8')
             except TypeError:
-                raise XmpValueError(value, xtype)
+                raise XmpValueError(value, self.type)
 
-        elif xtype == 'Thumbnail':
+        elif self.type == 'Thumbnail':
             # TODO
-            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+            raise NotImplementedError('XMP conversion for type [%s]' % self.type)
 
-        elif xtype in ('URI', 'URL'):
+        elif self.type in ('URI', 'URL'):
             return value
 
-        elif xtype == 'XPath':
+        elif self.type == 'XPath':
             # TODO
-            raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+            raise NotImplementedError('XMP conversion for type [%s]' % self.type)
 
-        raise NotImplementedError('XMP conversion for type [%s]' % xtype)
+        raise NotImplementedError('XMP conversion for type [%s]' % self.type)
 
     @staticmethod
     def _convert_to_string(value, xtype):
