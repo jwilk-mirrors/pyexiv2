@@ -180,13 +180,9 @@ public:
 
     boost::python::list xmpKeys();
 
-    // key
-    // tagname
-    // taglabel
-    // tagdesc
-    // type
-    // tagvalue (list)
-    boost::python::tuple getXmpTag(std::string key);
+    // Return the required XMP tag.
+    // Throw an exception if the tag is not set.
+    const XmpTag getXmpTag(std::string key);
 
     void setXmpTagValue(std::string key, std::string value);
 

@@ -312,7 +312,7 @@ boost::python::list Image::xmpKeys()
     }
 }
 
-boost::python::tuple Image::getXmpTag(std::string key)
+const XmpTag Image::getXmpTag(std::string key)
 {
     if(!_dataRead)
     {
@@ -326,13 +326,7 @@ boost::python::tuple Image::getXmpTag(std::string key)
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    Exiv2::Xmpdatum xmpDatum = _xmpData[key];
-    std::string sTagName = xmpKey.tagName();
-    std::string sTagLabel = xmpKey.tagLabel();
-    std::string sTagDesc(Exiv2::XmpProperties::propertyDesc(xmpKey));
-    std::string sTagType(Exiv2::XmpProperties::propertyInfo(xmpKey)->xmpValueType_);
-    std::string sTagValue = xmpDatum.toString();
-    return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, sTagValue);
+    return XmpTag(key, &_xmpData[key]);
 }
 
 void Image::setXmpTagValue(std::string key, std::string value)
