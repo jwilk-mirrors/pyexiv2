@@ -77,6 +77,18 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_getRawValues", &IptcTag::getRawValues)
     ;
 
+    class_<XmpTag>("_XmpTag", init<std::string>())
+
+        .def("_setRawValue", &XmpTag::setRawValue)
+
+        .def("_getKey", &XmpTag::getKey)
+        .def("_getType", &XmpTag::getType)
+        .def("_getName", &XmpTag::getName)
+        .def("_getTitle", &XmpTag::getTitle)
+        .def("_getDescription", &XmpTag::getDescription)
+        .def("_getRawValue", &XmpTag::getRawValue)
+    ;
+
     class_<Image>("Image", init<std::string>())
 
         .def("readMetadata", &Image::readMetadata)

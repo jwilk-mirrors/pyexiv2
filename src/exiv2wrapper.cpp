@@ -629,6 +629,59 @@ const boost::python::list IptcTag::getRawValues()
 }
 
 
+XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
+{
+    if (datum != 0)
+    {
+        _datum = datum;
+    }
+    else
+    {
+        _datum = new Exiv2::Xmpdatum(_key);
+    }
+
+    _title = Exiv2::XmpProperties::propertyTitle(_key);
+    _description = Exiv2::XmpProperties::propertyDesc(_key);
+    static const Exiv2::XmpPropertyInfo* info = Exiv2::XmpProperties::propertyInfo(_key);
+    _name = info->name_;
+    _type = info->xmpValueType_;
+}
+
+void XmpTag::setRawValue(const std::string& value)
+{
+    _datum->setValue(value);
+}
+
+const std::string XmpTag::getKey()
+{
+    return _key.key();
+}
+
+const std::string XmpTag::getType()
+{
+    return _type;
+}
+
+const std::string XmpTag::getName()
+{
+    return _name;
+}
+
+const std::string XmpTag::getTitle()
+{
+    return _title;
+}
+
+const std::string XmpTag::getDescription()
+{
+    return _description;
+}
+
+const std::string XmpTag::getRawValue()
+{
+    return _datum->toString();
+}
+
 
 // TODO: update the errors code to reflect changes from src/error.cpp in libexiv2
 void translateExiv2Error(Exiv2::Error const& error)

@@ -102,6 +102,31 @@ private:
 };
 
 
+class XmpTag
+{
+public:
+    // Constructor
+    XmpTag(const std::string& key, Exiv2::Xmpdatum* datum=0);
+
+    void setRawValue(const std::string& value);
+
+    const std::string getKey();
+    const std::string getType();
+    const std::string getName();
+    const std::string getTitle();
+    const std::string getDescription();
+    const std::string getRawValue();
+
+private:
+    Exiv2::XmpKey _key;
+    Exiv2::Xmpdatum* _datum;
+    std::string _type;
+    std::string _name;
+    std::string _title;
+    std::string _description;
+};
+
+
 class Image
 {
 public:
