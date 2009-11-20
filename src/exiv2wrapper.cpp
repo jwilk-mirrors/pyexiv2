@@ -636,7 +636,7 @@ XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
 
     _title = Exiv2::XmpProperties::propertyTitle(_key);
     _description = Exiv2::XmpProperties::propertyDesc(_key);
-    static const Exiv2::XmpPropertyInfo* info = Exiv2::XmpProperties::propertyInfo(_key);
+    const Exiv2::XmpPropertyInfo* info = Exiv2::XmpProperties::propertyInfo(_key);
     _name = info->name_;
     _type = info->xmpValueType_;
 }
