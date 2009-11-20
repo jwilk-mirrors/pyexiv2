@@ -127,7 +127,8 @@ class ImageMetadata(object):
         try:
             return self._tags['xmp'][key]
         except KeyError:
-            tag = XmpTag(*self._image.getXmpTag(key))
+            _tag = self._image.getXmpTag(key)
+            tag = XmpTag._from_existing_tag(_tag)
             tag.metadata = self
             self._tags['xmp'][key] = tag
             return tag

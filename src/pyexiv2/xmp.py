@@ -24,8 +24,7 @@
 #
 # ******************************************************************************
 
-from pyexiv2.tag import MetadataTag
-from pyexiv2.utils import ListenerInterface, NotifyingList, FixedOffset
+from pyexiv2.utils import FixedOffset
 
 import datetime
 import re
@@ -50,7 +49,10 @@ class XmpValueError(ValueError):
                (self.type, self.value)
 
 
-class XmpTag(MetadataTag):
+class XmpTag(object):
+
+    # FIXME: should inherit from ListenerInterface and implement observation of
+    # changes on list/dict values.
 
     """
     An XMP metadata tag.
@@ -62,27 +64,73 @@ class XmpTag(MetadataTag):
     _time_re = r'(?P<hours>\d{2})(:(?P<minutes>\d{2})(:(?P<seconds>\d{2})(.(?P<decimal>\d+))?)?(?P<tzd>%s))?' % _time_zone_re
     _date_re = re.compile(r'(?P<year>\d{4})(-(?P<month>\d{2})(-(?P<day>\d{2})(T(?P<time>%s))?)?)?' % _time_re)
 
-    def __init__(self, key, name, label, description, type, value):
-        super(XmpTag, self).__init__(key, name, label, description, type, value)
-        self._value = XmpTag._convert_to_python(value, type)
+    def __init__(self, key, value=None, _tag=None):
+        """
+        DOCME
+        """
+        super(XmpTag, self).__init__()
+        if _tag is not None:
+            self._tag = _tag
+        else:
+            self._tag = libexiv2python._XmpTag(key)
+        self.metadata = None
+        self._raw_value = None
+        self._value = None
+        if value is not None:
+            self._set_value(value)
+
+    @staticmethod
+    def _from_existing_tag(_tag):
+        # Build a tag from an already existing _XmpTag
+        tag = XmpTag(_tag._getKey(), _tag=_tag)
+        tag.raw_value = _tag._getRawValue()
+        return tag
+
+    @property
+    def key(self):
+        return self._tag._getKey()
+
+    @property
+    def type(self):
+        return self._tag._getType()
+
+    @property
+    def name(self):
+        return self._tag._getName()
+
+    @property
+    def title(self):
+        return self._tag._getTitle()
+
+    @property
+    def description(self):
+        return self._tag._getDescription()
+
+    def _get_raw_value(self):
+        return self._raw_value
+
+    def _set_raw_value(self, value):
+        self._raw_value = value
+        # FIXME: handle bags and other complex values, make them notifying lists
+        # if necessary
+        self._value = self._convert_to_python(value)
+
+    raw_value = property(fget=_get_raw_value, fset=_set_raw_value, doc=None)
 
     def _get_value(self):
         return self._value
 
-    def _set_value(self, new_value):
-        if self.metadata is not None:
-            raw_value = XmpTag._convert_to_string(new_value, self.type)
-            self.metadata._set_xmp_tag_value(self.key, raw_value)
-        self._value = new_value
+    def _set_value(self, value):
+        # FIXME: handle bags and other complex values
+        self._raw_value = self._convert_to_string(value)
+        self._tag._setRawValue(self._raw_value)
 
-    def _del_value(self):
         if self.metadata is not None:
-            self.metadata._delete_xmp_tag(self.key)
-        del self._value
+            self.metadata._set_xmp_tag_value(self.key, self._raw_value)
 
-    """the value of the tag converted to its corresponding python type"""
-    value = property(fget=_get_value, fset=_set_value, fdel=_del_value,
-                     doc=None)
+        self._value = value
+
+    value = property(fget=_get_value, fset=_set_value, doc=None)
 
     @staticmethod
     def _convert_to_python(value, xtype):
@@ -346,26 +394,25 @@ class XmpTag(MetadataTag):
 
         raise NotImplementedError('XMP conversion for type [%s]' % xtype)
 
-    def to_string(self):
+    def __str__(self):
         """
-        Return a string representation of the XMP tag suitable to pass to
-        libexiv2 to set the value of the tag.
+        Return a string representation of the value of the XMP tag suitable to
+        pass to libexiv2 to set it.
 
         @rtype: C{str}
         """
-        return XmpTag._convert_to_string(self.value, self.type)
+        return self._convert_to_string(self._value)
 
-    def __str__(self):
+    def __repr__(self):
         """
         Return a string representation of the XMP tag for debugging purposes.
 
         @rtype: C{str}
         """
-        r = 'Key = ' + self.key + os.linesep + \
-            'Name = ' + self.name + os.linesep + \
-            'Label = ' + self.label + os.linesep + \
-            'Description = ' + self.description + os.linesep + \
-            'Type = ' + self.type + os.linesep + \
-            'Values = ' + str(self.values)
-        return r
+        left = '%s [%s]' % (self.key, self.type)
+        if self._value is None:
+            right = '(No value)'
+        else:
+             right = str(self)
+        return '<%s = %s>' % (left, right)
 
