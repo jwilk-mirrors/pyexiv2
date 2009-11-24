@@ -641,10 +641,10 @@ XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
     _type = info->xmpValueType_;
 }
 
-void XmpTag::setRawValue(const std::string& value)
+/*void XmpTag::setRawValue(const std::string& value)
 {
     _datum->setValue(value);
-}
+}*/
 
 const std::string XmpTag::getKey()
 {
@@ -671,9 +671,35 @@ const std::string XmpTag::getDescription()
     return _description;
 }
 
-const std::string XmpTag::getRawValue()
+const std::string XmpTag::getTextValue()
 {
-    return _datum->toString();
+    return dynamic_cast<const Exiv2::XmpTextValue*>(&_datum->value())->value_;
+}
+
+const boost::python::list XmpTag::getArrayValue()
+{
+    std::vector<std::string> value =
+        dynamic_cast<const Exiv2::XmpArrayValue*>(&_datum->value())->value_;
+    boost::python::list rvalue;
+    for(std::vector<std::string>::const_iterator i = value.begin();
+        i != value.end(); ++i)
+    {
+        rvalue.append(*i);
+    }
+    return rvalue;
+}
+
+const boost::python::dict XmpTag::getLangAltValue()
+{
+    Exiv2::LangAltValue::ValueType value =
+        dynamic_cast<const Exiv2::LangAltValue*>(&_datum->value())->value_;
+    boost::python::dict rvalue;
+    for (Exiv2::LangAltValue::ValueType::const_iterator i = value.begin();
+         i != value.end(); ++i)
+    {
+        rvalue[i->first] = i->second;
+    }
+    return rvalue;
 }
 
 
