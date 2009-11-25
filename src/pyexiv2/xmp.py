@@ -117,7 +117,10 @@ class XmpTag(object):
     def _set_raw_value(self, value):
         self._raw_value = value
         if self.type.startswith(('seq', 'bag', 'alt')):
-            self._value = map(lambda x: self._convert_to_python(x, self.type[4:]), value)
+            type = self.type[4:]
+            if type.startswith('closed Choice of'):
+                type = type[17:]
+            self._value = map(lambda x: self._convert_to_python(x, type), value)
         elif self.type == 'Lang Alt':
             self._value = value
         elif self.type.startswith('closed Choice of'):
