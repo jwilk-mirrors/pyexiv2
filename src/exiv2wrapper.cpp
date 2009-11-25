@@ -634,11 +634,24 @@ XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
         _datum = new Exiv2::Xmpdatum(_key);
     }
 
-    _title = Exiv2::XmpProperties::propertyTitle(_key);
-    _description = Exiv2::XmpProperties::propertyDesc(_key);
+    const char* title = Exiv2::XmpProperties::propertyTitle(_key);
+    if (title != 0)
+    {
+        _title = title;
+    }
+
+    const char* description = Exiv2::XmpProperties::propertyDesc(_key);
+    if (description != 0)
+    {
+        _description = description;
+    }
+
     const Exiv2::XmpPropertyInfo* info = Exiv2::XmpProperties::propertyInfo(_key);
-    _name = info->name_;
-    _type = info->xmpValueType_;
+    if (info != 0)
+    {
+        _name = info->name_;
+        _type = info->xmpValueType_;
+    }
 }
 
 /*void XmpTag::setRawValue(const std::string& value)

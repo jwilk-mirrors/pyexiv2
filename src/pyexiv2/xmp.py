@@ -125,6 +125,8 @@ class XmpTag(object):
             self._value = value
         elif self.type.lower().startswith('closed choice of'):
             self._value = self._convert_to_python(value, self.type[17:])
+        elif self.type == '':
+            self._value = value
         else:
             self._value = self._convert_to_python(value, self.type)
 
