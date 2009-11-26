@@ -85,12 +85,13 @@ class XmpTag(object):
     def _from_existing_tag(_tag):
         # Build a tag from an already existing _XmpTag
         tag = XmpTag(_tag._getKey(), _tag=_tag)
-        if tag.type[:4] in ('seq ', 'bag ', 'alt '):
-            tag.raw_value = _tag._getArrayValue()
-        elif tag.type == 'Lang Alt':
-            tag.raw_value = _tag._getLangAltValue()
-        else:
+        type = _tag._getExiv2Type()
+        if type == 'XmpText':
             tag.raw_value = _tag._getTextValue()
+        elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
+            tag.raw_value = _tag._getArrayValue()
+        elif type == 'LangAlt':
+            tag.raw_value = _tag._getLangAltValue()
         return tag
 
     @property

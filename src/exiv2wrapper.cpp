@@ -634,6 +634,8 @@ XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
         _datum = new Exiv2::Xmpdatum(_key);
     }
 
+    _exiv2_type = _datum->typeName();
+
     const char* title = Exiv2::XmpProperties::propertyTitle(_key);
     if (title != 0)
     {
@@ -662,6 +664,11 @@ XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
 const std::string XmpTag::getKey()
 {
     return _key.key();
+}
+
+const std::string XmpTag::getExiv2Type()
+{
+    return _exiv2_type;
 }
 
 const std::string XmpTag::getType()

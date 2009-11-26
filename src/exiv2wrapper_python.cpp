@@ -82,6 +82,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
         //.def("_setRawValue", &XmpTag::setRawValue)
 
         .def("_getKey", &XmpTag::getKey)
+        .def("_getExiv2Type", &XmpTag::getExiv2Type)
         .def("_getType", &XmpTag::getType)
         .def("_getName", &XmpTag::getName)
         .def("_getTitle", &XmpTag::getTitle)

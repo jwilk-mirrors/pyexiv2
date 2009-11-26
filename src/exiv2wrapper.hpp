@@ -111,6 +111,7 @@ public:
     //void setRawValue(const std::string& value);
 
     const std::string getKey();
+    const std::string getExiv2Type();
     const std::string getType();
     const std::string getName();
     const std::string getTitle();
@@ -122,6 +123,7 @@ public:
 private:
     Exiv2::XmpKey _key;
     Exiv2::Xmpdatum* _datum;
+    std::string _exiv2_type;
     std::string _type;
     std::string _name;
     std::string _title;
