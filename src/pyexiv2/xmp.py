@@ -24,6 +24,8 @@
 #
 # ******************************************************************************
 
+import libexiv2python
+
 from pyexiv2.utils import FixedOffset
 
 import datetime
