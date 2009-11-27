@@ -257,7 +257,7 @@ class XmpTag(object):
             # TODO
             raise NotImplementedError('XMP conversion for type [%s]' % type)
 
-        elif type in ('ProperName', 'Text'):
+        elif type in ('AgentName', 'ProperName', 'Text'):
             try:
                 return unicode(value, 'utf-8')
             except TypeError:
