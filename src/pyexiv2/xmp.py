@@ -125,7 +125,12 @@ class XmpTag(object):
                 type = type[17:]
             self._value = map(lambda x: self._convert_to_python(x, type), value)
         elif self.type == 'Lang Alt':
-            self._value = value
+            self._value = {}
+            for k, v in value.iteritems():
+                try:
+                    self._value[unicode(k, 'utf-8')] = unicode(v, 'utf-8')
+                except TypeError:
+                    raise XmpValueError(value, type)
         elif self.type.lower().startswith('closed choice of'):
             self._value = self._convert_to_python(value, self.type[17:])
         elif self.type == '':
