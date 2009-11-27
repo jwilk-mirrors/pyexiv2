@@ -26,7 +26,7 @@
 
 import libexiv2python
 
-from pyexiv2.utils import FixedOffset
+from pyexiv2.utils import FixedOffset, Rational
 
 import datetime
 import re
@@ -245,6 +245,12 @@ class XmpTag(object):
             try:
                 return tuple(value.split('/', 1))
             except ValueError:
+                raise XmpValueError(value, type)
+
+        elif type == 'Rational':
+            try:
+                return Rational.from_string(value)
+            except (ValueError, ZeroDivisionError):
                 raise XmpValueError(value, type)
 
         elif type == 'Real':
