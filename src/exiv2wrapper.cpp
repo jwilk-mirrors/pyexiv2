@@ -656,10 +656,38 @@ XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
     }
 }
 
-/*void XmpTag::setRawValue(const std::string& value)
+void XmpTag::setTextValue(const std::string& value)
 {
     _datum->setValue(value);
-}*/
+}
+
+void XmpTag::setArrayValue(const boost::python::list& values)
+{
+    // Reset the value
+    _datum->setValue(0);
+
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        _datum->setValue(*iterator);
+    }
+}
+
+void XmpTag::setLangAltValue(const boost::python::dict& values)
+{
+    // Reset the value
+    _datum->setValue(0);
+
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        std::string key = *iterator;
+        std::string value = boost::python::extract<std::string>(values.get(key));
+        _datum->setValue("lang=\"" + key + "\" " + value);
+    }
+}
 
 const std::string XmpTag::getKey()
 {

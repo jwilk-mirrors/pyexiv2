@@ -79,7 +79,9 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
     class_<XmpTag>("_XmpTag", init<std::string>())
 
-        //.def("_setRawValue", &XmpTag::setRawValue)
+        .def("_setTextValue", &XmpTag::setTextValue)
+        .def("_setArrayValue", &XmpTag::setArrayValue)
+        .def("_setLangAltValue", &XmpTag::setLangAltValue)
 
         .def("_getKey", &XmpTag::getKey)
         .def("_getExiv2Type", &XmpTag::getExiv2Type)

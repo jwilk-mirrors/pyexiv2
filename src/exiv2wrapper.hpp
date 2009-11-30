@@ -108,7 +108,9 @@ public:
     // Constructor
     XmpTag(const std::string& key, Exiv2::Xmpdatum* datum=0);
 
-    //void setRawValue(const std::string& value);
+    void setTextValue(const std::string& value);
+    void setArrayValue(const boost::python::list& values);
+    void setLangAltValue(const boost::python::dict& values);
 
     const std::string getKey();
     const std::string getExiv2Type();
