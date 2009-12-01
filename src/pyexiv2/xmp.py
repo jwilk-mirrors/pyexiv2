@@ -366,16 +366,40 @@ class XmpTag(object):
             else:
                 raise XmpValueError(value, type)
 
+        elif type == 'Rational':
+            if isinstance(value, Rational):
+                return str(value)
+            else:
+                raise XmpValueError(value, type)
+
         raise NotImplementedError('XMP conversion for type [%s]' % type)
 
     def __str__(self):
         """
-        Return a string representation of the value of the XMP tag suitable to
-        pass to libexiv2 to set it.
+        Return a string representation of the value.
 
         @rtype: C{str}
         """
-        return self._convert_to_string(self._value)
+        type = self._tag._getExiv2Type()
+        if type == 'XmpText':
+            stype = self.type
+            if stype.lower().startswith('closed choice of'):
+                stype = stype[17:]
+            return self._convert_to_string(self._value, stype)
+        elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
+            stype = self.type[4:]
+            if stype.lower().startswith('closed choice of'):
+                stype = stype[17:]
+            values = map(lambda x: self._convert_to_string(x, stype), self._value)
+            return ', '.join(values)
+        elif type == 'LangAlt':
+            values = []
+            for k, v in self._value.iteritems():
+                try:
+                    values.append('lang="%s" %s' % (k.encode('utf-8'), v.encode('utf-8')))
+                except TypeError:
+                    raise XmpValueError(self._value, type)
+            return ', '.join(values)
 
     def __repr__(self):
         """
