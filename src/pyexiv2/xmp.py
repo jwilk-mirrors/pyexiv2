@@ -144,9 +144,27 @@ class XmpTag(object):
         return self._value
 
     def _set_value(self, value):
-        # FIXME: handle bags and other complex values
-        self._raw_value = self._convert_to_string(value)
-        self._tag._setRawValue(self._raw_value)
+        type = self._tag._getExiv2Type()
+        if type == 'XmpText':
+            stype = self.type
+            if stype.lower().startswith('closed choice of'):
+                stype = stype[17:]
+            self._raw_value = self._convert_to_string(value, stype)
+            self._tag._setTextValue(self._raw_value)
+        elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
+            stype = self.type[4:]
+            if stype.lower().startswith('closed choice of'):
+                stype = stype[17:]
+            self._raw_value = map(lambda x: self._convert_to_string(x, stype), value)
+            self._tag._setArrayValue(self._raw_value)
+        elif type == 'LangAlt':
+            self._raw_value = {}
+            for k, v in value.iteritems():
+                try:
+                    self._raw_value[k.encode('utf-8')] = v.encode('utf-8')
+                except TypeError:
+                    raise XmpValueError(value, type)
+            self._tag._setLangAltValue(self._raw_value)
 
         if self.metadata is not None:
             self.metadata._set_xmp_tag_value(self.key, self._raw_value)
@@ -165,7 +183,7 @@ class XmpTag(object):
         @type type:   C{str}
 
         @return: the value converted to its corresponding python type
-        @rtype:  depends on C{self.type} (DOCME)
+        @rtype:  depends on C{type} (DOCME)
 
         @raise XmpValueError: if the conversion fails
         """
@@ -281,36 +299,31 @@ class XmpTag(object):
 
         raise NotImplementedError('XMP conversion for type [%s]' % type)
 
-    def _convert_to_string(self, value):
+    def _convert_to_string(self, value, type):
         """
         Convert a value to its corresponding string representation, suitable to
         pass to libexiv2.
 
         @param value: the value to be converted
-        @type value:  depends on C{self.type} (DOCME)
+        @type value:  depends on C{type} (DOCME)
+        @param type:  the simple type of the value
+        @type type:   C{str}
 
         @return: the value converted to its corresponding string representation
         @rtype:  C{str}
 
         @raise XmpValueError: if the conversion fails
         """
-        if self.type.startswith('bag '):
-            if type(value) in (list, tuple):
-                raise NotImplementedError('XMP conversion for bags')
-                #return ', '.join(map(self._convert_to_string, value))
-            else:
-                raise XmpValueError(value, self.type)
-
-        elif self.type == 'Boolean':
-            if type(value) is bool:
+        if type == 'Boolean':
+            if isinstance(value, bool):
                 return str(value)
             else:
-                raise XmpValueError(value, self.type)
+                raise XmpValueError(value, type)
 
-        elif self.type == 'Date':
-            if type(value) is datetime.date:
+        elif type == 'Date':
+            if isinstance(value, datetime.date):
                 return value.isoformat()
-            elif type(value) is datetime.datetime:
+            elif isinstance(value, datetime.datetime):
                 if value.hour == 0 and value.minute == 0 and \
                     value.second == 0 and value.microsecond == 0 and \
                     (value.tzinfo is None or value.tzinfo == FixedOffset()):
@@ -325,62 +338,35 @@ class XmpTag(object):
                     r += value.strftime('%Z')
                     return r
             else:
-                raise XmpValueError(value, self.type)
+                raise XmpValueError(value, type)
 
-        elif self.type == 'Integer':
-            if type(value) in (int, long):
+        elif type == 'Integer':
+            if isinstance(value, (int, long)):
                 return str(value)
             else:
-                raise XmpValueError(value, self.type)
+                raise XmpValueError(value, type)
 
-        elif self.type == 'Lang Alt':
-            if type(value) is dict and len(value) > 0:
-                r = ''
-                for key, avalue in value.iteritems():
-                    if type(key) is unicode:
-                        try:
-                            rkey = key.encode('utf-8')
-                        except UnicodeEncodeError:
-                            raise XmpValueError(value, self.type)
-                    elif type(key) is str:
-                        rkey = key
-                    else:
-                        raise XmpValueError(value, self.type)
-                    if type(avalue) is unicode:
-                        try:
-                            ravalue = avalue.encode('utf-8')
-                        except UnicodeEncodeError:
-                            raise XmpValueError(value, self.type)
-                    elif type(avalue) is str:
-                        ravalue = avalue
-                    else:
-                        raise XmpValueError(value, self.type)
-                    r += 'lang="%s" %s, ' % (rkey, ravalue)
-                return r[:-2]
-            else:
-                raise XmpValueError(value, self.type)
-
-        elif self.type == 'MIMEType':
-            if type(value) is tuple:
+        elif type == 'MIMEType':
+            if isinstance(value, tuple):
                 try:
                     return '/'.join(value)
                 except KeyError:
-                    raise XmpValueError(value, self.type)
+                    raise XmpValueError(value, type)
             else:
-                raise XmpValueError(value, self.type)
+                raise XmpValueError(value, type)
 
-        elif self.type in ('ProperName', 'Text', 'URI', 'URL'):
-            if type(value) is unicode:
+        elif type in ('AgentName', 'ProperName', 'Text', 'URI', 'URL'):
+            if isinstance(value, unicode):
                 try:
                     return value.encode('utf-8')
                 except UnicodeEncodeError:
-                    raise XmpValueError(value, self.type)
-            elif type(value) is str:
+                    raise XmpValueError(value, type)
+            elif isinstance(value, str):
                 return value
             else:
-                raise XmpValueError(value, self.type)
+                raise XmpValueError(value, type)
 
-        raise NotImplementedError('XMP conversion for type [%s]' % self.type)
+        raise NotImplementedError('XMP conversion for type [%s]' % type)
 
     def __str__(self):
         """
