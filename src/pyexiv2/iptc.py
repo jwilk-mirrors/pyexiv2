@@ -304,7 +304,7 @@ class IptcTag(ListenerInterface):
 
     def __str__(self):
         """
-        Return a string representations of the values of the IPTC tag.
+        Return a string representation of the values of the IPTC tag.
 
         @rtype: C{str}
         """
