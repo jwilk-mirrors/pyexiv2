@@ -213,11 +213,12 @@ class ImageMetadata(object):
         # state).
         if key not in self.xmp_keys:
             raise KeyError('Cannot set the value of an inexistent tag')
-        if isinstance(value, str):
+        type = self._tags['xmp'][key]._tag._getExiv2Type()
+        if type == 'XmpText' and isinstance(value, str):
             self._image.setXmpTagTextValue(key, value)
-        elif isinstance(value, (list, tuple)):
+        elif type in ('XmpAlt', 'XmpBag', 'XmpSeq') and isinstance(value, (list, tuple)):
             self._image.setXmpTagArrayValue(key, value)
-        elif isinstance(value, dict):
+        elif type == 'LangAlt' and isinstance(value, dict):
             self._image.setXmpTagLangAltValue(key, value)
         else:
             raise TypeError('Expecting either a string, a list, a tuple or a dict')
