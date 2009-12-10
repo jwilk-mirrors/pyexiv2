@@ -190,7 +190,9 @@ public:
     // Throw an exception if the tag is not set.
     const XmpTag getXmpTag(std::string key);
 
-    void setXmpTagValue(std::string key, std::string value);
+    void setXmpTagTextValue(const std::string& key, const std::string& value);
+    void setXmpTagArrayValue(const std::string& key, const boost::python::list& values);
+    void setXmpTagLangAltValue(const std::string& key, const boost::python::dict& values);
 
     // Delete the required XMP tag.
     // Throw an exception if the tag was not set.

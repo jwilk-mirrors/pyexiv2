@@ -329,14 +329,54 @@ const XmpTag Image::getXmpTag(std::string key)
     return XmpTag(key, &_xmpData[key]);
 }
 
-void Image::setXmpTagValue(std::string key, std::string value)
+void Image::setXmpTagTextValue(const std::string& key, const std::string& value)
 {
     if (!_dataRead)
     {
         throw Exiv2::Error(METADATA_NOT_READ);
     }
 
-    _xmpData[key] = value;
+    _xmpData[key].setValue(value);
+}
+
+void Image::setXmpTagArrayValue(const std::string& key, const boost::python::list& values)
+{
+    if (!_dataRead)
+    {
+        throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    Exiv2::Xmpdatum& datum = _xmpData[key];
+    // Reset the value
+    datum.setValue(0);
+
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        datum.setValue(*iterator);
+    }
+}
+
+void Image::setXmpTagLangAltValue(const std::string& key, const boost::python::dict& values)
+{
+    if (!_dataRead)
+    {
+        throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    Exiv2::Xmpdatum& datum = _xmpData[key];
+    // Reset the value
+    datum.setValue(0);
+
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        std::string key = *iterator;
+        std::string value = boost::python::extract<std::string>(values.get(key));
+        datum.setValue("lang=\"" + key + "\" " + value);
+    }
 }
 
 void Image::deleteXmpTag(std::string key)
