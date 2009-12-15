@@ -265,6 +265,8 @@ class XmpTag(object):
             raise NotImplementedError('XMP conversion for type [%s]' % type)
 
         elif type == 'MIMEType':
+            if value.count('/') != 1:
+                raise XmpValueError(value, type)
             try:
                 return tuple(value.split('/', 1))
             except ValueError:
@@ -321,9 +323,7 @@ class XmpTag(object):
                 raise XmpValueError(value, type)
 
         elif type == 'Date':
-            if isinstance(value, datetime.date):
-                return value.isoformat()
-            elif isinstance(value, datetime.datetime):
+            if isinstance(value, datetime.datetime):
                 if value.hour == 0 and value.minute == 0 and \
                     value.second == 0 and value.microsecond == 0 and \
                     (value.tzinfo is None or value.tzinfo == FixedOffset()):
@@ -337,6 +337,8 @@ class XmpTag(object):
                     r += str(int(value.microsecond) / 1E6)[2:]
                     r += value.strftime('%Z')
                     return r
+            elif isinstance(value, datetime.date):
+                return value.isoformat()
             else:
                 raise XmpValueError(value, type)
 
@@ -347,11 +349,8 @@ class XmpTag(object):
                 raise XmpValueError(value, type)
 
         elif type == 'MIMEType':
-            if isinstance(value, tuple):
-                try:
-                    return '/'.join(value)
-                except KeyError:
-                    raise XmpValueError(value, type)
+            if isinstance(value, tuple) and len(value) == 2:
+                return '/'.join(value)
             else:
                 raise XmpValueError(value, type)
 
