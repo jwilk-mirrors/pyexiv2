@@ -247,7 +247,7 @@ class ExifTag(ListenerInterface):
             # There is currently no charset conversion.
             # TODO: guess the encoding and decode accordingly into unicode
             # where relevant.
-            return self.fvalue
+            return self.human_value
 
         raise ExifValueError(value, self.type)
 
