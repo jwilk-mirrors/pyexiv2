@@ -1,9 +1,9 @@
 todo list
 
+- The constructor of the Image class should accept a filename OR a buffered stream
 - Reimplement copyMetadataTo in C++
 - Unit test the C++ wrapper (in python, if possible)
 - Use logging to log, among other things, decoding and type conversion errors
-- The constructor of the Image class should accept a buffered file
 - Tag getters/setters should support unicode strings as well as regular strings (see bug #146313).
 - What about forcing all strings encoding to UTF in tag values? (see Marc's mail)
 - Reflect changes from src/error.cpp in libexiv2 to src/libpyexiv2.cpp: new error messages, error codes changed
@@ -13,3 +13,11 @@ todo list
 - Write a complete documentation for the binding and its uses (use other tools, maybe pydoctor)
 - New architecture and support of XMP metadata (see bug #183337)
 - Consider upgrading the license to GPL v3
+
+
+
+
+Bugs:
+
+- Unicode encoding problem when writing to an EXIF Ascii tag with non ASCII characters (e.g. "é")
+- Problem decoding the value of "Iptc.Application2.Copyright" for smiley1.jpg
