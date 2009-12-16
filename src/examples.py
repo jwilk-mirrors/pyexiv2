@@ -1,10 +1,14 @@
 #!//usr/bin/python
 # -*- coding: utf-8 -*-
 
-from pyexiv2 import ImageMetadata, ExifTag
+from pyexiv2 import ImageMetadata, ExifTag, IptcTag, XmpTag
 
-import sys
-from datetime import datetime
+import sys, os
+from datetime import datetime, date
+
+
+def print_key_value(metadata, key):
+    print key, '=', metadata[key]
 
 
 if __name__ == '__main__':
@@ -14,16 +18,63 @@ if __name__ == '__main__':
     metadata.read()
 
     # Print a list of all the keys of the EXIF tags in the image
-    print metadata.exif_keys
+    print 'EXIF keys:', metadata.exif_keys
 
-    # Print the value of the Exif.Image.DateTime tag
-    print metadata['Exif.Image.DateTime']
+    try:
+        # Print the value of the Exif.Image.DateTime tag
+        key = 'Exif.Image.DateTime'
+        print_key_value(metadata, key)
 
-    # Set the value of the Exif.Image.DateTime tag
-    metadata['Exif.Image.DateTime'].value = datetime.now()
+        # Set the value of the Exif.Image.DateTime tag
+        metadata[key].value = datetime.now()
+        print_key_value(metadata, key)
+    except KeyError:
+        print '[not set]'
 
     # Add a new tag
-    metadata['Exif.Image.Orientation'] = ExifTag('Exif.Image.Orientation', 1)
+    key = 'Exif.Image.Orientation'
+    metadata[key] = ExifTag(key, 1)
+    print_key_value(metadata, key)
+
+    # Print a list of all the keys of the IPTC tags in the image
+    print os.linesep, 'IPTC keys:', metadata.iptc_keys
+
+    try:
+        # Print the value of the Iptc.Application2.DateCreated tag
+        key = 'Iptc.Application2.DateCreated'
+        print_key_value(metadata, key)
+
+        # Set the value of the Iptc.Application2.DateCreated tag
+        metadata[key].values = [date.today()]
+        print_key_value(metadata, key)
+    except KeyError:
+        print '[not set]'
+
+    # Add a new tag
+    key = 'Iptc.Application2.Keywords'
+    keywords = ['little', 'big', 'man']
+    metadata[key] = IptcTag(key, keywords)
+    print_key_value(metadata, key)
+
+    # Print a list of all the keys of the XMP tags in the image
+    print os.linesep, 'XMP keys:', metadata.xmp_keys
+
+    try:
+        # Print the value of the Xmp.dc.subject tag
+        key = 'Xmp.dc.subject'
+        print_key_value(metadata, key)
+
+        # Set the value of the Xmp.dc.subject tag
+        metadata[key].value = keywords
+        print_key_value(metadata, key)
+    except KeyError:
+        print '[not set]'
+
+    # Add a new tag
+    key = 'Xmp.dc.title'
+    value = {'x-default': 'Sunset', 'fr': 'Coucher de soleil'}
+    metadata[key] = XmpTag(key, value)
+    print_key_value(metadata, key)
 
     # Write back the metadata to the file
     metadata.write()
