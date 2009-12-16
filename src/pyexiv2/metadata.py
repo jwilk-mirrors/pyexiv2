@@ -154,7 +154,7 @@ class ImageMetadata(object):
 
     def _set_exif_tag(self, tag):
         # Set an EXIF tag. If the tag already exists, its value is overwritten.
-        if type(tag) is not ExifTag:
+        if not isinstance(tag, ExifTag):
             raise TypeError('Expecting an ExifTag')
         self._image.setExifTagValue(tag.key, str(tag))
         self._tags['exif'][tag.key] = tag
@@ -175,7 +175,7 @@ class ImageMetadata(object):
     def _set_iptc_tag(self, tag):
         # Set an IPTC tag. If the tag already exists, its values are
         # overwritten.
-        if type(tag) is not IptcTag:
+        if not isinstance(tag, IptcTag):
             raise TypeError('Expecting an IptcTag')
         self._image.setIptcTagValues(tag.key, tag.to_string_list())
         self._tags['iptc'][tag.key] = tag
@@ -199,9 +199,15 @@ class ImageMetadata(object):
 
     def _set_xmp_tag(self, tag):
         # Set an XMP tag. If the tag already exists, its value is overwritten.
-        if type(tag) is not XmpTag:
+        if not isinstance(tag, XmpTag):
             raise TypeError('Expecting an XmpTag')
-        self._image.setXmpTagValue(tag.key, tag.to_string())
+        type = tag._tag._getExiv2Type()
+        if type == 'XmpText':
+            self._image.setXmpTagTextValue(tag.key, tag.raw_value)
+        elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
+            self._image.setXmpTagArrayValue(tag.key, tag.raw_value)
+        elif type == 'LangAlt':
+            self._image.setXmpTagLangAltValue(tag.key, tag.raw_value)
         self._tags['xmp'][tag.key] = tag
         tag.metadata = self
 
