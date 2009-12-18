@@ -30,8 +30,61 @@ from pyexiv2.metadata import ImageMetadata
 from pyexiv2.exif import ExifTag
 from pyexiv2.iptc import IptcTag
 from pyexiv2.xmp import XmpTag
+from pyexiv2.utils import FixedOffset, Rational
 
 import datetime
+
+
+class _TagMock(object):
+
+    def __init__(self, key, type, value):
+        self.key = key
+        self.type = type
+        self.value = value
+
+    def _getKey(self):
+        return self.key
+
+    def _getType(self):
+        return self.type
+
+    def _getRawValue(self):
+        return self.value
+
+
+class _ExifTagMock(_TagMock):
+
+    def __init__(self, key, type, value, human_value=None):
+        super(_ExifTagMock, self).__init__(key, type, value)
+        self.human_value = human_value
+
+    def _getHumanValue(self):
+        return self.human_value
+
+    def _setRawValue(self, value):
+        pass
+
+
+class _IptcTagMock(_TagMock):
+
+    def _getRawValues(self):
+        return self.value
+
+
+class _XmpTagMock(_TagMock):
+
+    def __init__(self, key, type, exiv2_type, value):
+        super(_XmpTagMock, self).__init__(key, type, value)
+        self.exiv2_type = exiv2_type
+
+    def _getExiv2Type(self):
+        return self.exiv2_type
+
+    def _getTextValue(self):
+        return self.value
+
+    def _getArrayValue(self):
+        return self.value
 
 
 class ImageMock(object):
@@ -84,7 +137,13 @@ class ImageMock(object):
     def getXmpTag(self, key):
         return self.tags['xmp'][key]
 
-    def setXmpTagValue(self, key, value):
+    def setXmpTagTextValue(self, key, value):
+        self.tags['xmp'][key] = value
+
+    def setXmpTagArrayValue(self, key, value):
+        self.tags['xmp'][key] = value
+
+    def setXmpTagLangAltValue(self, key, value):
         self.tags['xmp'][key] = value
 
     def deleteXmpTag(self, key):
@@ -102,52 +161,23 @@ class TestImageMetadata(unittest.TestCase):
 
     def _set_exif_tags(self):
         tags = {}
-        tags['Exif.Image.Make'] = \
-            ('Exif.Image.Make', 'Make', 'Manufacturer', 'blabla', 'Ascii',
-             'EASTMAN KODAK COMPANY', 'EASTMAN KODAK COMPANY')
-        tags['Exif.Image.DateTime'] = \
-            ('Exif.Image.DateTime', 'DateTime', 'Date and Time', 'blabla',
-             'Ascii', '2009:02:09 13:33:20', '2009:02:09 13:33:20')
-        tags['Exif.Photo.ExifVersion'] = \
-            ('Exif.Photo.ExifVersion', 'ExifVersion', 'Exif Version', 'blabla',
-             'Undefined', '48 50 50 49 ', '2.21')
+        tags['Exif.Image.Make'] = _ExifTagMock('Exif.Image.Make', 'Ascii', 'EASTMAN KODAK COMPANY')
+        tags['Exif.Image.DateTime'] = _ExifTagMock('Exif.Image.DateTime', 'Ascii', '2009:02:09 13:33:20')
+        tags['Exif.Photo.ExifVersion'] = _ExifTagMock('Exif.Photo.ExifVersion', 'Undefined', '48 50 50 49 ')
         self.metadata._image.tags['exif'] = tags
 
     def _set_iptc_tags(self):
         tags = {}
-        tags['Iptc.Application2.Caption'] = \
-            ('Iptc.Application2.Caption', 'Caption', 'Caption',
-             'A textual description of the object data.', 'String',
-             ['blabla'])
-        tags['Iptc.Application2.DateCreated'] = \
-            ('Iptc.Application2.DateCreated', 'DateCreated', 'Date Created',
-             'Represented in the form CCYYMMDD to designate the date the ' \
-             'intellectual content of the object data was created rather ' \
-             'than the date of the creation of the physical representation. ' \
-             'Follows ISO 8601 standard.', 'Date', ['2004-07-13'])
+        tags['Iptc.Application2.Caption'] = _IptcTagMock('Iptc.Application2.Caption', 'String', ['blabla'])
+        tags['Iptc.Application2.DateCreated'] = _IptcTagMock('Iptc.Application2.DateCreated', 'Date', ['2004-07-13'])
         self.metadata._image.tags['iptc'] = tags
 
     def _set_xmp_tags(self):
         tags = {}
-        tags['Xmp.dc.format'] = \
-            ('Xmp.dc.format', 'format', 'Format', 'The file format used when ' \
-             'saving the resource. Tools and applications should set this ' \
-             'property to the save format of the data. It may include ' \
-             'appropriate qualifiers.', 'MIMEType', 'image/jpeg')
-        tags['Xmp.dc.subject'] = \
-            ('Xmp.dc.subject', 'subject', 'Subject', 'An unordered array of ' \
-             'descriptive phrases or keywords that specify the topic of the ' \
-             'content of the resource.', 'bag Text', 'image, test, pyexiv2')
-        tags['Xmp.xmp.CreateDate'] = \
-            ('Xmp.xmp.CreateDate', 'CreateDate', 'Create Date',
-             'The date and time the resource was originally created.', 'Date',
-             '2005-09-07T15:07:40-07:00')
-        tags['Xmp.xmpMM.DocumentID'] = \
-            ('Xmp.xmpMM.DocumentID', 'DocumentID', 'Document ID',
-             'The common identifier for all versions and renditions of a ' \
-             'document. It should be based on a UUID; see Document and ' \
-             'Instance IDs below.', 'URI',
-             'uuid:9A3B7F52214211DAB6308A7391270C13')
+        tags['Xmp.dc.format'] = _XmpTagMock('Xmp.dc.format', 'MIMEType', 'XmpText', 'image/jpeg')
+        tags['Xmp.dc.subject'] = _XmpTagMock('Xmp.dc.subject', 'bag Text', 'XmpBag', 'image, test, pyexiv2')
+        tags['Xmp.xmp.CreateDate'] = _XmpTagMock('Xmp.xmp.CreateDate', 'Date', 'XmpText', '2005-09-07T15:07:40-07:00')
+        tags['Xmp.xmpMM.DocumentID'] = _XmpTagMock('Xmp.xmpMM.DocumentID', 'URI', 'XmpText', 'uuid:9A3B7F52214211DAB6308A7391270C13')
         self.metadata._image.tags['xmp'] = tags
 
     ######################
@@ -206,9 +236,7 @@ class TestImageMetadata(unittest.TestCase):
         self._set_exif_tags()
         self.assertEqual(self.metadata._tags['exif'], {})
         # Create a new tag
-        tag = ExifTag('Exif.Thumbnail.Orientation', 'Orientation',
-                      'Orientation', 'The image orientation viewed in terms ' \
-                      'of rows and columns.', 'Short', '1', 'top, left')
+        tag = ExifTag('Exif.Thumbnail.Orientation', 1)
         self.assertEqual(tag.metadata, None)
         self.metadata._set_exif_tag(tag)
         self.assertEqual(tag.metadata, self.metadata)
@@ -222,9 +250,7 @@ class TestImageMetadata(unittest.TestCase):
         self._set_exif_tags()
         self.assertEqual(self.metadata._tags['exif'], {})
         # Overwrite an existing tag
-        tag = ExifTag('Exif.Image.DateTime', 'DateTime', 'Date and Time',
-                      'blabla', 'Ascii', '2009:03:20 20:32:00',
-                      '2009:03:20 20:32:00')
+        tag = ExifTag('Exif.Image.DateTime', datetime.datetime(2009, 3, 20, 20, 32, 0))
         self.assertEqual(tag.metadata, None)
         self.metadata._set_exif_tag(tag)
         self.assertEqual(tag.metadata, self.metadata)
@@ -241,8 +267,7 @@ class TestImageMetadata(unittest.TestCase):
         key = 'Exif.Photo.ExifVersion'
         tag = self.metadata._get_exif_tag(key)
         self.assertEqual(self.metadata._tags['exif'][key], tag)
-        new_tag = ExifTag(key, 'ExifVersion', 'Exif Version', 'blabla',
-                          'Undefined', '48 50 50 48 ', '2.20')
+        new_tag = ExifTag(key, '48 50 50 48 ', _tag=_ExifTagMock(key, 'Undefined', '48 50 50 48 ', '2.20'))
         self.assertEqual(new_tag.metadata, None)
         self.metadata._set_exif_tag(new_tag)
         self.assertEqual(new_tag.metadata, self.metadata)
@@ -250,7 +275,7 @@ class TestImageMetadata(unittest.TestCase):
         self.assert_(self.metadata._image.tags['exif'].has_key(key))
         # Special case where the formatted value is used instead of the raw
         # value.
-        self.assertEqual(self.metadata._image.tags['exif'][key], new_tag.fvalue)
+        self.assertEqual(self.metadata._image.tags['exif'][key], new_tag.raw_value)
 
     def test_set_exif_tag_value_inexistent(self):
         self.metadata.read()
@@ -345,33 +370,28 @@ class TestImageMetadata(unittest.TestCase):
         self._set_iptc_tags()
         self.assertEqual(self.metadata._tags['iptc'], {})
         # Create a new tag
-        tag = IptcTag('Iptc.Application2.Writer', 'Writer', 'Writer',
-                      'Identification of the name of the person involved in ' \
-                      'the writing, editing or correcting the object data or ' \
-                      'caption/abstract.', 'String', ['Nobody'])
+        tag = IptcTag('Iptc.Application2.Writer', ['Nobody'])
         self.assertEqual(tag.metadata, None)
         self.metadata._set_iptc_tag(tag)
         self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['iptc'], {tag.key: tag})
         self.assert_(self.metadata._image.tags['iptc'].has_key(tag.key))
         self.assertEqual(self.metadata._image.tags['iptc'][tag.key],
-                         tag.raw_value)
+                         tag.raw_values)
 
     def test_set_iptc_tag_overwrite(self):
         self.metadata.read()
         self._set_iptc_tags()
         self.assertEqual(self.metadata._tags['iptc'], {})
         # Overwrite an existing tag
-        tag = IptcTag('Iptc.Application2.Caption', 'Caption', 'Caption',
-                      'A textual description of the object data.', 'String',
-                      ['A picture.'])
+        tag = IptcTag('Iptc.Application2.Caption', ['A picture.'])
         self.assertEqual(tag.metadata, None)
         self.metadata._set_iptc_tag(tag)
         self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['iptc'], {tag.key: tag})
         self.assert_(self.metadata._image.tags['iptc'].has_key(tag.key))
         self.assertEqual(self.metadata._image.tags['iptc'][tag.key],
-                         tag.raw_value)
+                         tag.raw_values)
 
     def test_set_iptc_tag_overwrite_already_cached(self):
         self.metadata.read()
@@ -381,16 +401,14 @@ class TestImageMetadata(unittest.TestCase):
         key = 'Iptc.Application2.Caption'
         tag = self.metadata._get_iptc_tag(key)
         self.assertEqual(self.metadata._tags['iptc'][key], tag)
-        new_tag = IptcTag(key, 'Caption', 'Caption',
-                      'A textual description of the object data.', 'String',
-                      ['A picture.'])
+        new_tag = IptcTag(key, ['A picture.'])
         self.assertEqual(new_tag.metadata, None)
         self.metadata._set_iptc_tag(new_tag)
         self.assertEqual(new_tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['iptc'], {key: new_tag})
         self.assert_(self.metadata._image.tags['iptc'].has_key(key))
         self.assertEqual(self.metadata._image.tags['iptc'][key],
-                         new_tag.raw_value)
+                         new_tag.raw_values)
 
     def test_set_iptc_tag_values_inexistent(self):
         self.metadata.read()
@@ -488,12 +506,8 @@ class TestImageMetadata(unittest.TestCase):
         self._set_xmp_tags()
         self.assertEqual(self.metadata._tags['xmp'], {})
         # Create a new tag
-        tag = XmpTag('Xmp.dc.title', 'title', 'Title', 'The title of the ' \
-                     'document, or the name given to the resource. Typically,' \
-                     ' it will be a name by which the resource is formally ' \
-                     'known.', 'Lang Alt',
-                     'lang="x-default" This is not a title, ' \
-                     'lang="fr-FR" Ceci n\'est pas un titre')
+        tag = XmpTag('Xmp.dc.title', {'x-default': 'This is not a title',
+                                      'fr-FR': "Ceci n'est pas un titre"})
         self.assertEqual(tag.metadata, None)
         self.metadata._set_xmp_tag(tag)
         self.assertEqual(tag.metadata, self.metadata)
@@ -507,11 +521,7 @@ class TestImageMetadata(unittest.TestCase):
         self._set_xmp_tags()
         self.assertEqual(self.metadata._tags['xmp'], {})
         # Overwrite an existing tag
-        tag = XmpTag('Xmp.dc.format', 'format', 'Format', 'The file format ' \
-                     'used when saving the resource. Tools and applications ' \
-                     'should set this property to the save format of the ' \
-                     'data. It may include appropriate qualifiers.',
-                     'MIMEType', 'image/png')
+        tag = XmpTag('Xmp.dc.format', ('image', 'png'))
         self.assertEqual(tag.metadata, None)
         self.metadata._set_xmp_tag(tag)
         self.assertEqual(tag.metadata, self.metadata)
@@ -528,9 +538,7 @@ class TestImageMetadata(unittest.TestCase):
         key = 'Xmp.xmp.CreateDate'
         tag = self.metadata._get_xmp_tag(key)
         self.assertEqual(self.metadata._tags['xmp'][key], tag)
-        new_tag = XmpTag(key, 'CreateDate', 'Create Date',
-                         'The date and time the resource was originally ' \
-                         'created.', 'Date', '2009-04-21T20:07+01:00')
+        new_tag = XmpTag(key, datetime.datetime(2009, 4, 21, 20, 7, 0, tzinfo=FixedOffset('+', 1, 0)))
         self.assertEqual(new_tag.metadata, None)
         self.metadata._set_xmp_tag(new_tag)
         self.assertEqual(new_tag.metadata, self.metadata)
@@ -551,6 +559,7 @@ class TestImageMetadata(unittest.TestCase):
         self.metadata.read()
         self._set_xmp_tags()
         key = 'Xmp.xmp.CreateDate'
+        tag = self.metadata[key]
         value = datetime.datetime(2009, 4, 21, 20, 11, 0)
         self.failUnlessRaises(TypeError, self.metadata._set_xmp_tag_value,
                               key, value)
@@ -624,48 +633,33 @@ class TestImageMetadata(unittest.TestCase):
         self._set_xmp_tags()
         # Set new tags
         key = 'Exif.Photo.ExposureBiasValue'
-        tag = ExifTag(key, 'ExposureBiasValue', 'Exposure Bias',
-                      'The exposure bias. The units is the APEX value. ' \
-                      'Ordinarily it is given in the range of -99.99 to 99.99.',
-                      'SRational', '0/3', '0')
+        tag = ExifTag(key, Rational(0, 3))
         self.metadata[key] = tag
         self.failUnless(key in self.metadata._tags['exif'])
         self.failUnlessEqual(self.metadata._tags['exif'][key], tag)
         key = 'Iptc.Application2.City'
-        tag = IptcTag(key, 'City', 'City', 'Identifies city of object data ' \
-                      'origin according to guidelines established by the ' \
-                      'provider.', 'String', ['Barcelona'])
+        tag = IptcTag(key, ['Barcelona'])
         self.metadata[key] = tag
         self.failUnless(key in self.metadata._tags['iptc'])
         self.failUnlessEqual(self.metadata._tags['iptc'][key], tag)
         key = 'Xmp.dc.description'
-        tag = XmpTag(key, 'description', 'Description', 'A textual ' \
-                     'description of the content of the resource. Multiple ' \
-                     'values may be present for different languages.',
-                     'Lang Alt', 'lang="x-default" Sunset picture.')
+        tag = XmpTag(key, {'x-default': 'Sunset picture.'})
         self.metadata[key] = tag
         self.failUnless(key in self.metadata._tags['xmp'])
         self.failUnlessEqual(self.metadata._tags['xmp'][key], tag)
         # Replace existing tags
         key = 'Exif.Photo.ExifVersion'
-        tag = ExifTag(key, 'ExifVersion', 'Exif Version', 'The version of ' \
-                      'this standard supported. Nonexistence of this field is' \
-                      ' taken to mean nonconformance to the standard.',
-                      'Undefined', '48 50 50 48 ', '2.20')
+        tag = ExifTag(key, '48 50 50 48 ')
         self.metadata[key] = tag
         self.failUnless(key in self.metadata._tags['exif'])
         self.failUnlessEqual(self.metadata._tags['exif'][key], tag)
         key = 'Iptc.Application2.Caption'
-        tag = IptcTag(key, 'Caption', 'Caption', 'A textual description of ' \
-                      'the object data.', 'String', ['Sunset on Barcelona.'])
+        tag = IptcTag(key, ['Sunset on Barcelona.'])
         self.metadata[key] = tag
         self.failUnless(key in self.metadata._tags['iptc'])
         self.failUnlessEqual(self.metadata._tags['iptc'][key], tag)
         key = 'Xmp.dc.subject'
-        tag = XmpTag(key, 'subject', 'Subject', 'An unordered array of ' \
-                     'descriptive phrases or keywords that specify the topic ' \
-                     'of the content of the resource.', 'bag Text',
-                     'sunset, Barcelona, beautiful, beach')
+        tag = XmpTag(key, ['sunset', 'Barcelona', 'beautiful', 'beach'])
         self.metadata[key] = tag
         self.failUnless(key in self.metadata._tags['xmp'])
         self.failUnlessEqual(self.metadata._tags['xmp'][key], tag)
@@ -690,3 +684,4 @@ class TestImageMetadata(unittest.TestCase):
                 'Xmp.xmp.Rating', 'Wrong.Noluck.Raise')
         for key in keys:
             self.failUnlessRaises(KeyError, self.metadata.__delitem__, key)
+

@@ -32,15 +32,6 @@ from pyexiv2.utils import FixedOffset
 import datetime
 
 
-class IptcTagMock(IptcTag):
-
-    def __init__(self, key, type):
-        super(IptcTagMock, self).__init__(key, '', '', '', type, [])
-
-    def _init_values(self):
-        pass
-
-
 class ImageMetadataMock(object):
 
     tags = {}
@@ -48,20 +39,13 @@ class ImageMetadataMock(object):
     def _set_iptc_tag_values(self, key, values):
         self.tags[key] = values
 
-    def _delete_iptc_tag(self, key):
-        try:
-            del self.tags[key]
-        except KeyError:
-            pass
-
 
 class TestIptcTag(unittest.TestCase):
 
     def test_convert_to_python_short(self):
-        type = 'Short'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Envelope.FileFormat', type)
+        tag = IptcTag('Iptc.Envelope.FileFormat')
+        self.assertEqual(tag.type, 'Short')
         self.assertEqual(tag._convert_to_python('23'), 23)
         self.assertEqual(tag._convert_to_python('+5628'), 5628)
         self.assertEqual(tag._convert_to_python('-4'), -4)
@@ -73,10 +57,9 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, tag._convert_to_python, '1E3')
 
     def test_convert_to_string_short(self):
-        type = 'Short'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Envelope.FileFormat', type)
+        tag = IptcTag('Iptc.Envelope.FileFormat')
+        self.assertEqual(tag.type, 'Short')
         self.assertEqual(tag._convert_to_string(123), '123')
         self.assertEqual(tag._convert_to_string(-57), '-57')
 
@@ -85,19 +68,17 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, 3.14)
 
     def test_convert_to_python_string(self):
-        type = 'String'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Application2.Subject', type)
+        tag = IptcTag('Iptc.Application2.Subject')
+        self.assertEqual(tag.type, 'String')
         self.assertEqual(tag._convert_to_python('Some text.'), 'Some text.')
         self.assertEqual(tag._convert_to_python('Some text with exotic chàräctérʐ.'),
                          'Some text with exotic chàräctérʐ.')
 
     def test_convert_to_string_string(self):
-        type = 'String'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Application2.Subject', type)
+        tag = IptcTag('Iptc.Application2.Subject')
+        self.assertEqual(tag.type, 'String')
         self.assertEqual(tag._convert_to_string(u'Some text'), 'Some text')
         self.assertEqual(tag._convert_to_string(u'Some text with exotic chàräctérʐ.'),
                          'Some text with exotic chàräctérʐ.')
@@ -108,10 +89,9 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, None)
 
     def test_convert_to_python_date(self):
-        type = 'Date'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Envelope.DateSent', type)
+        tag = IptcTag('Iptc.Envelope.DateSent')
+        self.assertEqual(tag.type, 'Date')
         self.assertEqual(tag._convert_to_python('1999-10-13'),
                          datetime.date(1999, 10, 13))
 
@@ -124,10 +104,9 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, tag._convert_to_python, '2009-02-24T22:12:54')
 
     def test_convert_to_string_date(self):
-        type = 'Date'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Envelope.DateSent', type)
+        tag = IptcTag('Iptc.Envelope.DateSent')
+        self.assertEqual(tag.type, 'Date')
         self.assertEqual(tag._convert_to_string(datetime.date(2009, 2, 4)),
                          '2009-02-04')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13)),
@@ -142,10 +121,9 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, None)
 
     def test_convert_to_python_time(self):
-        type = 'Time'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Envelope.TimeSent', type)
+        tag = IptcTag('Iptc.Envelope.TimeSent')
+        self.assertEqual(tag.type, 'Time')
         self.assertEqual(tag._convert_to_python('05:03:54+00:00'),
                          datetime.time(5, 3, 54, tzinfo=FixedOffset()))
         self.assertEqual(tag._convert_to_python('05:03:54+06:00'),
@@ -162,10 +140,9 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, tag._convert_to_python, '081242+0000')
 
     def test_convert_to_string_time(self):
-        type = 'Time'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Envelope.TimeSent', type)
+        tag = IptcTag('Iptc.Envelope.TimeSent')
+        self.assertEqual(tag.type, 'Time')
         self.assertEqual(tag._convert_to_string(datetime.time(10, 52, 4)),
                          '105204+0000')
         self.assertEqual(tag._convert_to_string(datetime.time(10, 52, 4, 574)),
@@ -191,20 +168,18 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, 'invalid')
 
     def test_convert_to_python_undefined(self):
-        type = 'Undefined'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Envelope.CharacterSet', type)
+        tag = IptcTag('Iptc.Envelope.CharacterSet')
+        self.assertEqual(tag.type, 'Undefined')
         self.assertEqual(tag._convert_to_python('Some binary data.'),
                          'Some binary data.')
         self.assertEqual(tag._convert_to_python('�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}'),
                          '�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}')
 
     def test_convert_to_string_undefined(self):
-        type = 'Undefined'
-
         # Valid values
-        tag = IptcTagMock('Iptc.Envelope.CharacterSet', type)
+        tag = IptcTag('Iptc.Envelope.CharacterSet')
+        self.assertEqual(tag.type, 'Undefined')
         self.assertEqual(tag._convert_to_string('Some binary data.'),
                          'Some binary data.')
         self.assertEqual(tag._convert_to_string('�lj1�eEϟ�u����ᒻ;C(�SpI]���QI�}'),
@@ -214,43 +189,20 @@ class TestIptcTag(unittest.TestCase):
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, None)
 
     def test_set_single_value_raises(self):
-        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
-                      'city of object data origin according to guidelines ' \
-                      'established by the provider.', 'String', ['Seattle'])
+        tag = IptcTag('Iptc.Application2.City', ['Seattle'])
         self.failUnlessRaises(TypeError, tag._set_values, 'Barcelona')
 
     def test_set_values_no_metadata(self):
-        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
-                      'city of object data origin according to guidelines ' \
-                      'established by the provider.', 'String', ['Seattle'])
+        tag = IptcTag('Iptc.Application2.City', ['Seattle'])
         old_values = tag.values
         tag.values = ['Barcelona']
         self.failIfEqual(tag.values, old_values)
 
     def test_set_values_with_metadata(self):
-        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
-                      'city of object data origin according to guidelines ' \
-                      'established by the provider.', 'String', ['Seattle'])
+        tag = IptcTag('Iptc.Application2.City', ['Seattle'])
         tag.metadata = ImageMetadataMock()
         old_values = tag.values
         tag.values = ['Barcelona']
         self.failIfEqual(tag.values, old_values)
         self.assertEqual(tag.metadata.tags[tag.key], ['Barcelona'])
 
-    def test_del_values_no_metadata(self):
-        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
-                      'city of object data origin according to guidelines ' \
-                      'established by the provider.', 'String', ['Seattle'])
-        del tag.values
-        self.failIf(hasattr(tag, 'values'))
-
-    def test_del_values_with_metadata(self):
-        tag = IptcTag('Iptc.Application2.City', 'City', 'City', 'Identifies ' \
-                      'city of object data origin according to guidelines ' \
-                      'established by the provider.', 'String', ['Seattle'])
-        tag.metadata = ImageMetadataMock()
-        tag.metadata._set_iptc_tag_values(tag.key, tag.to_string())
-        self.assertEqual(tag.metadata.tags, {tag.key: ['Seattle']})
-        del tag.values
-        self.failIf(hasattr(tag, 'values'))
-        self.failIf(tag.metadata.tags.has_key(tag.key))

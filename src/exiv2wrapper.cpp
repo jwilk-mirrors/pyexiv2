@@ -25,6 +25,8 @@
 
 #include "exiv2wrapper.hpp"
 
+#include "boost/python/stl_iterator.hpp"
+
 // Custom error codes for Exiv2 exceptions
 #define METADATA_NOT_READ 101
 #define NON_REPEATABLE 102
@@ -94,70 +96,48 @@ boost::python::list Image::exifKeys()
     }
 }
 
-boost::python::tuple Image::getExifTag(std::string key)
+const ExifTag Image::getExifTag(std::string key)
 {
-    if(_dataRead)
-    {
-        Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-        if(_exifData.findKey(exifKey) != _exifData.end())
-        {
-            Exiv2::Exifdatum exifDatum = _exifData[key];
-            std::string sTagName = exifDatum.tagName();
-            std::string sTagLabel = exifDatum.tagLabel();
-            std::string sTagDesc(Exiv2::ExifTags::tagDesc(exifKey.tag(), exifKey.ifdId()));
-            std::string sTagType = exifDatum.typeName();
-            std::string sTagValue = exifDatum.toString();
-            std::ostringstream sTagStringValueBuffer;
-            sTagStringValueBuffer << exifDatum;
-            std::string sTagStringValue = sTagStringValueBuffer.str();
-            return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, sTagValue, sTagStringValue);
-        }
-        else
-        {
-            throw Exiv2::Error(KEY_NOT_FOUND, key);
-        }
-    }
-    else
+    if (!_dataRead)
     {
         throw Exiv2::Error(METADATA_NOT_READ);
     }
+
+    Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
+
+    if(_exifData.findKey(exifKey) == _exifData.end())
+    {
+        throw Exiv2::Error(KEY_NOT_FOUND, key);
+    }
+
+    return ExifTag(key, &_exifData[key]);
 }
 
 void Image::setExifTagValue(std::string key, std::string value)
 {
-    if(_dataRead)
+    if (!_dataRead)
     {
-        Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-        Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-        if(i != _exifData.end())
-        {
-            // First erase the existing tag: in some case (and I don't know
-            // why), the new value won't replace the old one if not previously
-            // erased...
-            // TODO: check if this is still valid with libexiv2 0.18
-            _exifData.erase(i);
-        }
-        _exifData[key] = value;
-    }
-    else
         throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    _exifData[key] = value;
 }
 
 void Image::deleteExifTag(std::string key)
 {
-    if(_dataRead)
+    if (!_dataRead)
     {
-        Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-        Exiv2::ExifMetadata::iterator i = _exifData.findKey(exifKey);
-        if(i != _exifData.end())
-        {
-            _exifData.erase(i);
-        }
-        else
-            throw Exiv2::Error(KEY_NOT_FOUND, key);
-    }
-    else
         throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
+    Exiv2::ExifMetadata::iterator datum = _exifData.findKey(exifKey);
+    if(datum == _exifData.end())
+    {
+        throw Exiv2::Error(KEY_NOT_FOUND, key);
+    }
+
+    _exifData.erase(datum);
 }
 
 boost::python::list Image::iptcKeys()
@@ -184,41 +164,31 @@ boost::python::list Image::iptcKeys()
     }
 }
 
-boost::python::tuple Image::getIptcTag(std::string key)
+const IptcTag Image::getIptcTag(std::string key)
 {
-    if(_dataRead)
-    {
-        Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-        boost::python::list values;
-        unsigned int occurences = 0;
-        std::string sTagType;
-        for (Exiv2::IptcMetadata::iterator i = _iptcData.begin();
-             i != _iptcData.end();
-             ++i)
-        {
-            if (i->key() == key)
-            {
-                values.append(i->toString());
-                ++occurences;
-                sTagType = i->typeName();
-            }
-        }
-        if (occurences > 0)
-        {
-            std::string sTagName = iptcKey.tagName();
-            std::string sTagLabel = iptcKey.tagLabel();
-            std::string sTagDesc(Exiv2::IptcDataSets::dataSetDesc(iptcKey.tag(), iptcKey.record()));
-            return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, values);
-        }
-        else
-        {
-            throw Exiv2::Error(KEY_NOT_FOUND, key);
-        }
-    }
-    else
+    if (!_dataRead)
     {
         throw Exiv2::Error(METADATA_NOT_READ);
     }
+
+    Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
+
+    if(_iptcData.findKey(iptcKey) == _iptcData.end())
+    {
+        throw Exiv2::Error(KEY_NOT_FOUND, key);
+    }
+
+    Exiv2::IptcMetadata* data = new Exiv2::IptcMetadata();
+    for (Exiv2::IptcMetadata::iterator iterator = _iptcData.begin();
+         iterator != _iptcData.end(); ++iterator)
+    {
+        if (iterator->key() == key)
+        {
+            data->push_back(*iterator);
+        }
+    }
+
+    return IptcTag(key, data);
 }
 
 /*void Image::setIptcTag(std::string key, std::string value, unsigned int index=0)
@@ -342,7 +312,7 @@ boost::python::list Image::xmpKeys()
     }
 }
 
-boost::python::tuple Image::getXmpTag(std::string key)
+const XmpTag Image::getXmpTag(std::string key)
 {
     if(!_dataRead)
     {
@@ -356,23 +326,57 @@ boost::python::tuple Image::getXmpTag(std::string key)
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    Exiv2::Xmpdatum xmpDatum = _xmpData[key];
-    std::string sTagName = xmpKey.tagName();
-    std::string sTagLabel = xmpKey.tagLabel();
-    std::string sTagDesc(Exiv2::XmpProperties::propertyDesc(xmpKey));
-    std::string sTagType(Exiv2::XmpProperties::propertyInfo(xmpKey)->xmpValueType_);
-    std::string sTagValue = xmpDatum.toString();
-    return boost::python::make_tuple(key, sTagName, sTagLabel, sTagDesc, sTagType, sTagValue);
+    return XmpTag(key, &_xmpData[key]);
 }
 
-void Image::setXmpTagValue(std::string key, std::string value)
+void Image::setXmpTagTextValue(const std::string& key, const std::string& value)
 {
     if (!_dataRead)
     {
         throw Exiv2::Error(METADATA_NOT_READ);
     }
 
-    _xmpData[key] = value;
+    _xmpData[key].setValue(value);
+}
+
+void Image::setXmpTagArrayValue(const std::string& key, const boost::python::list& values)
+{
+    if (!_dataRead)
+    {
+        throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    Exiv2::Xmpdatum& datum = _xmpData[key];
+    // Reset the value
+    datum.setValue(0);
+
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        datum.setValue(*iterator);
+    }
+}
+
+void Image::setXmpTagLangAltValue(const std::string& key, const boost::python::dict& values)
+{
+    if (!_dataRead)
+    {
+        throw Exiv2::Error(METADATA_NOT_READ);
+    }
+
+    Exiv2::Xmpdatum& datum = _xmpData[key];
+    // Reset the value
+    datum.setValue(0);
+
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        std::string key = *iterator;
+        std::string value = boost::python::extract<std::string>(values.get(key));
+        datum.setValue("lang=\"" + key + "\" " + value);
+    }
 }
 
 void Image::deleteXmpTag(std::string key)
@@ -467,6 +471,319 @@ void Image::setThumbnailFromJpegFile(const std::string path)
         throw Exiv2::Error(METADATA_NOT_READ);
 }
 */
+
+
+ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum): _key(key)
+{
+    if (datum != 0)
+    {
+        _datum = datum;
+    }
+    else
+    {
+        _datum = new Exiv2::Exifdatum(_key);
+    }
+
+    const uint16_t tag = _datum->tag();
+    const Exiv2::IfdId ifd = _datum->ifdId();
+    _type = Exiv2::TypeInfo::typeName(Exiv2::ExifTags::tagType(tag, ifd));
+    _name = Exiv2::ExifTags::tagName(tag, ifd);
+    _label = Exiv2::ExifTags::tagLabel(tag, ifd);
+    _description = Exiv2::ExifTags::tagDesc(tag, ifd);
+    _sectionName = Exiv2::ExifTags::sectionName(tag, ifd);
+    _sectionDescription = Exiv2::ExifTags::sectionDesc(tag, ifd);
+}
+
+void ExifTag::setRawValue(const std::string& value)
+{
+    _datum->setValue(value);
+}
+
+const std::string ExifTag::getKey()
+{
+    return _key.key();
+}
+
+const std::string ExifTag::getType()
+{
+    return _type;
+}
+
+const std::string ExifTag::getName()
+{
+    return _name;
+}
+
+const std::string ExifTag::getLabel()
+{
+    return _label;
+}
+
+const std::string ExifTag::getDescription()
+{
+    return _description;
+}
+
+const std::string ExifTag::getSectionName()
+{
+    return _sectionName;
+}
+
+const std::string ExifTag::getSectionDescription()
+{
+    return _sectionDescription;
+}
+
+const std::string ExifTag::getRawValue()
+{
+    return _datum->toString();
+}
+
+const std::string ExifTag::getHumanValue()
+{
+    std::ostringstream buffer;
+    buffer << *_datum;
+    return buffer.str();
+}
+
+
+IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
+{
+    if (data != 0)
+    {
+        _data = data;
+    }
+    else
+    {
+        _data = new Exiv2::IptcMetadata();
+        _data->push_back(Exiv2::Iptcdatum(_key));
+    }
+
+    Exiv2::IptcMetadata::iterator iterator = _data->begin();
+    const uint16_t tag = iterator->tag();
+    const uint16_t record = iterator->record();
+    _type = Exiv2::TypeInfo::typeName(Exiv2::IptcDataSets::dataSetType(tag, record));
+    _name = Exiv2::IptcDataSets::dataSetName(tag, record);
+    _title = Exiv2::IptcDataSets::dataSetTitle(tag, record);
+    _description = Exiv2::IptcDataSets::dataSetDesc(tag, record);
+    // What is the photoshop name anyway? Where is it used?
+    _photoshopName = Exiv2::IptcDataSets::dataSetPsName(tag, record);
+    _repeatable = Exiv2::IptcDataSets::dataSetRepeatable(tag, record);
+    _recordName = Exiv2::IptcDataSets::recordName(record);
+    _recordDescription = Exiv2::IptcDataSets::recordDesc(record);
+
+    if (!_repeatable && (_data->size() > 1))
+    {
+        // The tag is not repeatable but we are trying to assign it more than
+        // one value.
+        throw Exiv2::Error(NON_REPEATABLE);
+    }
+}
+
+void IptcTag::setRawValues(const boost::python::list& values)
+{
+    if (!_repeatable && (boost::python::len(values) > 1))
+    {
+        // The tag is not repeatable but we are trying to assign it more than
+        // one value.
+        throw Exiv2::Error(NON_REPEATABLE);
+    }
+
+    _data->clear();
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        Exiv2::Iptcdatum datum(_key);
+        datum.setValue(*iterator);
+        _data->push_back(datum);
+    }
+}
+
+const std::string IptcTag::getKey()
+{
+    return _key.key();
+}
+
+const std::string IptcTag::getType()
+{
+    return _type;
+}
+
+const std::string IptcTag::getName()
+{
+    return _name;
+}
+
+const std::string IptcTag::getTitle()
+{
+    return _title;
+}
+
+const std::string IptcTag::getDescription()
+{
+    return _description;
+}
+
+const std::string IptcTag::getPhotoshopName()
+{
+    return _photoshopName;
+}
+
+const bool IptcTag::isRepeatable()
+{
+    return _repeatable;
+}
+
+const std::string IptcTag::getRecordName()
+{
+    return _recordName;
+}
+
+const std::string IptcTag::getRecordDescription()
+{
+    return _recordDescription;
+}
+
+const boost::python::list IptcTag::getRawValues()
+{
+    boost::python::list values;
+    for(Exiv2::IptcMetadata::iterator iterator = _data->begin();
+        iterator != _data->end(); ++iterator)
+    {
+        values.append(iterator->toString());
+    }
+    return values;
+}
+
+
+XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
+{
+    if (datum != 0)
+    {
+        _datum = datum;
+    }
+    else
+    {
+        _datum = new Exiv2::Xmpdatum(_key);
+    }
+
+    _exiv2_type = Exiv2::TypeInfo::typeName(Exiv2::XmpProperties::propertyType(_key));
+
+    const char* title = Exiv2::XmpProperties::propertyTitle(_key);
+    if (title != 0)
+    {
+        _title = title;
+    }
+
+    const char* description = Exiv2::XmpProperties::propertyDesc(_key);
+    if (description != 0)
+    {
+        _description = description;
+    }
+
+    const Exiv2::XmpPropertyInfo* info = Exiv2::XmpProperties::propertyInfo(_key);
+    if (info != 0)
+    {
+        _name = info->name_;
+        _type = info->xmpValueType_;
+    }
+}
+
+void XmpTag::setTextValue(const std::string& value)
+{
+    _datum->setValue(value);
+}
+
+void XmpTag::setArrayValue(const boost::python::list& values)
+{
+    // Reset the value
+    _datum->setValue(0);
+
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        _datum->setValue(*iterator);
+    }
+}
+
+void XmpTag::setLangAltValue(const boost::python::dict& values)
+{
+    // Reset the value
+    _datum->setValue(0);
+
+    for(boost::python::stl_input_iterator<std::string> iterator(values);
+        iterator != boost::python::stl_input_iterator<std::string>();
+        ++iterator)
+    {
+        std::string key = *iterator;
+        std::string value = boost::python::extract<std::string>(values.get(key));
+        _datum->setValue("lang=\"" + key + "\" " + value);
+    }
+}
+
+const std::string XmpTag::getKey()
+{
+    return _key.key();
+}
+
+const std::string XmpTag::getExiv2Type()
+{
+    return _exiv2_type;
+}
+
+const std::string XmpTag::getType()
+{
+    return _type;
+}
+
+const std::string XmpTag::getName()
+{
+    return _name;
+}
+
+const std::string XmpTag::getTitle()
+{
+    return _title;
+}
+
+const std::string XmpTag::getDescription()
+{
+    return _description;
+}
+
+const std::string XmpTag::getTextValue()
+{
+    return dynamic_cast<const Exiv2::XmpTextValue*>(&_datum->value())->value_;
+}
+
+const boost::python::list XmpTag::getArrayValue()
+{
+    std::vector<std::string> value =
+        dynamic_cast<const Exiv2::XmpArrayValue*>(&_datum->value())->value_;
+    boost::python::list rvalue;
+    for(std::vector<std::string>::const_iterator i = value.begin();
+        i != value.end(); ++i)
+    {
+        rvalue.append(*i);
+    }
+    return rvalue;
+}
+
+const boost::python::dict XmpTag::getLangAltValue()
+{
+    Exiv2::LangAltValue::ValueType value =
+        dynamic_cast<const Exiv2::LangAltValue*>(&_datum->value())->value_;
+    boost::python::dict rvalue;
+    for (Exiv2::LangAltValue::ValueType::const_iterator i = value.begin();
+         i != value.end(); ++i)
+    {
+        rvalue[i->first] = i->second;
+    }
+    return rvalue;
+}
+
 
 // TODO: update the errors code to reflect changes from src/error.cpp in libexiv2
 void translateExiv2Error(Exiv2::Error const& error)

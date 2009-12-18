@@ -24,8 +24,9 @@
 #
 # ******************************************************************************
 
-from pyexiv2.tag import MetadataTag
-from pyexiv2.utils import ListenerInterface, NotifyingList, Rational
+import libexiv2python
+
+from pyexiv2.utils import Rational, NotifyingList, ListenerInterface
 
 import time
 import datetime
@@ -51,15 +52,22 @@ class ExifValueError(ValueError):
                (self.type, self.value)
 
 
-class ExifTag(MetadataTag, ListenerInterface):
+class ExifTag(ListenerInterface):
 
     """
-    An EXIF metadata tag.
-    This tag has an additional field that contains the value of the tag
-    formatted as a human readable string.
+    An EXIF tag.
 
-    @ivar fvalue: the value of the tag formatted as a human readable string
-    @type fvalue: C{str}
+    Here is a correspondance table between the EXIF types and the possible
+    python types the value of a tag may take:
+     - Ascii: C{datetime.datetime}, C{datetime.date}, C{str}
+     - Byte: C{str}
+     - Short: [list of] C{int}
+     - Long, SLong: [list of] C{long}
+     - Rational, SRational: [list of] L{pyexiv2.utils.Rational}
+     - Undefined: C{str}
+
+    @ivar metadata: the parent metadata if any, or C{None}
+    @type metadata: L{pyexiv2.metadata.ImageMetadata}
     """
 
     # According to the EXIF specification, the only accepted format for an Ascii
@@ -71,72 +79,132 @@ class ExifTag(MetadataTag, ListenerInterface):
 
     _date_formats = ('%Y:%m:%d',)
 
-    def __init__(self, key, name, label, description, type, value, fvalue):
-        super(ExifTag, self).__init__(key, name, label,
-                                      description, type, value)
-        self.fvalue = fvalue
-        self._init_values()
+    def __init__(self, key, value=None, _tag=None):
+        """
+        The tag can be initialized with an optional value which expected type
+        depends on the EXIF type of the tag.
 
-    def _init_values(self):
-        # Initial conversion of the raw values to their corresponding python
-        # types.
+        @param key:   the key of the tag
+        @type key:    C{str}
+        @param value: the value of the tag
+        """
+        super(ExifTag, self).__init__()
+        if _tag is not None:
+            self._tag = _tag
+        else:
+            self._tag = libexiv2python._ExifTag(key)
+        self.metadata = None
+        self._raw_value = None
+        self._value = None
+        if value is not None:
+            self._set_value(value)
+
+    @staticmethod
+    def _from_existing_tag(_tag):
+        # Build a tag from an already existing libexiv2python._ExifTag.
+        tag = ExifTag(_tag._getKey(), _tag=_tag)
+        tag.raw_value = _tag._getRawValue()
+        return tag
+
+    @property
+    def key(self):
+        """The key of the tag in the form 'familyName.groupName.tagName'."""
+        return self._tag._getKey()
+
+    @property
+    def type(self):
+        """The EXIF type of the tag (one of Ascii, Byte, Short, Long, SLong,
+        Rational, SRational, Undefined)."""
+        return self._tag._getType()
+
+    @property
+    def name(self):
+        """The name of the tag (this is also the third part of the key)."""
+        return self._tag._getName()
+
+    @property
+    def label(self):
+        """The title (label) of the tag."""
+        return self._tag._getLabel()
+
+    @property
+    def description(self):
+        """The description of the tag."""
+        return self._tag._getDescription()
+
+    @property
+    def section_name(self):
+        """The name of the tag's section."""
+        return self._tag._getSectionName()
+
+    @property
+    def section_description(self):
+        """The description of the tag's section."""
+        return self._tag._getSectionDescription()
+
+    def _get_raw_value(self):
+        return self._raw_value
+
+    def _set_raw_value(self, value):
+        self._raw_value = value
         if self.type in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
             # May contain multiple values
-            values = self.raw_value.split()
+            values = value.split()
             if len(values) > 1:
                 # Make values a notifying list
                 values = map(self._convert_to_python, values)
                 self._value = NotifyingList(values)
                 self._value.register_listener(self)
                 return
-        self._value = self._convert_to_python(self.raw_value)
+        self._value = self._convert_to_python(value)
+
+    raw_value = property(fget=_get_raw_value, fset=_set_raw_value,
+                         doc='The raw value of the tag as a string (C{str}).')
 
     def _get_value(self):
         return self._value
 
-    def _set_value(self, new_value):
+    def _set_value(self, value):
+        if isinstance(value, (list, tuple)):
+            raw_values = map(self._convert_to_string, value)
+            self._raw_value = ' '.join(raw_values)
+        else:
+            self._raw_value = self._convert_to_string(value)
+        self._tag._setRawValue(self._raw_value)
+
         if self.metadata is not None:
-            if isinstance(new_value, (list, tuple)):
-                raw_values = map(self._convert_to_string, new_value)
-                raw_value = ' '.join(raw_values)
-            else:
-                raw_value = self._convert_to_string(new_value)
-            self.metadata._set_exif_tag_value(self.key, raw_value)
+            self.metadata._set_exif_tag_value(self.key, self._raw_value)
 
         if isinstance(self._value, NotifyingList):
             self._value.unregister_listener(self)
 
-        if isinstance(new_value, NotifyingList):
+        if isinstance(value, NotifyingList):
             # Already a notifying list
-            self._value = new_value
+            self._value = value
             self._value.register_listener(self)
-        elif isinstance(new_value, (list, tuple)):
+        elif isinstance(value, (list, tuple)):
             # Make the values a notifying list 
-            self._value = NotifyingList(new_value)
+            self._value = NotifyingList(value)
             self._value.register_listener(self)
         else:
             # Single value
-            self._value = new_value
+            self._value = value
 
-    def _del_value(self):
-        if self.metadata is not None:
-            self.metadata._delete_exif_tag(self.key)
+    value = property(fget=_get_value, fset=_set_value,
+                     doc='The value of the tag as a python object.')
 
-        if isinstance(self._value, NotifyingList):
-            self._value.unregister_listener(self)
+    @property
+    def human_value(self):
+        """A human-readable representation of the value of the tag."""
+        return self._tag._getHumanValue() or None
 
-        del self._value
-
-    """the value of the tag converted to its corresponding python type"""
-    value = property(fget=_get_value, fset=_set_value, fdel=_del_value,
-                     doc=None)
-
+    # Implement the ListenerInterface
     def contents_changed(self):
         """
         Implementation of the L{ListenerInterface}.
         React on changes to the list of values of the tag.
         """
-        # self._value is a list of value and its contents changed.
+        # self._value is a list of values and its contents changed.
         self._set_value(self._value)
 
     def _convert_to_python(self, value):
@@ -147,7 +215,7 @@ class ExifTag(MetadataTag, ListenerInterface):
         @type value:   C{str}
 
         @return: the value converted to its corresponding python type
-        @rtype:  depends on C{self.type} (DOCME)
+        @rtype:  depends on C{self.type}
 
         @raise ExifValueError: if the conversion fails
         """
@@ -203,7 +271,7 @@ class ExifTag(MetadataTag, ListenerInterface):
             # There is currently no charset conversion.
             # TODO: guess the encoding and decode accordingly into unicode
             # where relevant.
-            return self.fvalue
+            return self.human_value
 
         raise ExifValueError(value, self.type)
 
@@ -213,7 +281,7 @@ class ExifTag(MetadataTag, ListenerInterface):
         to pass to libexiv2.
 
         @param value: the value to be converted
-        @type value:  depends on C{self.type} (DOCME)
+        @type value:  depends on C{self.type}
 
         @return: the value converted to its corresponding string representation
         @rtype:  C{str}
@@ -300,7 +368,7 @@ class ExifTag(MetadataTag, ListenerInterface):
 
         @rtype: C{str}
         """
-        return self._convert_to_string(self.value)
+        return self._convert_to_string(self._value)
 
     def __repr__(self):
         """
@@ -309,9 +377,12 @@ class ExifTag(MetadataTag, ListenerInterface):
         @rtype: C{str}
         """
         left = '%s [%s]' % (self.key, self.type)
-        if self.type == 'Undefined' and len(self._value) > 100:
+        if self._value is None:
+            right = '(No value)'
+        elif self.type == 'Undefined' and len(self._value) > 100:
             right = '(Binary value suppressed)'
         else:
-            right = self.fvalue
+             #right = self.fvalue
+             right = str(self)
         return '<%s = %s>' % (left, right)
 

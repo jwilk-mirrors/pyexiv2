@@ -37,6 +37,100 @@
 namespace exiv2wrapper
 {
 
+class ExifTag
+{
+public:
+    // Constructor
+    ExifTag(const std::string& key, Exiv2::Exifdatum* datum=0);
+
+    void setRawValue(const std::string& value);
+
+    const std::string getKey();
+    const std::string getType();
+    const std::string getName();
+    const std::string getLabel();
+    const std::string getDescription();
+    const std::string getSectionName();
+    const std::string getSectionDescription();
+    const std::string getRawValue();
+    const std::string getHumanValue();
+
+private:
+    Exiv2::ExifKey _key;
+    Exiv2::Exifdatum* _datum;
+    std::string _type;
+    std::string _name;
+    std::string _label;
+    std::string _description;
+    std::string _sectionName;
+    std::string _sectionDescription;
+};
+
+
+class IptcTag
+{
+public:
+    // Constructor
+    IptcTag(const std::string& key, Exiv2::IptcMetadata* data=0);
+
+    void setRawValues(const boost::python::list& values);
+
+    const std::string getKey();
+    const std::string getType();
+    const std::string getName();
+    const std::string getTitle();
+    const std::string getDescription();
+    const std::string getPhotoshopName();
+    const bool isRepeatable();
+    const std::string getRecordName();
+    const std::string getRecordDescription();
+    const boost::python::list getRawValues();
+
+private:
+    Exiv2::IptcKey _key;
+    Exiv2::IptcMetadata* _data; // _data contains only data with _key
+    std::string _type;
+    std::string _name;
+    std::string _title;
+    std::string _description;
+    std::string _photoshopName;
+    bool _repeatable;
+    std::string _recordName;
+    std::string _recordDescription;
+};
+
+
+class XmpTag
+{
+public:
+    // Constructor
+    XmpTag(const std::string& key, Exiv2::Xmpdatum* datum=0);
+
+    void setTextValue(const std::string& value);
+    void setArrayValue(const boost::python::list& values);
+    void setLangAltValue(const boost::python::dict& values);
+
+    const std::string getKey();
+    const std::string getExiv2Type();
+    const std::string getType();
+    const std::string getName();
+    const std::string getTitle();
+    const std::string getDescription();
+    const std::string getTextValue();
+    const boost::python::list getArrayValue();
+    const boost::python::dict getLangAltValue();
+
+private:
+    Exiv2::XmpKey _key;
+    Exiv2::Xmpdatum* _datum;
+    std::string _exiv2_type;
+    std::string _type;
+    std::string _name;
+    std::string _title;
+    std::string _description;
+};
+
+
 class Image
 {
 public:
@@ -55,20 +149,12 @@ public:
     // image.
     boost::python::list exifKeys();
 
-    // Return a tuple containing the type (as a string) and the value
-    // (as a string as well) of the required EXIF tag.
+    // Return the required EXIF tag.
     // Throw an exception if the tag is not set.
-    // key
-    // tagname
-    // taglabel
-    // tagdesc
-    // type
-    // tagvalue
-    // tagvalue (human-readable)
-    boost::python::tuple getExifTag(std::string key);
+    const ExifTag getExifTag(std::string key);
 
-    // Set the EXIF tag's value. If the tag was not previously set, it is
-    // created.
+    // Set the EXIF tag's value.
+    // If the tag was not previously set, it is created.
     void setExifTagValue(std::string key, std::string value);
 
     // Delete the required EXIF tag.
@@ -84,16 +170,9 @@ public:
     // even if a tag is present more than once.
     boost::python::list iptcKeys();
 
-    // Return a tuple containing the type (as a string) and the value
-    // (as a string as well) of the required IPTC tag.
+    // Return the required IPTC tag.
     // Throw an exception if the tag is not set.
-    // key
-    // tagname
-    // taglabel
-    // tagdesc
-    // type
-    // tagvalue (list)
-    boost::python::tuple getIptcTag(std::string key);
+    const IptcTag getIptcTag(std::string key);
 
     // Set the IPTC tag's values. If the tag was not previously set, it is
     // created.
@@ -105,15 +184,13 @@ public:
 
     boost::python::list xmpKeys();
 
-    // key
-    // tagname
-    // taglabel
-    // tagdesc
-    // type
-    // tagvalue (list)
-    boost::python::tuple getXmpTag(std::string key);
+    // Return the required XMP tag.
+    // Throw an exception if the tag is not set.
+    const XmpTag getXmpTag(std::string key);
 
-    void setXmpTagValue(std::string key, std::string value);
+    void setXmpTagTextValue(const std::string& key, const std::string& value);
+    void setXmpTagArrayValue(const std::string& key, const boost::python::list& values);
+    void setXmpTagLangAltValue(const std::string& key, const boost::python::dict& values);
 
     // Delete the required XMP tag.
     // Throw an exception if the tag was not set.
@@ -154,6 +231,7 @@ private:
     // false otherwise
     bool _dataRead;
 };
+
 
 // Translate an Exiv2 generic exception into a Python exception
 void translateExiv2Error(Exiv2::Error const& error);

@@ -34,7 +34,7 @@ from pyexiv2.xmp import XmpTag
 class ImageMetadata(object):
 
     """
-    A container for all the metadata attached to an image.
+    A container for all the metadata embedded in an image.
 
     It provides convenient methods for the manipulation of EXIF, IPTC and XMP
     metadata embedded in image files such as JPEG and TIFF files, using Python
@@ -48,7 +48,7 @@ class ImageMetadata(object):
         @type filename:  C{str} or C{unicode}
         """
         self.filename = filename
-        if type(filename) is unicode:
+        if isinstance(filename, unicode):
             self.filename = filename.encode('utf-8')
         self._image = None
         self._keys = {'exif': None, 'iptc': None, 'xmp': None}
@@ -76,23 +76,23 @@ class ImageMetadata(object):
         """
         self._image.writeMetadata()
 
-    """List the keys of the available EXIF tags embedded in the image."""
     @property
     def exif_keys(self):
+        """Keys of the available EXIF tags embedded in the image."""
         if self._keys['exif'] is None:
             self._keys['exif'] = self._image.exifKeys()
         return self._keys['exif']
 
-    """List the keys of the available IPTC tags embedded in the image."""
     @property
     def iptc_keys(self):
+        """Keys of the available IPTC tags embedded in the image."""
         if self._keys['iptc'] is None:
             self._keys['iptc'] = self._image.iptcKeys()
         return self._keys['iptc']
 
-    """List the keys of the available XMP tags embedded in the image."""
     @property
     def xmp_keys(self):
+        """Keys of the available XMP tags embedded in the image."""
         if self._keys['xmp'] is None:
             self._keys['xmp'] = self._image.xmpKeys()
         return self._keys['xmp']
@@ -103,7 +103,8 @@ class ImageMetadata(object):
         try:
             return self._tags['exif'][key]
         except KeyError:
-            tag = ExifTag(*self._image.getExifTag(key))
+            _tag = self._image.getExifTag(key)
+            tag = ExifTag._from_existing_tag(_tag)
             tag.metadata = self
             self._tags['exif'][key] = tag
             return tag
@@ -114,7 +115,8 @@ class ImageMetadata(object):
         try:
             return self._tags['iptc'][key]
         except KeyError:
-            tag = IptcTag(*self._image.getIptcTag(key))
+            _tag = self._image.getIptcTag(key)
+            tag = IptcTag._from_existing_tag(_tag)
             tag.metadata = self
             self._tags['iptc'][key] = tag
             return tag
@@ -125,7 +127,8 @@ class ImageMetadata(object):
         try:
             return self._tags['xmp'][key]
         except KeyError:
-            tag = XmpTag(*self._image.getXmpTag(key))
+            _tag = self._image.getXmpTag(key)
+            tag = XmpTag._from_existing_tag(_tag)
             tag.metadata = self
             self._tags['xmp'][key] = tag
             return tag
@@ -134,12 +137,12 @@ class ImageMetadata(object):
         """
         Get a metadata tag for a given key.
 
-        @param key: a metadata key in the dotted form C{family.group.tag} where
-                    family may be C{exif}, C{iptc} or C{xmp}.
+        @param key: a metadata key in the dotted form
+                    C{familyName.groupName.tagName} where C{familyName} may be
+                    C{exif}, C{iptc} or C{xmp}.
         @type key:  C{str}
 
         @return: the metadata tag corresponding to the key
-        @rtype:  a subclass of L{pyexiv2.MetadataTag}
 
         @raise KeyError: if the tag doesn't exist
         """
@@ -151,7 +154,7 @@ class ImageMetadata(object):
 
     def _set_exif_tag(self, tag):
         # Set an EXIF tag. If the tag already exists, its value is overwritten.
-        if type(tag) is not ExifTag:
+        if not isinstance(tag, ExifTag):
             raise TypeError('Expecting an ExifTag')
         self._image.setExifTagValue(tag.key, str(tag))
         self._tags['exif'][tag.key] = tag
@@ -172,9 +175,9 @@ class ImageMetadata(object):
     def _set_iptc_tag(self, tag):
         # Set an IPTC tag. If the tag already exists, its values are
         # overwritten.
-        if type(tag) is not IptcTag:
+        if not isinstance(tag, IptcTag):
             raise TypeError('Expecting an IptcTag')
-        self._image.setIptcTagValues(tag.key, tag.to_string())
+        self._image.setIptcTagValues(tag.key, tag.to_string_list())
         self._tags['iptc'][tag.key] = tag
         tag.metadata = self
 
@@ -196,9 +199,15 @@ class ImageMetadata(object):
 
     def _set_xmp_tag(self, tag):
         # Set an XMP tag. If the tag already exists, its value is overwritten.
-        if type(tag) is not XmpTag:
+        if not isinstance(tag, XmpTag):
             raise TypeError('Expecting an XmpTag')
-        self._image.setXmpTagValue(tag.key, tag.to_string())
+        type = tag._tag._getExiv2Type()
+        if type == 'XmpText':
+            self._image.setXmpTagTextValue(tag.key, tag.raw_value)
+        elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
+            self._image.setXmpTagArrayValue(tag.key, tag.raw_value)
+        elif type == 'LangAlt':
+            self._image.setXmpTagLangAltValue(tag.key, tag.raw_value)
         self._tags['xmp'][tag.key] = tag
         tag.metadata = self
 
@@ -210,20 +219,26 @@ class ImageMetadata(object):
         # state).
         if key not in self.xmp_keys:
             raise KeyError('Cannot set the value of an inexistent tag')
-        if type(value) is not str:
-            raise TypeError('Expecting a string')
-        self._image.setXmpTagValue(key, value)
+        type = self._tags['xmp'][key]._tag._getExiv2Type()
+        if type == 'XmpText' and isinstance(value, str):
+            self._image.setXmpTagTextValue(key, value)
+        elif type in ('XmpAlt', 'XmpBag', 'XmpSeq') and isinstance(value, (list, tuple)):
+            self._image.setXmpTagArrayValue(key, value)
+        elif type == 'LangAlt' and isinstance(value, dict):
+            self._image.setXmpTagLangAltValue(key, value)
+        else:
+            raise TypeError('Expecting either a string, a list, a tuple or a dict')
 
     def __setitem__(self, key, tag):
         """
         Set a metadata tag for a given key.
         If the tag was previously set, it is overwritten.
 
-        @param key: a metadata key in the dotted form C{family.group.tag} where
-                    family may be C{exif}, C{iptc} or C{xmp}.
+        @param key: a metadata key in the dotted form
+                    C{familyName.groupName.tagName} where C{familyName} may be
+                    C{exif}, C{iptc} or C{xmp}.
         @type key:  C{str}
         @param tag: a metadata tag
-        @type tag:  a subclass of L{pyexiv2.MetadataTag}
 
         @raise KeyError: if the key is invalid
         """
@@ -273,8 +288,9 @@ class ImageMetadata(object):
         """
         Delete a metadata tag for a given key.
 
-        @param key: a metadata key in the dotted form C{family.group.tag} where
-                    family may be C{exif}, C{iptc} or C{xmp}.
+        @param key: a metadata key in the dotted form
+                    C{familyName.groupName.tagName} where C{familyName} may be
+                    C{exif}, C{iptc} or C{xmp}.
         @type key:  C{str}
 
         @raise KeyError: if the tag with the given key doesn't exist

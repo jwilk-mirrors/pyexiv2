@@ -45,6 +45,54 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
     register_exception_translator<Exiv2::Error>(&translateExiv2Error);
 
+    class_<ExifTag>("_ExifTag", init<std::string>())
+
+        .def("_setRawValue", &ExifTag::setRawValue)
+
+        .def("_getKey", &ExifTag::getKey)
+        .def("_getType", &ExifTag::getType)
+        .def("_getName", &ExifTag::getName)
+        .def("_getLabel", &ExifTag::getLabel)
+        .def("_getDescription", &ExifTag::getDescription)
+        .def("_getSectionName", &ExifTag::getSectionName)
+        .def("_getSectionDescription", &ExifTag::getSectionDescription)
+        .def("_getRawValue", &ExifTag::getRawValue)
+        .def("_getHumanValue", &ExifTag::getHumanValue)
+    ;
+
+    class_<IptcTag>("_IptcTag", init<std::string>())
+
+        .def("_setRawValues", &IptcTag::setRawValues)
+
+        .def("_getKey", &IptcTag::getKey)
+        .def("_getType", &IptcTag::getType)
+        .def("_getName", &IptcTag::getName)
+        .def("_getTitle", &IptcTag::getTitle)
+        .def("_getDescription", &IptcTag::getDescription)
+        .def("_getPhotoshopName", &IptcTag::getPhotoshopName)
+        .def("_isRepeatable", &IptcTag::isRepeatable)
+        .def("_getRecordName", &IptcTag::getRecordName)
+        .def("_getRecordDescription", &IptcTag::getRecordDescription)
+        .def("_getRawValues", &IptcTag::getRawValues)
+    ;
+
+    class_<XmpTag>("_XmpTag", init<std::string>())
+
+        .def("_setTextValue", &XmpTag::setTextValue)
+        .def("_setArrayValue", &XmpTag::setArrayValue)
+        .def("_setLangAltValue", &XmpTag::setLangAltValue)
+
+        .def("_getKey", &XmpTag::getKey)
+        .def("_getExiv2Type", &XmpTag::getExiv2Type)
+        .def("_getType", &XmpTag::getType)
+        .def("_getName", &XmpTag::getName)
+        .def("_getTitle", &XmpTag::getTitle)
+        .def("_getDescription", &XmpTag::getDescription)
+        .def("_getTextValue", &XmpTag::getTextValue)
+        .def("_getArrayValue", &XmpTag::getArrayValue)
+        .def("_getLangAltValue", &XmpTag::getLangAltValue)
+    ;
+
     class_<Image>("Image", init<std::string>())
 
         .def("readMetadata", &Image::readMetadata)
@@ -62,7 +110,9 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
         .def("xmpKeys", &Image::xmpKeys)
         .def("getXmpTag", &Image::getXmpTag)
-        .def("setXmpTagValue", &Image::setXmpTagValue)
+        .def("setXmpTagTextValue", &Image::setXmpTagTextValue)
+        .def("setXmpTagArrayValue", &Image::setXmpTagArrayValue)
+        .def("setXmpTagLangAltValue", &Image::setXmpTagLangAltValue)
         .def("deleteXmpTag", &Image::deleteXmpTag)
 
 //        .def("getThumbnailData", &Image::getThumbnailData)
