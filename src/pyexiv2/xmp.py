@@ -57,7 +57,30 @@ class XmpTag(object):
     # changes on list/dict values.
 
     """
-    An XMP metadata tag.
+    An XMP tag.
+
+    Here is a correspondance table between the XMP types and the possible
+    python types the value of a tag may take:
+     - alt, bag, seq: C{list} of the contained simple type
+     - lang alt: C{dict} of (language-code: value)
+     - Boolean: C{bool}
+     - Choice: [not implemented yet]
+     - Colorant: [not implemented yet]
+     - Date: C{datetime.date}, C{datetime.datetime}
+     - Dimensions: [not implemented yet]
+     - Font: [not implemented yet]
+     - Integer: C{int}
+     - Locale: [not implemented yet]
+     - MIMEType: C{tuple}
+     - Rational: L{pyexiv2.utils.Rational}
+     - Real: [not implemented yet]
+     - AgentName, ProperName, Text: C{unicode}
+     - Thumbnail: [not implemented yet]
+     - URI, URL: C{str}
+     - XPath: [not implemented yet]
+
+    @ivar metadata: the parent metadata if any, or C{None}
+    @type metadata: L{pyexiv2.metadata.ImageMetadata}
     """
 
     # strptime is not flexible enough to handle all valid Date formats, we use a
@@ -68,7 +91,12 @@ class XmpTag(object):
 
     def __init__(self, key, value=None, _tag=None):
         """
-        DOCME
+        The tag can be initialized with an optional value which expected type
+        depends on the XMP type of the tag.
+
+        @param key:   the key of the tag
+        @type key:    C{str}
+        @param value: the value of the tag
         """
         super(XmpTag, self).__init__()
         if _tag is not None:
@@ -83,7 +111,7 @@ class XmpTag(object):
 
     @staticmethod
     def _from_existing_tag(_tag):
-        # Build a tag from an already existing _XmpTag
+        # Build a tag from an already existing libexiv2python._XmpTag
         tag = XmpTag(_tag._getKey(), _tag=_tag)
         type = _tag._getExiv2Type()
         if type == 'XmpText':
@@ -96,22 +124,27 @@ class XmpTag(object):
 
     @property
     def key(self):
+        """The key of the tag in the form 'familyName.groupName.tagName'."""
         return self._tag._getKey()
 
     @property
     def type(self):
+        """The XMP type of the tag."""
         return self._tag._getType()
 
     @property
     def name(self):
+        """The name of the tag (this is also the third part of the key)."""
         return self._tag._getName()
 
     @property
     def title(self):
+        """The title (label) of the tag."""
         return self._tag._getTitle()
 
     @property
     def description(self):
+        """The description of the tag."""
         return self._tag._getDescription()
 
     def _get_raw_value(self):
@@ -138,7 +171,9 @@ class XmpTag(object):
         else:
             self._value = self._convert_to_python(value, self.type)
 
-    raw_value = property(fget=_get_raw_value, fset=_set_raw_value, doc=None)
+    raw_value = property(fget=_get_raw_value, fset=_set_raw_value,
+                         doc='The raw value of the tag as a [list of] ' \
+                             'string(s).')
 
     def _get_value(self):
         return self._value
@@ -171,7 +206,9 @@ class XmpTag(object):
 
         self._value = value
 
-    value = property(fget=_get_value, fset=_set_value, doc=None)
+    value = property(fget=_get_value, fset=_set_value,
+                     doc='The value of the tag as a [list of] python ' \
+                         'object(s).')
 
     def _convert_to_python(self, value, type):
         """
@@ -183,7 +220,7 @@ class XmpTag(object):
         @type type:   C{str}
 
         @return: the value converted to its corresponding python type
-        @rtype:  depends on C{type} (DOCME)
+        @rtype:  depends on C{type}
 
         @raise XmpValueError: if the conversion fails
         """
@@ -307,7 +344,7 @@ class XmpTag(object):
         pass to libexiv2.
 
         @param value: the value to be converted
-        @type value:  depends on C{type} (DOCME)
+        @type value:  depends on C{type}
         @param type:  the simple type of the value
         @type type:   C{str}
 
