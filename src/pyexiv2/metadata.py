@@ -34,7 +34,7 @@ from pyexiv2.xmp import XmpTag
 class ImageMetadata(object):
 
     """
-    A container for all the metadata attached to an image.
+    A container for all the metadata embedded in an image.
 
     It provides convenient methods for the manipulation of EXIF, IPTC and XMP
     metadata embedded in image files such as JPEG and TIFF files, using Python
@@ -48,7 +48,7 @@ class ImageMetadata(object):
         @type filename:  C{str} or C{unicode}
         """
         self.filename = filename
-        if type(filename) is unicode:
+        if isinstance(filename, unicode):
             self.filename = filename.encode('utf-8')
         self._image = None
         self._keys = {'exif': None, 'iptc': None, 'xmp': None}
@@ -76,23 +76,23 @@ class ImageMetadata(object):
         """
         self._image.writeMetadata()
 
-    """List the keys of the available EXIF tags embedded in the image."""
     @property
     def exif_keys(self):
+        """Keys of the available EXIF tags embedded in the image."""
         if self._keys['exif'] is None:
             self._keys['exif'] = self._image.exifKeys()
         return self._keys['exif']
 
-    """List the keys of the available IPTC tags embedded in the image."""
     @property
     def iptc_keys(self):
+        """Keys of the available IPTC tags embedded in the image."""
         if self._keys['iptc'] is None:
             self._keys['iptc'] = self._image.iptcKeys()
         return self._keys['iptc']
 
-    """List the keys of the available XMP tags embedded in the image."""
     @property
     def xmp_keys(self):
+        """Keys of the available XMP tags embedded in the image."""
         if self._keys['xmp'] is None:
             self._keys['xmp'] = self._image.xmpKeys()
         return self._keys['xmp']
@@ -137,12 +137,12 @@ class ImageMetadata(object):
         """
         Get a metadata tag for a given key.
 
-        @param key: a metadata key in the dotted form C{family.group.tag} where
-                    family may be C{exif}, C{iptc} or C{xmp}.
+        @param key: a metadata key in the dotted form
+                    C{familyName.groupName.tagName} where C{familyName} may be
+                    C{exif}, C{iptc} or C{xmp}.
         @type key:  C{str}
 
         @return: the metadata tag corresponding to the key
-        @rtype:  a subclass of L{pyexiv2.MetadataTag}
 
         @raise KeyError: if the tag doesn't exist
         """
@@ -234,11 +234,11 @@ class ImageMetadata(object):
         Set a metadata tag for a given key.
         If the tag was previously set, it is overwritten.
 
-        @param key: a metadata key in the dotted form C{family.group.tag} where
-                    family may be C{exif}, C{iptc} or C{xmp}.
+        @param key: a metadata key in the dotted form
+                    C{familyName.groupName.tagName} where C{familyName} may be
+                    C{exif}, C{iptc} or C{xmp}.
         @type key:  C{str}
         @param tag: a metadata tag
-        @type tag:  a subclass of L{pyexiv2.MetadataTag}
 
         @raise KeyError: if the key is invalid
         """
@@ -288,8 +288,9 @@ class ImageMetadata(object):
         """
         Delete a metadata tag for a given key.
 
-        @param key: a metadata key in the dotted form C{family.group.tag} where
-                    family may be C{exif}, C{iptc} or C{xmp}.
+        @param key: a metadata key in the dotted form
+                    C{familyName.groupName.tagName} where C{familyName} may be
+                    C{exif}, C{iptc} or C{xmp}.
         @type key:  C{str}
 
         @raise KeyError: if the tag with the given key doesn't exist
