@@ -56,8 +56,20 @@ class IptcValueError(ValueError):
 class IptcTag(ListenerInterface):
 
     """
-    An IPTC metadata tag.
+    An IPTC tag.
+
     This tag can have several values (tags that have the repeatable property).
+
+    Here is a correspondance table between the IPTC types and the possible
+    python types the value of a tag may take:
+     - Short: C{int}
+     - String: C{str}
+     - Date: C{datetime.date}
+     - Time: C{datetime.time}
+     - Undefined: C{str}
+
+    @ivar metadata: the parent metadata if any, or C{None}
+    @type metadata: L{pyexiv2.metadata.ImageMetadata}
     """
 
     # strptime is not flexible enough to handle all valid Time formats, we use a
@@ -67,7 +79,13 @@ class IptcTag(ListenerInterface):
 
     def __init__(self, key, values=None, _tag=None):
         """
-        DOCME
+        The tag can be initialized with an optional list of values which
+        expected type depends on the IPTC type of the tag.
+
+        @param key:    the key of the tag
+        @type key:     C{str}
+        @param values: the values of the tag
+        @type values:  C{list}
         """
         super(IptcTag, self).__init__()
         if _tag is not None:
@@ -82,45 +100,55 @@ class IptcTag(ListenerInterface):
 
     @staticmethod
     def _from_existing_tag(_tag):
-        # Build a tag from an already existing _IptcTag
+        # Build a tag from an already existing libexiv2python._IptcTag
         tag = IptcTag(_tag._getKey(), _tag=_tag)
         tag.raw_values = _tag._getRawValues()
         return tag
 
     @property
     def key(self):
+        """The key of the tag in the form 'familyName.groupName.tagName'."""
         return self._tag._getKey()
 
     @property
     def type(self):
+        """The IPTC type of the tag (one of Short, String, Date, Time,
+        Undefined)."""
         return self._tag._getType()
 
     @property
     def name(self):
+        """The name of the tag (this is also the third part of the key)."""
         return self._tag._getName()
 
     @property
     def title(self):
+        """The title (label) of the tag."""
         return self._tag._getTitle()
 
     @property
     def description(self):
+        """The description of the tag."""
         return self._tag._getDescription()
 
     @property
     def photoshop_name(self):
+        """The Photoshop name of the tag."""
         return self._tag._getPhotoshopName()
 
     @property
     def repeatable(self):
+        """Whether the tag is repeatable (can have several values)."""
         return self._tag._isRepeatable()
 
     @property
     def record_name(self):
+        """The name of the tag's record."""
         return self._tag._getRecordName()
 
     @property
     def record_description(self):
+        """The description of the tag's record."""
         return self._tag._getRecordDescription()
 
     def _get_raw_values(self):
@@ -133,7 +161,9 @@ class IptcTag(ListenerInterface):
         self._values = NotifyingList(map(self._convert_to_python, values))
         self._values.register_listener(self)
 
-    raw_values = property(fget=_get_raw_values, fset=_set_raw_values, doc=None)
+    raw_values = property(fget=_get_raw_values, fset=_set_raw_values,
+                          doc='The raw values of the tag as a list of strings' \
+                              ' (C{list} of C{str}).')
 
     def _get_values(self):
         return self._values
@@ -160,7 +190,8 @@ class IptcTag(ListenerInterface):
 
         self._values.register_listener(self)
 
-    values = property(fget=_get_values, fset=_set_values, doc=None)
+    values = property(fget=_get_values, fset=_set_values,
+                      doc='The values of the tag as a list of python objects.')
 
     def contents_changed(self):
         """
@@ -179,7 +210,7 @@ class IptcTag(ListenerInterface):
         @type value:  C{str}
 
         @return: the value converted to its corresponding python type
-        @rtype:  depends on C{self.type} (DOCME)
+        @rtype:  depends on C{self.type}
 
         @raise IptcValueError: if the conversion fails
         """
@@ -239,7 +270,7 @@ class IptcTag(ListenerInterface):
         to pass to libexiv2.
 
         @param value: the value to be converted
-        @type value:  depends on C{self.type} (DOCME)
+        @type value:  depends on C{self.type}
 
         @return: the value converted to its corresponding string representation
         @rtype:  C{str}
