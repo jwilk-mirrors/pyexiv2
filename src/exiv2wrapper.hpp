@@ -48,7 +48,6 @@ public:
     const std::string getKey();
     const std::string getType();
     const std::string getName();
-    const std::string getTitle();
     const std::string getLabel();
     const std::string getDescription();
     const std::string getSectionName();
@@ -61,7 +60,6 @@ private:
     Exiv2::Exifdatum* _datum;
     std::string _type;
     std::string _name;
-    std::string _title;
     std::string _label;
     std::string _description;
     std::string _sectionName;

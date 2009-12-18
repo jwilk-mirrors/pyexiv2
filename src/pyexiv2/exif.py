@@ -55,7 +55,19 @@ class ExifValueError(ValueError):
 class ExifTag(ListenerInterface):
 
     """
-    DOCME
+    An EXIF tag.
+
+    Here is a correspondance table between the EXIF types and the possible
+    python types the value of a tag may take:
+     - Ascii: C{datetime.datetime}, C{datetime.date}, C{str}
+     - Byte: C{str}
+     - Short: [list of] C{int}
+     - Long, SLong: [list of] C{long}
+     - Rational, SRational: [list of] L{pyexiv2.utils.Rational}
+     - Undefined: C{str}
+
+    @ivar metadata: the parent metadata if any, or C{None}
+    @type metadata: L{pyexiv2.metadata.ImageMetadata}
     """
 
     # According to the EXIF specification, the only accepted format for an Ascii
@@ -69,7 +81,12 @@ class ExifTag(ListenerInterface):
 
     def __init__(self, key, value=None, _tag=None):
         """
-        DOCME
+        The tag can be initialized with an optional value which expected type
+        depends on the EXIF type of the tag.
+
+        @param key:   the key of the tag
+        @type key:    C{str}
+        @param value: the value of the tag
         """
         super(ExifTag, self).__init__()
         if _tag is not None:
@@ -84,41 +101,45 @@ class ExifTag(ListenerInterface):
 
     @staticmethod
     def _from_existing_tag(_tag):
-        # Build a tag from an already existing _ExifTag
+        # Build a tag from an already existing libexiv2python._ExifTag.
         tag = ExifTag(_tag._getKey(), _tag=_tag)
         tag.raw_value = _tag._getRawValue()
         return tag
 
     @property
     def key(self):
+        """The key of the tag in the form 'familyName.groupName.tagName'."""
         return self._tag._getKey()
 
     @property
     def type(self):
+        """The EXIF type of the tag (one of Ascii, Byte, Short, Long, SLong,
+        Rational, SRational, Undefined)."""
         return self._tag._getType()
 
     @property
     def name(self):
+        """The name of the tag (this is also the third part of the key)."""
         return self._tag._getName()
 
     @property
-    def title(self):
-        return self._tag._getTitle()
-
-    @property
     def label(self):
+        """The title (label) of the tag."""
         return self._tag._getLabel()
 
     @property
     def description(self):
+        """The description of the tag."""
         return self._tag._getDescription()
 
     @property
     def section_name(self):
+        """The name of the tag's section."""
         return self._tag._getSectionName()
 
     @property
     def section_description(self):
+        """The description of the tag's section."""
         return self._tag._getSectionDescription()
 
     def _get_raw_value(self):
@@ -137,7 +158,8 @@ class ExifTag(ListenerInterface):
                 return
         self._value = self._convert_to_python(value)
 
-    raw_value = property(fget=_get_raw_value, fset=_set_raw_value, doc=None)
+    raw_value = property(fget=_get_raw_value, fset=_set_raw_value,
+                         doc='The raw value of the tag as a string (C{str}).')
 
     def _get_value(self):
         return self._value
@@ -168,10 +190,12 @@ class ExifTag(ListenerInterface):
             # Single value
             self._value = value
 
-    value = property(fget=_get_value, fset=_set_value, doc=None)
+    value = property(fget=_get_value, fset=_set_value,
+                     doc='The value of the tag as a python object.')
 
     @property
     def human_value(self):
+        """A human-readable representation of the value of the tag."""
         return self._tag._getHumanValue() or None
 
     # Implement the ListenerInterface
@@ -191,7 +215,7 @@ class ExifTag(ListenerInterface):
         @type value:   C{str}
 
         @return: the value converted to its corresponding python type
-        @rtype:  depends on C{self.type} (DOCME)
+        @rtype:  depends on C{self.type}
 
         @raise ExifValueError: if the conversion fails
         """
@@ -257,7 +281,7 @@ class ExifTag(ListenerInterface):
         to pass to libexiv2.
 
         @param value: the value to be converted
-        @type value:  depends on C{self.type} (DOCME)
+        @type value:  depends on C{self.type}
 
         @return: the value converted to its corresponding string representation
         @rtype:  C{str}

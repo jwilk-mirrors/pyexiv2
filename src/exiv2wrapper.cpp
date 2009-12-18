@@ -488,7 +488,6 @@ ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum): _key(key)
     const Exiv2::IfdId ifd = _datum->ifdId();
     _type = Exiv2::TypeInfo::typeName(Exiv2::ExifTags::tagType(tag, ifd));
     _name = Exiv2::ExifTags::tagName(tag, ifd);
-    _title = Exiv2::ExifTags::tagTitle(tag, ifd);
     _label = Exiv2::ExifTags::tagLabel(tag, ifd);
     _description = Exiv2::ExifTags::tagDesc(tag, ifd);
     _sectionName = Exiv2::ExifTags::sectionName(tag, ifd);
@@ -513,11 +512,6 @@ const std::string ExifTag::getType()
 const std::string ExifTag::getName()
 {
     return _name;
-}
-
-const std::string ExifTag::getTitle()
-{
-    return _title;
 }
 
 const std::string ExifTag::getLabel()
