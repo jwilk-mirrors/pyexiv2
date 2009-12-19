@@ -368,7 +368,10 @@ class ExifTag(ListenerInterface):
 
         @rtype: C{str}
         """
-        return self._convert_to_string(self._value)
+        if isinstance(self._value, (list, tuple)):
+            return ', '.join(map(self._convert_to_string, self._value))
+        else:
+            return self._convert_to_string(self._value)
 
     def __repr__(self):
         """
