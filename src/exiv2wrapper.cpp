@@ -40,38 +40,66 @@ namespace exiv2wrapper
 // Base constructor
 Image::Image(const std::string& filename)
 {
+    // Release the GIL to allow other python threads to run
+    // while opening the file.
+    Py_BEGIN_ALLOW_THREADS
+
     _filename = filename;
     _image = Exiv2::ImageFactory::open(filename);
     assert(_image.get() != 0);
     _dataRead = false;
+
+    // Re-acquire the GIL
+    Py_END_ALLOW_THREADS
 }
 
 // Copy constructor
 Image::Image(const Image& image)
 {
+    // Release the GIL to allow other python threads to run
+    // while opening the file.
+    Py_BEGIN_ALLOW_THREADS
+
     _filename = image._filename;
     _image = Exiv2::ImageFactory::open(_filename);
     assert(_image.get() != 0);
     _dataRead = false;
+
+    // Re-acquire the GIL
+    Py_END_ALLOW_THREADS
 }
 
 void Image::readMetadata()
 {
+    // Release the GIL to allow other python threads to run
+    // while reading metadata.
+    Py_BEGIN_ALLOW_THREADS
+
     _image->readMetadata();
     _exifData = _image->exifData();
     _iptcData = _image->iptcData();
     _xmpData = _image->xmpData();
     _dataRead = true;
+
+    // Re-acquire the GIL
+    Py_END_ALLOW_THREADS
 }
 
 void Image::writeMetadata()
 {
     if(_dataRead)
     {
+        // Release the GIL to allow other python threads to run
+        // while writing metadata.
+        Py_BEGIN_ALLOW_THREADS
+
         _image->setExifData(_exifData);
         _image->setIptcData(_iptcData);
         _image->setXmpData(_xmpData);
         _image->writeMetadata();
+
+        // Re-acquire the GIL
+        Py_END_ALLOW_THREADS
     }
     else
         throw Exiv2::Error(METADATA_NOT_READ);
