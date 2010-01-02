@@ -34,6 +34,10 @@
 #define THUMB_ACCESS 104
 #define NO_THUMBNAIL 105
 
+// Custom macros
+#define CHECK_METADATA_READ \
+    if (!_dataRead) throw Exiv2::Error(METADATA_NOT_READ);
+
 namespace exiv2wrapper
 {
 
@@ -87,10 +91,7 @@ void Image::readMetadata()
 
 void Image::writeMetadata()
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     // Release the GIL to allow other python threads to run
     // while writing metadata.
@@ -107,10 +108,7 @@ void Image::writeMetadata()
 
 boost::python::list Image::exifKeys()
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     boost::python::list keys;
     for(Exiv2::ExifMetadata::iterator i = _exifData.begin();
@@ -124,10 +122,7 @@ boost::python::list Image::exifKeys()
 
 const ExifTag Image::getExifTag(std::string key)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
 
@@ -141,20 +136,14 @@ const ExifTag Image::getExifTag(std::string key)
 
 void Image::setExifTagValue(std::string key, std::string value)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     _exifData[key] = value;
 }
 
 void Image::deleteExifTag(std::string key)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
     Exiv2::ExifMetadata::iterator datum = _exifData.findKey(exifKey);
@@ -168,10 +157,7 @@ void Image::deleteExifTag(std::string key)
 
 boost::python::list Image::iptcKeys()
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     boost::python::list keys;
     for(Exiv2::IptcMetadata::iterator i = _iptcData.begin();
@@ -190,10 +176,7 @@ boost::python::list Image::iptcKeys()
 
 const IptcTag Image::getIptcTag(std::string key)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
 
@@ -217,10 +200,7 @@ const IptcTag Image::getIptcTag(std::string key)
 
 /*void Image::setIptcTag(std::string key, std::string value, unsigned int index=0)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     unsigned int indexCounter = index;
     Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
@@ -251,10 +231,7 @@ const IptcTag Image::getIptcTag(std::string key)
 
 void Image::setIptcTagValues(std::string key, boost::python::list values)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
     unsigned int index = 0;
@@ -295,10 +272,7 @@ void Image::setIptcTagValues(std::string key, boost::python::list values)
 
 void Image::deleteIptcTag(std::string key)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
     Exiv2::IptcMetadata::iterator dataIterator = _iptcData.findKey(iptcKey);
@@ -319,10 +293,7 @@ void Image::deleteIptcTag(std::string key)
 
 boost::python::list Image::xmpKeys()
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     boost::python::list keys;
     for(Exiv2::XmpMetadata::iterator i = _xmpData.begin();
@@ -336,10 +307,7 @@ boost::python::list Image::xmpKeys()
 
 const XmpTag Image::getXmpTag(std::string key)
 {
-    if(!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
 
@@ -353,20 +321,14 @@ const XmpTag Image::getXmpTag(std::string key)
 
 void Image::setXmpTagTextValue(const std::string& key, const std::string& value)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     _xmpData[key].setValue(value);
 }
 
 void Image::setXmpTagArrayValue(const std::string& key, const boost::python::list& values)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::Xmpdatum& datum = _xmpData[key];
     // Reset the value
@@ -382,10 +344,7 @@ void Image::setXmpTagArrayValue(const std::string& key, const boost::python::lis
 
 void Image::setXmpTagLangAltValue(const std::string& key, const boost::python::dict& values)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::Xmpdatum& datum = _xmpData[key];
     // Reset the value
@@ -403,10 +362,7 @@ void Image::setXmpTagLangAltValue(const std::string& key, const boost::python::d
 
 void Image::deleteXmpTag(std::string key)
 {
-    if(!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
     Exiv2::XmpMetadata::iterator i = _xmpData.findKey(xmpKey);
@@ -421,10 +377,7 @@ void Image::deleteXmpTag(std::string key)
 /*
 boost::python::tuple Image::getThumbnailData()
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     Exiv2::Thumbnail::AutoPtr thumbnail = _exifData.getThumbnail();
     if (thumbnail.get() != 0)
@@ -454,10 +407,7 @@ boost::python::tuple Image::getThumbnailData()
 
 void Image::setThumbnailData(std::string data)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     const Exiv2::byte* dataBuf = (const Exiv2::byte*) data.c_str();
     _exifData.setJpegThumbnail(dataBuf, data.size());
@@ -465,20 +415,14 @@ void Image::setThumbnailData(std::string data)
 
 void Image::deleteThumbnail()
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     _exifData.eraseThumbnail();
 }
 
 void Image::dumpThumbnailToFile(const std::string path)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     int result = _exifData.writeThumbnail(path);
     if (result == 8)
@@ -487,10 +431,7 @@ void Image::dumpThumbnailToFile(const std::string path)
 
 void Image::setThumbnailFromJpegFile(const std::string path)
 {
-    if (!_dataRead)
-    {
-        throw Exiv2::Error(METADATA_NOT_READ);
-    }
+    CHECK_METADATA_READ
 
     _exifData.setJpegThumbnail(path);
 }
@@ -898,3 +839,4 @@ void translateExiv2Error(Exiv2::Error const& error)
 }
 
 } // End of namespace exiv2wrapper
+
