@@ -169,7 +169,7 @@ class TestIptcTag(unittest.TestCase):
 
     def test_convert_to_python_undefined(self):
         # Valid values
-        tag = IptcTag('Iptc.Envelope.CharacterSet')
+        tag = IptcTag('Iptc.Application2.Preview')
         self.assertEqual(tag.type, 'Undefined')
         self.assertEqual(tag._convert_to_python('Some binary data.'),
                          'Some binary data.')
@@ -178,7 +178,7 @@ class TestIptcTag(unittest.TestCase):
 
     def test_convert_to_string_undefined(self):
         # Valid values
-        tag = IptcTag('Iptc.Envelope.CharacterSet')
+        tag = IptcTag('Iptc.Application2.Preview')
         self.assertEqual(tag.type, 'Undefined')
         self.assertEqual(tag._convert_to_string('Some binary data.'),
                          'Some binary data.')
