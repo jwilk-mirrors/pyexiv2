@@ -198,6 +198,33 @@ const IptcTag Image::getIptcTag(std::string key)
     return IptcTag(key, data);
 }
 
+
+// Copied from libexiv2's src/iptc.cpp.
+// Was previously called Exiv2::FindMetadatumById::FindMetadatumById but it was
+// renamed and moved in revision 1727. See http://dev.exiv2.org/issues/show/581.
+//! Unary predicate that matches an Iptcdatum with given record and dataset
+class FindIptcdatum {
+public:
+    //! Constructor, initializes the object with the record and dataset id
+    FindIptcdatum(uint16_t dataset, uint16_t record)
+        : dataset_(dataset), record_(record) {}
+    /*!
+      @brief Returns true if the record and dataset id of the argument
+            Iptcdatum is equal to that of the object.
+    */
+    bool operator()(const Exiv2::Iptcdatum& iptcdatum) const
+    {
+        return dataset_ == iptcdatum.tag() && record_ == iptcdatum.record();
+    }
+
+private:
+    // DATA
+    uint16_t dataset_;
+    uint16_t record_;
+
+}; // class FindIptcdatum
+
+
 /*void Image::setIptcTag(std::string key, std::string value, unsigned int index=0)
 {
     CHECK_METADATA_READ
@@ -208,7 +235,7 @@ const IptcTag Image::getIptcTag(std::string key)
     while ((indexCounter > 0) && (dataIterator != _iptcData.end()))
     {
         dataIterator = std::find_if(++dataIterator, _iptcData.end(),
-            Exiv2::FindMetadatumById::FindMetadatumById(iptcKey.tag(), iptcKey.record()));
+            FindIptcdatum(iptcKey.tag(), iptcKey.record()));
         --indexCounter;
     }
     if (dataIterator != _iptcData.end())
@@ -245,8 +272,7 @@ void Image::setIptcTagValues(std::string key, boost::python::list values)
             // Override an existing value
             dataIterator->setValue(value);
             dataIterator = std::find_if(++dataIterator, _iptcData.end(),
-                Exiv2::FindMetadatumById::FindMetadatumById(iptcKey.tag(),
-                                                            iptcKey.record()));
+                FindIptcdatum(iptcKey.tag(), iptcKey.record()));
         }
         else
         {
@@ -265,8 +291,7 @@ void Image::setIptcTagValues(std::string key, boost::python::list values)
     {
         _iptcData.erase(dataIterator);
         dataIterator = std::find_if(dataIterator, _iptcData.end(),
-                Exiv2::FindMetadatumById::FindMetadatumById(iptcKey.tag(),
-                                                            iptcKey.record()));
+                FindIptcdatum(iptcKey.tag(), iptcKey.record()));
     }
 }
 
@@ -286,8 +311,7 @@ void Image::deleteIptcTag(std::string key)
     {
         _iptcData.erase(dataIterator);
         dataIterator = std::find_if(++dataIterator, _iptcData.end(),
-                Exiv2::FindMetadatumById::FindMetadatumById(iptcKey.tag(),
-                                                            iptcKey.record()));
+                FindIptcdatum(iptcKey.tag(), iptcKey.record()));
     }
 }
 
