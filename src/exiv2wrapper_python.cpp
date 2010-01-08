@@ -93,6 +93,15 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_getLangAltValue", &XmpTag::getLangAltValue)
     ;
 
+    class_<Preview>("Preview", init<Exiv2::PreviewImage>())
+
+        .def_readonly("mime_type", &Preview::_mimeType)
+        .def_readonly("extension", &Preview::_extension)
+        .def_readonly("size", &Preview::_size)
+        .def_readonly("dimensions", &Preview::_dimensions)
+        .def_readonly("data", &Preview::_data)
+    ;
+
     class_<Image>("Image", init<std::string>())
 
         .def("readMetadata", &Image::readMetadata)
@@ -114,6 +123,8 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("setXmpTagArrayValue", &Image::setXmpTagArrayValue)
         .def("setXmpTagLangAltValue", &Image::setXmpTagLangAltValue)
         .def("deleteXmpTag", &Image::deleteXmpTag)
+
+        .def("previews", &Image::previews)
 
 //        .def("getThumbnailData", &Image::getThumbnailData)
 //        .def("setThumbnailData", &Image::setThumbnailData)

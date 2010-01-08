@@ -301,3 +301,7 @@ class ImageMetadata(object):
         except AttributeError:
             raise KeyError(key)
 
+    @property
+    def previews(self):
+        return self._image.previews()
+

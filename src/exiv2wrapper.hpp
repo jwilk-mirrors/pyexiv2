@@ -29,6 +29,7 @@
 #include <string>
 
 #include "exiv2/image.hpp"
+#include "exiv2/preview.hpp"
 
 #include "boost/python.hpp"
 
@@ -129,6 +130,19 @@ private:
 };
 
 
+class Preview
+{
+public:
+    Preview(const Exiv2::PreviewImage& previewImage);
+
+    std::string _mimeType;
+    std::string _extension;
+    unsigned int _size;
+    boost::python::tuple _dimensions;
+    std::string _data;
+};
+
+
 class Image
 {
 public:
@@ -195,6 +209,9 @@ public:
     void deleteXmpTag(std::string key);
 
     // Read and write access to the thumbnail embedded in the image.
+
+    // Read-only ATM.
+    boost::python::list previews();
 
     // Return a tuple containing the format of the thumbnail ("TIFF" or
     // "JPEG") and the thumbnail raw data as a string buffer.
