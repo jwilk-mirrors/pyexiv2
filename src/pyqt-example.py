@@ -21,47 +21,52 @@
 # along with pyexiv2; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
 #
-#
-# File:      pyqt-example.py
-# Author(s): Olivier Tilloy <olivier@tilloy.net>
+# Author: Olivier Tilloy <olivier@tilloy.net>
 #
 # ******************************************************************************
 
 import sys
-import qt
-import pyexiv2
+from PyQt4 import QtGui
+from pyexiv2 import ImageMetadata
+
 
 if __name__ == '__main__':
-	"""
-	Example of how to combine pyqt and pyexiv2 to display thumbnail data.
+    """
+    Example of how to combine PyQt4 and pyexiv2 to display thumbnail data.
 
-	Minimalistic example of how to load and display with pyqt the thumbnail data
-	extracted from an image using the method Image.getThumbnailData().
-	The path to the image file from which the thumbnail data should be extracted
-	should be passed as the only argument of the script.
+    Minimalistic example of how to load and display with PyQt the thumbnail data
+    extracted from an image.
+    The path to the image file from which the thumbnail data should be extracted
+    should be passed as the only argument of the script.
 
-	It is of course assumed that you have pyqt installed.
-	"""
-	if (len(sys.argv) != 2):
-		print 'Usage: ' + sys.argv[0] + ' path/to/picture/file/containing/jpeg/thumbnail'
-		sys.exit(1)
-	else:
-		app = qt.QApplication([])
+    It is of course assumed that you have PyQt4 installed.
+    """
+    if (len(sys.argv) != 2):
+        print 'Usage: ' + sys.argv[0] + ' path/to/picture/file/containing/jpeg/thumbnail'
+        sys.exit(1)
 
-		# Load the image, read the metadata and extract the thumbnail data
-		image = pyexiv2.Image(sys.argv[1])
-		image.readMetadata()
-		ttype, tdata = image.getThumbnailData()
+    app = QtGui.QApplication([])
 
-		# Create a QT pixmap from the thumbnail data
-		pixmap = qt.QPixmap()
-		pixmap.loadFromData(tdata, 'JPEG')
+    # Load the image, read the metadata and extract the thumbnail data
+    metadata = ImageMetadata(sys.argv[1])
+    metadata.read()
+    previews = metadata.previews
+    if not previews:
+        print "This image doesn't contain any thumbnail."
+        sys.exit(1)
 
-		# Create a QT label to display the pixmap
-		label = qt.QLabel(None)
-		label.setPixmap(pixmap)
+    # Get the largest preview available
+    preview = previews[-1]
 
-		# Show the application's main window
-		app.setMainWidget(label)
-		label.show()
-		app.exec_loop()
+    # Create a pixmap from the thumbnail data
+    pixmap = QtGui.QPixmap()
+    pixmap.loadFromData(preview.data, 'JPEG')
+
+    # Create a QT label to display the pixmap
+    label = QtGui.QLabel(None)
+    label.setPixmap(pixmap)
+
+    # Show the application's main window
+    label.show()
+    sys.exit(app.exec_())
+
