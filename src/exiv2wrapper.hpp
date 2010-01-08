@@ -135,6 +135,8 @@ class Preview
 public:
     Preview(const Exiv2::PreviewImage& previewImage);
 
+    void writeToFile(const std::string& path) const;
+
     std::string _mimeType;
     std::string _extension;
     unsigned int _size;

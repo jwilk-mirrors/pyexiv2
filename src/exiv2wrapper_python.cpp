@@ -100,6 +100,8 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def_readonly("size", &Preview::_size)
         .def_readonly("dimensions", &Preview::_dimensions)
         .def_readonly("data", &Preview::_data)
+
+        .def("write_to_file", &Preview::writeToFile)
     ;
 
     class_<Image>("Image", init<std::string>())

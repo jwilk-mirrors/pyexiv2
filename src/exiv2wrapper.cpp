@@ -27,6 +27,8 @@
 
 #include "boost/python/stl_iterator.hpp"
 
+#include <fstream>
+
 // Custom error codes for Exiv2 exceptions
 #define METADATA_NOT_READ 101
 #define NON_REPEATABLE 102
@@ -812,6 +814,14 @@ Preview::Preview(const Exiv2::PreviewImage& previewImage)
     {
         _data[i] = pData[i];
     }
+}
+
+void Preview::writeToFile(const std::string& path) const
+{
+    std::string filename = path + _extension;
+    std::ofstream fd(filename.c_str(), std::ios::out);
+    fd << _data;
+    fd.close();
 }
 
 
