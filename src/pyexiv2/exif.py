@@ -369,7 +369,7 @@ class ExifTag(ListenerInterface):
         @rtype: C{str}
         """
         if isinstance(self._value, (list, tuple)):
-            return ', '.join(map(self._convert_to_string, self._value))
+            return ' '.join(map(self._convert_to_string, self._value))
         else:
             return self._convert_to_string(self._value)
 
