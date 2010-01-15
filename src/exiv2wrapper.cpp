@@ -27,6 +27,8 @@
 
 #include "boost/python/stl_iterator.hpp"
 
+#include <fstream>
+
 // Custom error codes for Exiv2 exceptions
 #define METADATA_NOT_READ 101
 #define NON_REPEATABLE 102
@@ -397,6 +399,24 @@ void Image::deleteXmpTag(std::string key)
     else
         throw Exiv2::Error(KEY_NOT_FOUND, key);
 }
+
+boost::python::list Image::previews()
+{
+    CHECK_METADATA_READ
+
+    boost::python::list previews;
+    Exiv2::PreviewManager pm(*_image);
+    Exiv2::PreviewPropertiesList props = pm.getPreviewProperties();
+    for (Exiv2::PreviewPropertiesList::const_iterator i = props.begin();
+         i != props.end();
+         ++i)
+    {
+        previews.append(Preview(pm.getPreviewImage(*i)));
+    }
+
+    return previews;
+}
+
 
 /*
 boost::python::tuple Image::getThumbnailData()
@@ -771,6 +791,37 @@ const boost::python::dict XmpTag::getLangAltValue()
         rvalue[i->first] = i->second;
     }
     return rvalue;
+}
+
+
+Preview::Preview(const Exiv2::PreviewImage& previewImage)
+{
+    _mimeType = previewImage.mimeType();
+    _extension = previewImage.extension();
+    _size = previewImage.size();
+    _dimensions = boost::python::make_tuple(previewImage.width(),
+                                            previewImage.height());
+    // Copy the data buffer in a string. Since the data buffer can contain null
+    // characters ('\x00'), the string cannot be simply constructed like that:
+    //     _data = std::string((char*) previewImage.pData());
+    // because it would be truncated after the first occurence of a null
+    // character. Therefore, it has to be copied character by character.
+    const Exiv2::byte* pData = previewImage.pData();
+    // First allocate the memory for the whole string...
+    _data = std::string(_size, ' ');
+    // ... then fill it with the raw data.
+    for(unsigned int i = 0; i < _size; ++i)
+    {
+        _data[i] = pData[i];
+    }
+}
+
+void Preview::writeToFile(const std::string& path) const
+{
+    std::string filename = path + _extension;
+    std::ofstream fd(filename.c_str(), std::ios::out);
+    fd << _data;
+    fd.close();
 }
 
 
