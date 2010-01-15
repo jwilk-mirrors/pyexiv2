@@ -122,6 +122,22 @@ class TestExifTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, None)
 
+    def test_convert_to_python_sbyte(self):
+        # Valid values
+        tag = ExifTag('Exif.Pentax.Temperature')
+        self.assertEqual(tag.type, 'SByte')
+        self.assertEqual(tag._convert_to_python('15'), '15')
+
+    def test_convert_to_string_sbyte(self):
+        # Valid values
+        tag = ExifTag('Exif.Pentax.Temperature')
+        self.assertEqual(tag.type, 'SByte')
+        self.assertEqual(tag._convert_to_string('13'), '13')
+        self.assertEqual(tag._convert_to_string(u'13'), '13')
+
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, tag._convert_to_string, None)
+
     def test_convert_to_python_short(self):
         # Valid values
         tag = ExifTag('Exif.Image.BitsPerSample')
