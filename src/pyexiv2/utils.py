@@ -123,7 +123,7 @@ class FixedOffset(datetime.tzinfo):
             (self.minutes == other.minutes)
 
 
-def UndefinedToString(undefined):
+def undefined_to_string(undefined):
     """
     Convert an undefined string into its corresponding sequence of bytes.
     The undefined string must contain the ascii codes of a sequence of bytes,
@@ -140,7 +140,7 @@ def UndefinedToString(undefined):
     return ''.join(map(lambda x: chr(int(x)), undefined.rstrip().split(' ')))
 
 
-def StringToUndefined(sequence):
+def string_to_undefined(sequence):
     """
     Convert a string into its undefined form.
     The undefined form contains a sequence of ascii codes, each followed by a
