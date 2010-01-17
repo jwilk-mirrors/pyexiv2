@@ -40,7 +40,7 @@ class ExifTag
 {
 public:
     // Constructor
-    ExifTag(const std::string& key, Exiv2::Exifdatum* datum=0);
+    ExifTag(const std::string& key, Exiv2::Exifdatum* datum=0, Exiv2::ExifData* data=0);
 
     void setRawValue(const std::string& value);
 
@@ -57,6 +57,7 @@ public:
 private:
     Exiv2::ExifKey _key;
     Exiv2::Exifdatum* _datum;
+    Exiv2::ExifData* _data;
     std::string _type;
     std::string _name;
     std::string _label;
