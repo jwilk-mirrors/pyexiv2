@@ -133,7 +133,7 @@ const ExifTag Image::getExifTag(std::string key)
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    return ExifTag(key, &_exifData[key]);
+    return ExifTag(key, &_exifData[key], &_exifData);
 }
 
 void Image::setExifTagValue(std::string key, std::string value)
@@ -482,15 +482,17 @@ void Image::setThumbnailFromJpegFile(const std::string path)
 */
 
 
-ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum): _key(key)
+ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifData* data): _key(key)
 {
-    if (datum != 0)
+    if (datum != 0 && data != 0)
     {
         _datum = datum;
+        _data = data;
     }
     else
     {
         _datum = new Exiv2::Exifdatum(_key);
+        _data = 0;
     }
 
     const uint16_t tag = _datum->tag();
@@ -550,9 +552,7 @@ const std::string ExifTag::getRawValue()
 
 const std::string ExifTag::getHumanValue()
 {
-    std::ostringstream buffer;
-    buffer << *_datum;
-    return buffer.str();
+    return _datum->print(_data);
 }
 
 
