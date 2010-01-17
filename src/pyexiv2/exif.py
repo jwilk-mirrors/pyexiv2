@@ -61,7 +61,7 @@ class ExifTag(ListenerInterface):
     python types the value of a tag may take:
      - Ascii: C{datetime.datetime}, C{datetime.date}, C{str}
      - Byte, SByte: C{str}
-     - Short: [list of] C{int}
+     - Short, SShort: [list of] C{int}
      - Long, SLong: [list of] C{long}
      - Rational, SRational: [list of] L{pyexiv2.utils.Rational}
      - Undefined: C{str}
@@ -113,8 +113,8 @@ class ExifTag(ListenerInterface):
 
     @property
     def type(self):
-        """The EXIF type of the tag (one of Ascii, Byte, SByte, Short, Long,
-        SLong, Rational, SRational, Undefined)."""
+        """The EXIF type of the tag (one of Ascii, Byte, SByte, Short, SShort,
+        Long, SLong, Rational, SRational, Undefined)."""
         return self._tag._getType()
 
     @property
@@ -147,7 +147,8 @@ class ExifTag(ListenerInterface):
 
     def _set_raw_value(self, value):
         self._raw_value = value
-        if self.type in ('Short', 'Long', 'SLong', 'Rational', 'SRational'):
+        if self.type in \
+            ('Short', 'SShort', 'Long', 'SLong', 'Rational', 'SRational'):
             # May contain multiple values
             values = value.split()
             if len(values) > 1:
@@ -245,7 +246,7 @@ class ExifTag(ListenerInterface):
         elif self.type in ('Byte', 'SByte'):
             return value
 
-        elif self.type == 'Short':
+        elif self.type in ('Short', 'SShort'):
             try:
                 return int(value)
             except ValueError:
@@ -320,6 +321,12 @@ class ExifTag(ListenerInterface):
 
         elif self.type == 'Short':
             if type(value) is int and value >= 0:
+                return str(value)
+            else:
+                raise ExifValueError(value, self.type)
+
+        elif self.type == 'SShort':
+            if type(value) is int:
                 return str(value)
             else:
                 raise ExifValueError(value, self.type)
