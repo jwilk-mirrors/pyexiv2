@@ -156,7 +156,7 @@ class ImageMetadata(object):
         # Set an EXIF tag. If the tag already exists, its value is overwritten.
         if not isinstance(tag, ExifTag):
             raise TypeError('Expecting an ExifTag')
-        self._image.setExifTagValue(tag.key, str(tag))
+        self._image.setExifTagValue(tag.key, tag.raw_value)
         self._tags['exif'][tag.key] = tag
         tag.metadata = self
 
