@@ -177,7 +177,7 @@ class ImageMetadata(object):
         # overwritten.
         if not isinstance(tag, IptcTag):
             raise TypeError('Expecting an IptcTag')
-        self._image.setIptcTagValues(tag.key, tag.to_string_list())
+        self._image.setIptcTagValues(tag.key, tag.raw_values)
         self._tags['iptc'][tag.key] = tag
         tag.metadata = self
 
