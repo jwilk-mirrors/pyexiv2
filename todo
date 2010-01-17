@@ -20,4 +20,3 @@ todo list
 Bugs:
 
 - Unicode encoding problem when writing to an EXIF Ascii tag with non ASCII characters (e.g. "é")
-- Problem decoding the value of "Iptc.Application2.Copyright" for smiley1.jpg
