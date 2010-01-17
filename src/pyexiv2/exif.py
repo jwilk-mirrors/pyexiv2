@@ -26,7 +26,8 @@
 
 import libexiv2python
 
-from pyexiv2.utils import Rational, NotifyingList, ListenerInterface
+from pyexiv2.utils import Rational, NotifyingList, ListenerInterface, \
+                          UndefinedToString, StringToUndefined
 
 import time
 import datetime
@@ -272,7 +273,7 @@ class ExifTag(ListenerInterface):
             # There is currently no charset conversion.
             # TODO: guess the encoding and decode accordingly into unicode
             # where relevant.
-            return self.human_value
+            return UndefinedToString(value)
 
         raise ExifValueError(value, self.type)
 
@@ -358,11 +359,11 @@ class ExifTag(ListenerInterface):
         elif self.type == 'Undefined':
             if type(value) is unicode:
                 try:
-                    return value.encode('utf-8')
+                    return StringToUndefined(value.encode('utf-8'))
                 except UnicodeEncodeError:
                     raise ExifValueError(value, self.type)
             elif type(value) is str:
-                return value
+                return StringToUndefined(value)
             else:
                 raise ExifValueError(value, self.type)
 
