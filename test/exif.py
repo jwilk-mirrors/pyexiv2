@@ -122,6 +122,22 @@ class TestExifTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, None)
 
+    def test_convert_to_python_sbyte(self):
+        # Valid values
+        tag = ExifTag('Exif.Pentax.Temperature')
+        self.assertEqual(tag.type, 'SByte')
+        self.assertEqual(tag._convert_to_python('15'), '15')
+
+    def test_convert_to_string_sbyte(self):
+        # Valid values
+        tag = ExifTag('Exif.Pentax.Temperature')
+        self.assertEqual(tag.type, 'SByte')
+        self.assertEqual(tag._convert_to_string('13'), '13')
+        self.assertEqual(tag._convert_to_string(u'13'), '13')
+
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, tag._convert_to_string, None)
+
     def test_convert_to_python_short(self):
         # Valid values
         tag = ExifTag('Exif.Image.BitsPerSample')
@@ -143,6 +159,31 @@ class TestExifTag(unittest.TestCase):
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, -57)
+        self.failUnlessRaises(ExifValueError, tag._convert_to_string, 'invalid')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_string, 3.14)
+
+    def test_convert_to_python_sshort(self):
+        # Valid values
+        tag = ExifTag('Exif.Image.TimeZoneOffset')
+        self.assertEqual(tag.type, 'SShort')
+        self.assertEqual(tag._convert_to_python('8'), 8)
+        self.assertEqual(tag._convert_to_python('+5'), 5)
+        self.assertEqual(tag._convert_to_python('-6'), -6)
+
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'abc')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '5,64')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '47.0001')
+        self.failUnlessRaises(ExifValueError, tag._convert_to_python, '1E3')
+
+    def test_convert_to_string_sshort(self):
+        # Valid values
+        tag = ExifTag('Exif.Image.TimeZoneOffset')
+        self.assertEqual(tag.type, 'SShort')
+        self.assertEqual(tag._convert_to_string(12), '12')
+        self.assertEqual(tag._convert_to_string(-3), '-3')
+
+        # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 'invalid')
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 3.14)
 
