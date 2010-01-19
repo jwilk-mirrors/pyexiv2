@@ -388,16 +388,16 @@ class GPSCoordinate(object):
         @type direction:  C{str}
         """
         if degrees < 0 or degrees > 90:
-            raise ValueError()
+            raise ValueError('Invalid value for degrees: %d' % degrees)
         self._degrees = degrees
         if minutes < 0 or minutes > 60:
-            raise ValueError()
+            raise ValueError('Invalid value for minutes: %d' % minutes)
         self._minutes = minutes
         if seconds < 0 or seconds > 60:
-            raise ValueError()
+            raise ValueError('Invalid value for seconds: %d' % seconds)
         self._seconds = seconds
         if direction not in ('N', 'S', 'E', 'W'):
-            raise ValueError()
+            raise ValueError('Invalid direction: %s' % direction)
         self._direction = direction
 
     @property
