@@ -26,7 +26,7 @@
 
 import libexiv2python
 
-from pyexiv2.utils import FixedOffset, Rational
+from pyexiv2.utils import FixedOffset, Rational, GPSCoordinate
 
 import datetime
 import re
@@ -290,6 +290,12 @@ class XmpTag(object):
             # TODO
             raise NotImplementedError('XMP conversion for type [%s]' % type)
 
+        elif type == 'GPSCoordinate':
+            try:
+                return GPSCoordinate.from_string(value)
+            except ValueError:
+                raise XmpValueError(value, type)
+
         elif type == 'Integer':
             try:
                 return int(value)
@@ -376,6 +382,12 @@ class XmpTag(object):
                     return r
             elif isinstance(value, datetime.date):
                 return value.isoformat()
+            else:
+                raise XmpValueError(value, type)
+
+        elif type == 'GPSCoordinate':
+            if isinstance(value, GPSCoordinate):
+                return str(value)
             else:
                 raise XmpValueError(value, type)
 

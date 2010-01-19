@@ -64,7 +64,8 @@ from pyexiv2.exif import ExifValueError, ExifTag
 from pyexiv2.iptc import IptcValueError, IptcTag
 from pyexiv2.xmp import XmpValueError, XmpTag
 from pyexiv2.utils import FixedOffset, Rational, NotifyingList, \
-                          undefined_to_string, string_to_undefined
+                          undefined_to_string, string_to_undefined, \
+                          GPSCoordinate
 
 
 __version__ =  (0, 2, 1)
