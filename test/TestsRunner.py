@@ -35,6 +35,7 @@ import unittest
 #from Bug183332_TestCase import Bug183332_TestCase
 #from Bug183618_TestCase import Bug183618_TestCase
 from rational import TestRational
+from gps_coordinate import TestGPSCoordinate
 from notifying_list import TestNotifyingList
 from exif import TestExifTag
 from iptc import TestIptcTag
@@ -52,6 +53,7 @@ if __name__ == '__main__':
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183332_TestCase))
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183618_TestCase))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestRational))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestGPSCoordinate))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestNotifyingList))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestExifTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIptcTag))

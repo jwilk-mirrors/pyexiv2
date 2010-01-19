@@ -359,3 +359,112 @@ class NotifyingList(list):
         if deleted:
             self._notify_listeners()
 
+
+class GPSCoordinate(object):
+
+    """
+    A class representing GPS coordinates (e.g. a latitude or a longitude).
+
+    Its attributes (degrees, minutes, seconds, direction) are read-only
+    properties.
+    """
+
+    _format_re = \
+        re.compile(r'(?P<degrees>-?\d+),'
+                    '(?P<minutes>\d+)(,(?P<seconds>\d+)|\.(?P<fraction>\d+))'
+                    '(?P<direction>[NSEW])')
+
+    def __init__(self, degrees, minutes, seconds, direction):
+        """
+        Constructor.
+
+        @param degrees:   degrees
+        @type degrees:    C{int}
+        @param minutes:   minutes
+        @type minutes:    C{int}
+        @param seconds:   seconds
+        @type seconds:    C{int}
+        @param direction: direction ('N', 'S', 'E' or 'W')
+        @type direction:  C{str}
+        """
+        if degrees < 0 or degrees > 90:
+            raise ValueError()
+        self._degrees = degrees
+        if minutes < 0 or minutes > 60:
+            raise ValueError()
+        self._minutes = minutes
+        if seconds < 0 or seconds > 60:
+            raise ValueError()
+        self._seconds = seconds
+        if direction not in ('N', 'S', 'E', 'W'):
+            raise ValueError()
+        self._direction = direction
+
+    @property
+    def degrees(self):
+        return self._degrees
+
+    @property
+    def minutes(self):
+        return self._minutes
+
+    @property
+    def seconds(self):
+        return self._seconds
+
+    @property
+    def direction(self):
+        return self._direction
+
+    @staticmethod
+    def from_string(string):
+        """
+        Instantiate a GPSCoordinate from a string formatted as C{DDD,MM,SSk} or
+        C{DDD,MM.mmk} where C{DDD} is a number of degrees, C{MM} is a number of
+        minutes, C{SS} is a number of seconds, C{mm} is a fraction of minutes,
+        and C{k} is a single character C{N}, C{S}, C{E}, or C{W} indicating a
+        direction (north, south, east, west).
+
+        @param string: a string representation of a GPS coordinate
+        @type string:  C{str}
+
+        @return: the GPS coordinate parsed
+        @rtype:  L{GPSCoordinate}
+
+        @raise ValueError: if the format of the string is invalid
+        """
+        match = GPSCoordinate._format_re.match(string)
+        if match is None:
+            raise ValueError('Invalid format for a GPS coordinate: %s' % string)
+        gd = match.groupdict()
+        fraction = gd['fraction']
+        if fraction is not None:
+            seconds = int(round(int(fraction[:2]) * 0.6))
+        else:
+            seconds = int(gd['seconds'])
+        return GPSCoordinate(int(gd['degrees']), int(gd['minutes']), seconds,
+                             gd['direction'])
+
+    def __eq__(self, other):
+        """
+        Compare two GPS coordinates for equality.
+
+        @param other: the GPS coordinate to compare to self for equality
+        @type other:  L{GPSCoordinate}
+        
+        @return: C{True} if equal, C{False} otherwise
+        @rtype:  C{bool}
+        """
+        return (self._degrees == other._degrees) and \
+               (self._minutes == other._minutes) and \
+               (self._seconds == other._seconds) and \
+               (self._direction == other._direction)
+
+    def __str__(self):
+        """
+        Return a string representation of the GPS coordinate conforming to the
+        XMP specification.
+        """
+        return '%d,%d,%d%s' % (self._degrees, self._minutes, self._seconds,
+                               self._direction)
+
