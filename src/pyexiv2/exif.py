@@ -62,6 +62,7 @@ class ExifTag(ListenerInterface):
     python types the value of a tag may take:
      - Ascii: C{datetime.datetime}, C{datetime.date}, C{str}
      - Byte, SByte: C{str}
+     - Comment: C{str}
      - Short, SShort: [list of] C{int}
      - Long, SLong: [list of] C{long}
      - Rational, SRational: [list of] L{pyexiv2.utils.Rational}
@@ -114,8 +115,8 @@ class ExifTag(ListenerInterface):
 
     @property
     def type(self):
-        """The EXIF type of the tag (one of Ascii, Byte, SByte, Short, SShort,
-        Long, SLong, Rational, SRational, Undefined)."""
+        """The EXIF type of the tag (one of Ascii, Byte, SByte, Comment, Short,
+        SShort, Long, SLong, Rational, SRational, Undefined)."""
         return self._tag._getType()
 
     @property
@@ -247,6 +248,12 @@ class ExifTag(ListenerInterface):
         elif self.type in ('Byte', 'SByte'):
             return value
 
+        elif self.type == 'Comment':
+            # There is currently no charset conversion.
+            # TODO: guess the encoding and decode accordingly into unicode
+            # where relevant.
+            return value
+
         elif self.type in ('Short', 'SShort'):
             try:
                 return int(value)
@@ -307,9 +314,20 @@ class ExifTag(ListenerInterface):
             elif type(value) is str:
                 return value
             else:
-                raise ExifValueError(value, self.type) 
+                raise ExifValueError(value, self.type)
 
         elif self.type in ('Byte', 'SByte'):
+            if type(value) is unicode:
+                try:
+                    return value.encode('utf-8')
+                except UnicodeEncodeError:
+                    raise ExifValueError(value, self.type)
+            elif type(value) is str:
+                return value
+            else:
+                raise ExifValueError(value, self.type)
+
+        elif self.type == 'Comment':
             if type(value) is unicode:
                 try:
                     return value.encode('utf-8')

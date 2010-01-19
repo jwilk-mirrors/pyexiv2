@@ -138,6 +138,22 @@ class TestExifTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, None)
 
+    def test_convert_to_python_comment(self):
+        # Valid values
+        tag = ExifTag('Exif.Photo.UserComment')
+        self.assertEqual(tag.type, 'Comment')
+        self.assertEqual(tag._convert_to_python('A comment'), 'A comment')
+
+    def test_convert_to_string_comment(self):
+        # Valid values
+        tag = ExifTag('Exif.Photo.UserComment')
+        self.assertEqual(tag.type, 'Comment')
+        self.assertEqual(tag._convert_to_string('A comment'), 'A comment')
+        self.assertEqual(tag._convert_to_string(u'A comment'), 'A comment')
+
+        # Invalid values
+        self.failUnlessRaises(ExifValueError, tag._convert_to_string, None)
+
     def test_convert_to_python_short(self):
         # Valid values
         tag = ExifTag('Exif.Image.BitsPerSample')
