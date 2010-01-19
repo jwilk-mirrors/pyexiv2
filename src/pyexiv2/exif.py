@@ -181,10 +181,9 @@ class ExifTag(ListenerInterface):
     def _set_value(self, value):
         if isinstance(value, (list, tuple)):
             raw_values = map(self._convert_to_string, value)
-            self._raw_value = ' '.join(raw_values)
+            self.raw_value = ' '.join(raw_values)
         else:
-            self._raw_value = self._convert_to_string(value)
-        self._tag._setRawValue(self._raw_value)
+            self.raw_value = self._convert_to_string(value)
 
         if self.metadata is not None:
             self.metadata._set_exif_tag_value(self.key, self._raw_value)
@@ -203,6 +202,8 @@ class ExifTag(ListenerInterface):
         else:
             # Single value
             self._value = value
+
+        self._value_cookie = False
 
     value = property(fget=_get_value, fset=_set_value,
                      doc='The value of the tag as a python object.')
