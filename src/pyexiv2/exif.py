@@ -150,6 +150,8 @@ class ExifTag(ListenerInterface):
 
     def _set_raw_value(self, value):
         self._tag._setRawValue(value)
+        if self.metadata is not None:
+            self.metadata._set_exif_tag_value(self.key, value)
         self._raw_value = value
         self._value_cookie = True
 
@@ -184,9 +186,6 @@ class ExifTag(ListenerInterface):
             self.raw_value = ' '.join(raw_values)
         else:
             self.raw_value = self._convert_to_string(value)
-
-        if self.metadata is not None:
-            self.metadata._set_exif_tag_value(self.key, self._raw_value)
 
         if isinstance(self._value, NotifyingList):
             self._value.unregister_listener(self)
