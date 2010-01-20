@@ -69,6 +69,7 @@ class XmpTag(object):
      - Date: C{datetime.date}, C{datetime.datetime}
      - Dimensions: [not implemented yet]
      - Font: [not implemented yet]
+     - GPSCoordinate: L{pyexiv2.utils.GPSCoordinate}
      - Integer: C{int}
      - Locale: [not implemented yet]
      - MIMEType: C{tuple}
