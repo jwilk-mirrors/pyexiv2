@@ -70,6 +70,9 @@ class _IptcTagMock(_TagMock):
     def _getRawValues(self):
         return self.value
 
+    def _setRawValues(self, values):
+        pass
+
 
 class _XmpTagMock(_TagMock):
 
