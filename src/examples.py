@@ -1,4 +1,4 @@
-#!//usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 from pyexiv2 import ImageMetadata, ExifTag, IptcTag, XmpTag

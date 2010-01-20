@@ -31,7 +31,6 @@ from pyexiv2.metadata import ImageMetadata
 
 
 if __name__ == '__main__':
-    import sys
     args = sys.argv
 
     if len(args) != 2:

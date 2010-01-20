@@ -211,32 +211,8 @@ public:
     // Throw an exception if the tag was not set.
     void deleteXmpTag(std::string key);
 
-    // Read and write access to the thumbnail embedded in the image.
-
-    // Read-only ATM.
+    // Read access to the thumbnail embedded in the image.
     boost::python::list previews();
-
-    // Return a tuple containing the format of the thumbnail ("TIFF" or
-    // "JPEG") and the thumbnail raw data as a string buffer.
-    // Throw an exception if the thumbnail data cannot be accessed.
-    //boost::python::tuple getThumbnailData();
-
-    // Set the thumbnail of the image. The parameter is the thumbnail raw
-    // jpeg data as a string buffer.
-    //void setThumbnailData(std::string data);
-
-    // Delete the thumbnail embedded in the image.
-    //void deleteThumbnail();
-
-    // Write the thumbnail to an image file.
-    // A filename extension is appended to the given path according to the
-    // image type of the thumbnail, so it should not include an extension.
-    // Throw an exception if the image does not contain a thumbnail.
-    //void dumpThumbnailToFile(const std::string path);
-
-    // Set the image contained in the jpeg file passed as a parameter as
-    // the thumbnail of the image.
-    //void setThumbnailFromJpegFile(const std::string path);
 
 private:
     std::string _filename;

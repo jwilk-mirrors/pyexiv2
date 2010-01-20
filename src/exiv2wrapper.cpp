@@ -227,37 +227,6 @@ private:
 }; // class FindIptcdatum
 
 
-/*void Image::setIptcTag(std::string key, std::string value, unsigned int index=0)
-{
-    CHECK_METADATA_READ
-
-    unsigned int indexCounter = index;
-    Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-    Exiv2::IptcMetadata::iterator dataIterator = _iptcData.findKey(iptcKey);
-    while ((indexCounter > 0) && (dataIterator != _iptcData.end()))
-    {
-        dataIterator = std::find_if(++dataIterator, _iptcData.end(),
-            FindIptcdatum(iptcKey.tag(), iptcKey.record()));
-        --indexCounter;
-    }
-    if (dataIterator != _iptcData.end())
-    {
-        // The tag at given index already exists, override it
-        dataIterator->setValue(value);
-    }
-    else
-    {
-        // Either index is greater than the index of the last repetition
-        // of the tag, or the tag does not exist yet.
-        // In both cases, it is created.
-        Exiv2::Iptcdatum iptcDatum(iptcKey);
-        iptcDatum.setValue(value);
-        int state = _iptcData.add(iptcDatum);
-        if (state == 6)
-            throw Exiv2::Error(NON_REPEATABLE);
-    }
-}*/
-
 void Image::setIptcTagValues(std::string key, boost::python::list values)
 {
     CHECK_METADATA_READ
@@ -418,70 +387,6 @@ boost::python::list Image::previews()
 
     return previews;
 }
-
-
-/*
-boost::python::tuple Image::getThumbnailData()
-{
-    CHECK_METADATA_READ
-
-    Exiv2::Thumbnail::AutoPtr thumbnail = _exifData.getThumbnail();
-    if (thumbnail.get() != 0)
-    {
-        std::string format(_exifData.thumbnailFormat());
-        // Copy the data buffer in a string. Since the data buffer can
-        // contain null char ('\x00'), the string cannot be simply
-        // constructed like that:
-        //     std::string data((char*) dataBuffer.pData_);
-        // because it would be truncated after the first occurence of a
-        // null char. Therefore, it has to be copied char by char.
-        Exiv2::DataBuf dataBuffer = _exifData.copyThumbnail();
-        char* charData = (char*) dataBuffer.pData_;
-        long dataLen = dataBuffer.size_;
-        // First allocate the memory for the whole string...
-        std::string data(dataLen, ' ');
-        // ... then fill it with the raw jpeg data.
-        for(long i = 0; i < dataLen; ++i)
-        {
-            data[i] = charData[i];
-        }
-        return boost::python::make_tuple(format, data);
-    }
-    else
-        throw Exiv2::Error(THUMB_ACCESS);
-}
-
-void Image::setThumbnailData(std::string data)
-{
-    CHECK_METADATA_READ
-
-    const Exiv2::byte* dataBuf = (const Exiv2::byte*) data.c_str();
-    _exifData.setJpegThumbnail(dataBuf, data.size());
-}
-
-void Image::deleteThumbnail()
-{
-    CHECK_METADATA_READ
-
-    _exifData.eraseThumbnail();
-}
-
-void Image::dumpThumbnailToFile(const std::string path)
-{
-    CHECK_METADATA_READ
-
-    int result = _exifData.writeThumbnail(path);
-    if (result == 8)
-        throw Exiv2::Error(NO_THUMBNAIL);
-}
-
-void Image::setThumbnailFromJpegFile(const std::string path)
-{
-    CHECK_METADATA_READ
-
-    _exifData.setJpegThumbnail(path);
-}
-*/
 
 
 ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifData* data): _key(key)

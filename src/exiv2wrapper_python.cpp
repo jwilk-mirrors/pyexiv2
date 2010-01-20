@@ -127,16 +127,6 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("deleteXmpTag", &Image::deleteXmpTag)
 
         .def("previews", &Image::previews)
-
-//        .def("getThumbnailData", &Image::getThumbnailData)
-//        .def("setThumbnailData", &Image::setThumbnailData)
-//        .def("deleteThumbnail", &Image::deleteThumbnail)
-//        .def("dumpThumbnailToFile", &Image::dumpThumbnailToFile)
-//        .def("setThumbnailFromJpegFile", &Image::setThumbnailFromJpegFile)
-
-//        .def("getComment", &Image::getComment)
-//        .def("setComment", &Image::setComment)
-//        .def("clearComment", &Image::clearComment)
     ;
 }
 
