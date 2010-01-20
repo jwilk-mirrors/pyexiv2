@@ -264,7 +264,7 @@ void Image::setIptcTagValues(std::string key, boost::python::list values)
 
     Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
     unsigned int index = 0;
-    unsigned int max = len(values);
+    unsigned int max = boost::python::len(values);
     Exiv2::IptcMetadata::iterator dataIterator = _iptcData.findKey(iptcKey);
     while (index < max)
     {
@@ -286,6 +286,8 @@ void Image::setIptcTagValues(std::string key, boost::python::list values)
             {
                 throw Exiv2::Error(NON_REPEATABLE);
             }
+            // Reset dataIterator that has been invalidated by appending a datum
+            dataIterator = _iptcData.end();
         }
     }
     // Erase the remaining values if any
