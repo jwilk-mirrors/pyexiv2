@@ -98,6 +98,7 @@ class ExifTag(ListenerInterface):
         self.metadata = None
         self._raw_value = None
         self._value = None
+        self._value_cookie = False
         if value is not None:
             self._set_value(value)
 
@@ -148,35 +149,43 @@ class ExifTag(ListenerInterface):
         return self._raw_value
 
     def _set_raw_value(self, value):
+        self._tag._setRawValue(value)
+        if self.metadata is not None:
+            self.metadata._set_exif_tag_value(self.key, value)
         self._raw_value = value
+        self._value_cookie = True
+
+    raw_value = property(fget=_get_raw_value, fset=_set_raw_value,
+                         doc='The raw value of the tag as a string (C{str}).')
+
+    def _compute_value(self):
+        # Lazy computation of the value from the raw value.
         if self.type in \
             ('Short', 'SShort', 'Long', 'SLong', 'Rational', 'SRational'):
             # May contain multiple values
-            values = value.split()
+            values = self._raw_value.split()
             if len(values) > 1:
                 # Make values a notifying list
                 values = map(self._convert_to_python, values)
                 self._value = NotifyingList(values)
                 self._value.register_listener(self)
+                self._value_cookie = False
                 return
-        self._value = self._convert_to_python(value)
 
-    raw_value = property(fget=_get_raw_value, fset=_set_raw_value,
-                         doc='The raw value of the tag as a string (C{str}).')
+        self._value = self._convert_to_python(self._raw_value)
+        self._value_cookie = False
 
     def _get_value(self):
+        if self._value_cookie:
+            self._compute_value() 
         return self._value
 
     def _set_value(self, value):
         if isinstance(value, (list, tuple)):
             raw_values = map(self._convert_to_string, value)
-            self._raw_value = ' '.join(raw_values)
+            self.raw_value = ' '.join(raw_values)
         else:
-            self._raw_value = self._convert_to_string(value)
-        self._tag._setRawValue(self._raw_value)
-
-        if self.metadata is not None:
-            self.metadata._set_exif_tag_value(self.key, self._raw_value)
+            self.raw_value = self._convert_to_string(value)
 
         if isinstance(self._value, NotifyingList):
             self._value.unregister_listener(self)
@@ -192,6 +201,8 @@ class ExifTag(ListenerInterface):
         else:
             # Single value
             self._value = value
+
+        self._value_cookie = False
 
     value = property(fget=_get_value, fset=_set_value,
                      doc='The value of the tag as a python object.')
@@ -389,29 +400,16 @@ class ExifTag(ListenerInterface):
 
     def __str__(self):
         """
-        Return a string representation of the value of the EXIF tag suitable to
-        pass to libexiv2 to set it.
-
-        @rtype: C{str}
-        """
-        if isinstance(self._value, (list, tuple)):
-            return ' '.join(map(self._convert_to_string, self._value))
-        else:
-            return self._convert_to_string(self._value)
-
-    def __repr__(self):
-        """
         Return a string representation of the EXIF tag for debugging purposes.
 
         @rtype: C{str}
         """
         left = '%s [%s]' % (self.key, self.type)
-        if self._value is None:
+        if self._raw_value is None:
             right = '(No value)'
-        elif self.type == 'Undefined' and len(self._value) > 100:
+        elif self.type == 'Undefined' and len(self._raw_value) > 100:
             right = '(Binary value suppressed)'
         else:
-             #right = self.fvalue
-             right = str(self)
+             right = self._raw_value
         return '<%s = %s>' % (left, right)
 

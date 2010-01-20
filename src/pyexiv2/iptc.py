@@ -95,6 +95,7 @@ class IptcTag(ListenerInterface):
         self.metadata = None
         self._raw_values = None
         self._values = None
+        self._values_cookie = False
         if values is not None:
             self._set_values(values)
 
@@ -157,26 +158,32 @@ class IptcTag(ListenerInterface):
     def _set_raw_values(self, values):
         if not isinstance(values, (list, tuple)):
             raise TypeError('Expecting a list of values')
+        self._tag._setRawValues(values)
+        if self.metadata is not None:
+            self.metadata._set_iptc_tag_values(self.key, values)
         self._raw_values = values
-        self._values = NotifyingList(map(self._convert_to_python, values))
-        self._values.register_listener(self)
+        self._values_cookie = True
 
     raw_values = property(fget=_get_raw_values, fset=_set_raw_values,
                           doc='The raw values of the tag as a list of strings' \
                               ' (C{list} of C{str}).')
 
+    def _compute_values(self):
+        # Lazy computation of the values from the raw values
+        self._values = \
+            NotifyingList(map(self._convert_to_python, self._raw_values))
+        self._values.register_listener(self)
+        self._values_cookie = False
+
     def _get_values(self):
+        if self._values_cookie:
+            self._compute_values()
         return self._values
 
     def _set_values(self, values):
         if not isinstance(values, (list, tuple)):
             raise TypeError('Expecting a list of values')
-
-        self._raw_values = map(self._convert_to_string, values)
-        self._tag._setRawValues(self._raw_values)
-
-        if self.metadata is not None:
-            self.metadata._set_iptc_tag_values(self.key, self._raw_values)
+        self.raw_values = map(self._convert_to_string, values)
 
         if isinstance(self._values, NotifyingList):
             self._values.unregister_listener(self)
@@ -189,6 +196,7 @@ class IptcTag(ListenerInterface):
             self._values = NotifyingList(values)
 
         self._values.register_listener(self)
+        self._values_cookie = False
 
     values = property(fget=_get_values, fset=_set_values,
                       doc='The values of the tag as a list of python objects.')
@@ -324,33 +332,16 @@ class IptcTag(ListenerInterface):
 
         raise IptcValueError(value, self.type)
 
-    def to_string_list(self):
-        """
-        Return a list of string representations of the values of the IPTC tag
-        suitable to pass to libexiv2 to set it.
-
-        @rtype: C{list} of C{str}
-        """
-        return map(self._convert_to_string, self._values)
-
     def __str__(self):
-        """
-        Return a string representation of the values of the IPTC tag.
-
-        @rtype: C{str}
-        """
-        return ', '.join(self.to_string_list())
-
-    def __repr__(self):
         """
         Return a string representation of the IPTC tag for debugging purposes.
 
         @rtype: C{str}
         """
         left = '%s [%s]' % (self.key, self.type)
-        if self._values is None:
+        if self._raw_values is None:
             right = '(No values)'
         else:
-             right = str(self)
+             right = self._raw_values
         return '<%s = %s>' % (left, right)
 
