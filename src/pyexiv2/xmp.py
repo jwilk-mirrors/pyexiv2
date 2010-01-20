@@ -106,6 +106,7 @@ class XmpTag(object):
         self.metadata = None
         self._raw_value = None
         self._value = None
+        self._value_cookie = False
         if value is not None:
             self._set_value(value)
 
@@ -151,31 +152,49 @@ class XmpTag(object):
         return self._raw_value
 
     def _set_raw_value(self, value):
+        type = self._tag._getExiv2Type()
+        if type == 'XmpText':
+            self._tag._setTextValue(value)
+        elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
+            self._tag._setArrayValue(value)
+        elif type == 'LangAlt':
+            self._tag._setLangAltValue(value)
+
+        if self.metadata is not None:
+            self.metadata._set_xmp_tag_value(self.key, value)
         self._raw_value = value
-        if self.type.startswith(('seq', 'bag', 'alt')):
-            type = self.type[4:]
-            if type.lower().startswith('closed choice of'):
-                type = type[17:]
-            self._value = map(lambda x: self._convert_to_python(x, type), value)
-        elif self.type == 'Lang Alt':
-            self._value = {}
-            for k, v in value.iteritems():
-                try:
-                    self._value[unicode(k, 'utf-8')] = unicode(v, 'utf-8')
-                except TypeError:
-                    raise XmpValueError(value, type)
-        elif self.type.lower().startswith('closed choice of'):
-            self._value = self._convert_to_python(value, self.type[17:])
-        elif self.type == '':
-            self._value = value
-        else:
-            self._value = self._convert_to_python(value, self.type)
+        self._value_cookie = True
 
     raw_value = property(fget=_get_raw_value, fset=_set_raw_value,
                          doc='The raw value of the tag as a [list of] ' \
                              'string(s).')
 
+    def _compute_value(self):
+        # Lazy computation of the value from the raw value
+        if self.type.startswith(('seq', 'bag', 'alt')):
+            type = self.type[4:]
+            if type.lower().startswith('closed choice of'):
+                type = type[17:]
+            self._value = map(lambda x: self._convert_to_python(x, type), self._raw_value)
+        elif self.type == 'Lang Alt':
+            self._value = {}
+            for k, v in self._raw_value.iteritems():
+                try:
+                    self._value[unicode(k, 'utf-8')] = unicode(v, 'utf-8')
+                except TypeError:
+                    raise XmpValueError(self._raw_value, type)
+        elif self.type.lower().startswith('closed choice of'):
+            self._value = self._convert_to_python(self._raw_value, self.type[17:])
+        elif self.type == '':
+            self._value = self._raw_value
+        else:
+            self._value = self._convert_to_python(self._raw_value, self.type)
+
+        self._value_cookie = False
+
     def _get_value(self):
+        if self._value_cookie:
+            self._compute_value()
         return self._value
 
     def _set_value(self, value):
@@ -184,27 +203,23 @@ class XmpTag(object):
             stype = self.type
             if stype.lower().startswith('closed choice of'):
                 stype = stype[17:]
-            self._raw_value = self._convert_to_string(value, stype)
-            self._tag._setTextValue(self._raw_value)
+            self.raw_value = self._convert_to_string(value, stype)
         elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
             stype = self.type[4:]
             if stype.lower().startswith('closed choice of'):
                 stype = stype[17:]
-            self._raw_value = map(lambda x: self._convert_to_string(x, stype), value)
-            self._tag._setArrayValue(self._raw_value)
+            self.raw_value = map(lambda x: self._convert_to_string(x, stype), value)
         elif type == 'LangAlt':
-            self._raw_value = {}
+            raw_value = {}
             for k, v in value.iteritems():
                 try:
-                    self._raw_value[k.encode('utf-8')] = v.encode('utf-8')
+                    raw_value[k.encode('utf-8')] = v.encode('utf-8')
                 except TypeError:
                     raise XmpValueError(value, type)
-            self._tag._setLangAltValue(self._raw_value)
-
-        if self.metadata is not None:
-            self.metadata._set_xmp_tag_value(self.key, self._raw_value)
+            self.raw_value = raw_value
 
         self._value = value
+        self._value_cookie = False
 
     value = property(fget=_get_value, fset=_set_value,
                      doc='The value of the tag as a [list of] python ' \
@@ -424,41 +439,14 @@ class XmpTag(object):
 
     def __str__(self):
         """
-        Return a string representation of the value.
-
-        @rtype: C{str}
-        """
-        type = self._tag._getExiv2Type()
-        if type == 'XmpText':
-            stype = self.type
-            if stype.lower().startswith('closed choice of'):
-                stype = stype[17:]
-            return self._convert_to_string(self._value, stype)
-        elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
-            stype = self.type[4:]
-            if stype.lower().startswith('closed choice of'):
-                stype = stype[17:]
-            values = map(lambda x: self._convert_to_string(x, stype), self._value)
-            return ', '.join(values)
-        elif type == 'LangAlt':
-            values = []
-            for k, v in self._value.iteritems():
-                try:
-                    values.append('lang="%s" %s' % (k.encode('utf-8'), v.encode('utf-8')))
-                except TypeError:
-                    raise XmpValueError(self._value, type)
-            return ', '.join(values)
-
-    def __repr__(self):
-        """
         Return a string representation of the XMP tag for debugging purposes.
 
         @rtype: C{str}
         """
         left = '%s [%s]' % (self.key, self.type)
-        if self._value is None:
+        if self._raw_value is None:
             right = '(No value)'
         else:
-             right = str(self)
+             right = self._raw_value
         return '<%s = %s>' % (left, right)
 

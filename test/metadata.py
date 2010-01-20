@@ -89,6 +89,12 @@ class _XmpTagMock(_TagMock):
     def _getArrayValue(self):
         return self.value
 
+    def _setTextValue(self, value):
+        pass
+
+    def _setArrayValue(self, values):
+        pass
+
 
 class ImageMock(object):
 
