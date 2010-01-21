@@ -734,12 +734,7 @@ void Preview::writeToFile(const std::string& path) const
 void translateExiv2Error(Exiv2::Error const& error)
 {
     // Use the Python 'C' API to set up an exception object
-
-    // Building a C++ string first allows this code to compile with all
-    // versions of libexiv2 (< 0.13 and >= 0.13), because the way exceptions
-    // are handled in libexiv2 was changed in 0.13.
-    const std::string sMessage(error.what());
-    const char* message = sMessage.c_str();
+    const char* message = error.what();
 
     // The type of the Python exception depends on the error code
     // Warning: this piece of code should be updated in case the error codes
