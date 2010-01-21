@@ -157,8 +157,12 @@ class XmpTag(object):
         if type == 'XmpText':
             self._tag._setTextValue(value)
         elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
+            if not value:
+                raise ValueError('Empty array')
             self._tag._setArrayValue(value)
         elif type == 'LangAlt':
+            if not value:
+                raise ValueError('Empty LangAlt')
             self._tag._setLangAltValue(value)
 
         if self.metadata is not None:

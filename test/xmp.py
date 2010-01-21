@@ -306,3 +306,11 @@ class TestXmpTag(unittest.TestCase):
         self.failIfEqual(tag.value, old_value)
         self.assertEqual(tag.metadata.tags[tag.key], '2009-04-22T08:30:27Z')
 
+    def test_set_value_empty(self):
+        tag = XmpTag('Xmp.dc.creator')
+        self.failUnlessEqual(tag.type, 'seq ProperName')
+        self.failUnlessRaises(ValueError, tag._set_value, [])
+        tag = XmpTag('Xmp.dc.title')
+        self.failUnlessEqual(tag.type, 'Lang Alt')
+        self.failUnlessRaises(ValueError, tag._set_value, {})
+
