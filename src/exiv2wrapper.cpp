@@ -33,8 +33,6 @@
 #define METADATA_NOT_READ 101
 #define NON_REPEATABLE 102
 #define KEY_NOT_FOUND 103
-#define THUMB_ACCESS 104
-#define NO_THUMBNAIL 105
 
 // Custom macros
 #define CHECK_METADATA_READ \
@@ -732,73 +730,249 @@ void Preview::writeToFile(const std::string& path) const
 }
 
 
-// TODO: update the errors code to reflect changes from src/error.cpp in libexiv2
 void translateExiv2Error(Exiv2::Error const& error)
 {
     // Use the Python 'C' API to set up an exception object
-
-    // Building a C++ string first allows this code to compile with all
-    // versions of libexiv2 (< 0.13 and >= 0.13), because the way exceptions
-    // are handled in libexiv2 was changed in 0.13.
-    const std::string sMessage(error.what());
-    const char* message = sMessage.c_str();
+    const char* message = error.what();
 
     // The type of the Python exception depends on the error code
     // Warning: this piece of code should be updated in case the error codes
     // defined by Exiv2 (file 'src/error.cpp') are changed
     switch (error.code())
     {
-        case -2:
-        case -1:
-        case 1:
+        // Exiv2 error codes
         case 2:
+            // {path}: Call to `{function}' failed: {strerror}
+            // May be raised when reading a file
             PyErr_SetString(PyExc_RuntimeError, message);
             break;
         case 3:
-        case 9:
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-        case 17:
-        case 18:
-        case 20:
-        case 21:
-        case 23:
-        case 31:
-        case 32:
-        case 33:
-        case 36:
-        case 37:
+            // This does not look like a {image type} image
+            // May be raised by readMetadata()
             PyErr_SetString(PyExc_IOError, message);
             break;
         case 4:
+            // Invalid dataset name `{dataset name}'
+            // May be raised when instantiating an IptcKey from a string
+            PyErr_SetString(PyExc_KeyError, message);
+            break;
         case 5:
+            // Invalid record name `{record name}'
+            // May be raised when instantiating an IptcKey from a string
+            PyErr_SetString(PyExc_KeyError, message);
+            break;
         case 6:
+            // Invalid key `{key}'
+            // May be raised when instantiating an ExifKey, an IptcKey or an
+            // XmpKey from a string
+            PyErr_SetString(PyExc_KeyError, message);
+            break;
         case 7:
-            PyErr_SetString(PyExc_IndexError, message);
+            // Invalid tag name or ifdId `{tag name}', ifdId {ifdId}
+            // May be raised when instantiating an ExifKey from a string
+            PyErr_SetString(PyExc_KeyError, message);
             break;
         case 8:
-        case 22:
-        case 24:
-        case 25:
-        case 26:
-        case 27:
-        case 28:
-        case 29:
-        case 30:
-        case 34:
+            // Value not set
+            // May be raised when calling value() on a datum
             PyErr_SetString(PyExc_ValueError, message);
             break;
-        case 16:
+        case 9:
+            // {path}: Failed to open the data source: {strerror}
+            // May be raised by readMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 10:
+            // {path}: Failed to open file ({mode}): {strerror}
+            // May be raised by writeMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 11:
+            // {path}: The file contains data of an unknown image type
+            // May be raised when opening an image
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 12:
+            // The memory contains data of an unknown image type
+            // May be raised when instantiating an image from a data buffer
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 13:
+            // Image type {image type} is not supported
+            // May be raised when creating a new image
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 14:
+            // Failed to read image data
+            // May be raised by readMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 15:
+            // This does not look like a JPEG image
+            // May be raised by readMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 17:
+            // {old path}: Failed to rename file to {new path}: {strerror}
+            // May be raised by writeMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 18:
+            // {path}: Transfer failed: {strerror}
+            // May be raised by writeMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
         case 19:
+            // Memory transfer failed: {strerror}
+            // May be raised by writeMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 20:
+            // Failed to read input data
+            // May be raised by writeMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 21:
+            // Failed to write image
+            // May be raised by writeMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 22:
+            // Input data does not contain a valid image
+            // May be raised by writeMetadata()
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 23:
+            // Invalid ifdId {ifdId}
+            // May be raised when instantiating an ExifKey from a tag and
+            // IFD item string
+            PyErr_SetString(PyExc_KeyError, message);
+            break;
+        case 26:
+            // Offset out of range
+            // May be raised by writeMetadata() (TIFF)
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 27:
+            // Unsupported data area offset type
+            // May be raised by writeMetadata() (TIFF)
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 28:
+            // Invalid charset: `{charset name}'
+            // May be raised when instantiating a CommentValue from a string
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 29:
+            // Unsupported date format
+            // May be raised when instantiating a DateValue from a string
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 30:
+            // Unsupported time format
+            // May be raised when instantiating a TimeValue from a string
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 31:
+            // Writing to {image format} images is not supported
+            // May be raised by writeMetadata() for certain image types
+            PyErr_SetString(PyExc_IOError, message);
+            break;
+        case 32:
+            // Setting {metadata type} in {image format} images is not supported
+            // May be raised when setting certain types of metadata for certain
+            // image types that don't support them
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 33:
+            // This does not look like a CRW image
+            // May be raised by readMetadata() (CRW)
+            PyErr_SetString(PyExc_IOError, message);
+            break;
         case 35:
-            PyErr_SetString(PyExc_MemoryError, message);
+            // No namespace info available for XMP prefix `{prefix}'
+            // May be raised when retrieving property info for an XmpKey
+            PyErr_SetString(PyExc_KeyError, message);
+            break;
+        case 36:
+            // No prefix registered for namespace `{namespace}', needed for
+            // property path `{property path}'
+            // May be raised by readMetadata() when reading the XMP data
+            PyErr_SetString(PyExc_KeyError, message);
+            break;
+        case 37:
+            // Size of {type of metadata} JPEG segment is larger than
+            // 65535 bytes
+            // May be raised by writeMetadata() (JPEG)
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 38:
+            // Unhandled Xmpdatum {key} of type {value type}
+            // May be raised by readMetadata() when reading the XMP data
+            PyErr_SetString(PyExc_TypeError, message);
+            break;
+        case 39:
+            // Unhandled XMP node {key} with opt={XMP Toolkit option flags}
+            // May be raised by readMetadata() when reading the XMP data
+            PyErr_SetString(PyExc_TypeError, message);
+            break;
+        case 40:
+            // XMP Toolkit error {error id}: {error message}
+            // May be raised by readMetadata() when reading the XMP data
+            PyErr_SetString(PyExc_RuntimeError, message);
+            break;
+        case 41:
+            // Failed to decode Lang Alt property {property path}
+            // with opt={XMP Toolkit option flags}
+            // May be raised by readMetadata() when reading the XMP data
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 42:
+            // Failed to decode Lang Alt qualifier {qualifier path}
+            // with opt={XMP Toolkit option flags}
+            // May be raised by readMetadata() when reading the XMP data
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 43:
+            // Failed to encode Lang Alt property {key}
+            // May be raised by writeMetadata()
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 44:
+            // Failed to determine property name from path {property path},
+            // namespace {namespace}
+            // May be raised by readMetadata() when reading the XMP data
+            PyErr_SetString(PyExc_KeyError, message);
+            break;
+        case 45:
+            // Schema namespace {namespace} is not registered with
+            // the XMP Toolkit
+            // May be raised by readMetadata() when reading the XMP data
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 46:
+            // No namespace registered for prefix `{prefix}'
+            // May be raised when instantiating an XmpKey from a string
+            PyErr_SetString(PyExc_KeyError, message);
+            break;
+        case 47:
+            // Aliases are not supported. Please send this XMP packet
+            // to ahuggel@gmx.net `{namespace}', `{property path}', `{value}'
+            // May be raised by readMetadata() when reading the XMP data
+            PyErr_SetString(PyExc_ValueError, message);
+            break;
+        case 48:
+            // Invalid XmpText type `{type}'
+            // May be raised when instantiating an XmpTextValue from a string
+            PyErr_SetString(PyExc_TypeError, message);
+            break;
+        case 49:
+            // TIFF directory {TIFF directory name} has too many entries
+            // May be raised by writeMetadata() (TIFF)
+            PyErr_SetString(PyExc_IOError, message);
             break;
 
-        // custom error codes
+        // Custom error codes
         case METADATA_NOT_READ:
             PyErr_SetString(PyExc_IOError, "Image metadata has not been read yet");
             break;
@@ -808,13 +982,8 @@ void translateExiv2Error(Exiv2::Error const& error)
         case KEY_NOT_FOUND:
             PyErr_SetString(PyExc_KeyError, "Tag not set");
             break;
-        case THUMB_ACCESS:
-            PyErr_SetString(PyExc_IOError, "Cannot access image thumbnail");
-            break;
-        case NO_THUMBNAIL:
-            PyErr_SetString(PyExc_IOError, "The EXIF data does not contain a thumbnail");
-            break;
 
+        // Default handler
         default:
             PyErr_SetString(PyExc_RuntimeError, message);
     }
