@@ -33,8 +33,6 @@
 #define METADATA_NOT_READ 101
 #define NON_REPEATABLE 102
 #define KEY_NOT_FOUND 103
-#define THUMB_ACCESS 104
-#define NO_THUMBNAIL 105
 
 // Custom macros
 #define CHECK_METADATA_READ \
@@ -807,12 +805,6 @@ void translateExiv2Error(Exiv2::Error const& error)
             break;
         case KEY_NOT_FOUND:
             PyErr_SetString(PyExc_KeyError, "Tag not set");
-            break;
-        case THUMB_ACCESS:
-            PyErr_SetString(PyExc_IOError, "Cannot access image thumbnail");
-            break;
-        case NO_THUMBNAIL:
-            PyErr_SetString(PyExc_IOError, "The EXIF data does not contain a thumbnail");
             break;
 
         default:
