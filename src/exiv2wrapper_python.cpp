@@ -41,7 +41,7 @@ boost::python::tuple exiv2_version = \
 
 BOOST_PYTHON_MODULE(libexiv2python)
 {
-    scope().attr("__exiv2_version__") = exiv2_version;
+    scope().attr("exiv2_version_info") = exiv2_version;
 
     register_exception_translator<Exiv2::Error>(&translateExiv2Error);
 

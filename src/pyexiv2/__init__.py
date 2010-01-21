@@ -68,7 +68,13 @@ from pyexiv2.utils import FixedOffset, Rational, NotifyingList, \
                           GPSCoordinate
 
 
-__version__ =  (0, 2, 1)
+def _make_version(version_info):
+    return '.'.join([str(i) for i in version_info])
 
-__exiv2_version__ = libexiv2python.__exiv2_version__
+
+version_info = (0, 2, 0)
+__version__ = _make_version(version_info)
+
+exiv2_version_info = libexiv2python.exiv2_version_info
+__exiv2_version__ = _make_version(exiv2_version_info)
 
