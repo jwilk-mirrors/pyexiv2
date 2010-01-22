@@ -106,6 +106,24 @@ void Image::writeMetadata()
     Py_END_ALLOW_THREADS
 }
 
+unsigned int Image::pixelWidth() const
+{
+    CHECK_METADATA_READ
+    return _image->pixelWidth();
+}
+
+unsigned int Image::pixelHeight() const
+{
+    CHECK_METADATA_READ
+    return _image->pixelHeight();
+}
+
+std::string Image::mimeType() const
+{
+    CHECK_METADATA_READ
+    return _image->mimeType();
+}
+
 boost::python::list Image::exifKeys()
 {
     CHECK_METADATA_READ
