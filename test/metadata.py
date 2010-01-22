@@ -161,6 +161,14 @@ class ImageMock(object):
         except KeyError:
             pass
 
+    def copyMetadata(self, other, exif=True, iptc=True, xmp=True):
+        if exif:
+            other.tags['exif'] = self.tags['exif']
+        if iptc:
+            other.tags['iptc'] = self.tags['iptc']
+        if xmp:
+            other.tags['xmp'] = self.tags['xmp']
+
 
 class TestImageMetadata(unittest.TestCase):
 
@@ -693,4 +701,33 @@ class TestImageMetadata(unittest.TestCase):
                 'Xmp.xmp.Rating', 'Wrong.Noluck.Raise')
         for key in keys:
             self.failUnlessRaises(KeyError, self.metadata.__delitem__, key)
+
+    ####################
+    # Test metadata copy
+    ####################
+
+    def _set_up_other(self):
+        self.other = ImageMetadata('nofile')
+        self.other._instantiate_image = lambda filename: ImageMock(filename)
+
+    def test_copy_metadata(self):
+        self.metadata.read()
+        self._set_exif_tags()
+        self._set_iptc_tags()
+        self._set_xmp_tags()
+        self._set_up_other()
+        self.other.read()
+        self.failUnlessEqual(self.other.exif_keys, [])
+        self.failUnlessEqual(self.other.iptc_keys, [])
+        self.failUnlessEqual(self.other.xmp_keys, [])
+        self.metadata.copy(self.other)
+
+        # The actual test is here, the rest of the functionality being mocked...
+        for family in ('exif', 'iptc', 'xmp'):
+            self.failUnlessEqual(self.other._keys[family], None)
+            self.failUnlessEqual(self.other._tags[family], {})
+
+        self.failUnlessEqual(self.other.exif_keys, self.metadata.exif_keys)
+        self.failUnlessEqual(self.other.iptc_keys, self.metadata.iptc_keys)
+        self.failUnlessEqual(self.other.xmp_keys, self.metadata.xmp_keys)
 

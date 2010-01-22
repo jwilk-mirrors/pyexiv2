@@ -132,6 +132,8 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("deleteXmpTag", &Image::deleteXmpTag)
 
         .def("previews", &Image::previews)
+
+        .def("copyMetadata", &Image::copyMetadata)
     ;
 }
 

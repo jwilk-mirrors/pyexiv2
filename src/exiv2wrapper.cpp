@@ -404,6 +404,19 @@ boost::python::list Image::previews()
     return previews;
 }
 
+void Image::copyMetadata(Image& other, bool exif, bool iptc, bool xmp) const
+{
+    CHECK_METADATA_READ
+    if (!other._dataRead) throw Exiv2::Error(METADATA_NOT_READ);
+
+    if (exif)
+        other._exifData = _exifData;
+    if (iptc)
+        other._iptcData = _iptcData;
+    if (xmp)
+        other._xmpData = _xmpData;
+}
+
 
 ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifData* data): _key(key)
 {

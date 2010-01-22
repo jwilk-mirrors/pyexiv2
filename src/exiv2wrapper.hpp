@@ -221,6 +221,9 @@ public:
     // Read access to the thumbnail embedded in the image.
     boost::python::list previews();
 
+    // Copy the metadata to another image.
+    void copyMetadata(Image& other, bool exif=true, bool iptc=true, bool xmp=true) const;
+
 private:
     std::string _filename;
     Exiv2::Image::AutoPtr _image;

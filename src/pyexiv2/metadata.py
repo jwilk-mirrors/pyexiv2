@@ -315,3 +315,31 @@ class ImageMetadata(object):
     def previews(self):
         return self._image.previews()
 
+    def copy(self, other, exif=True, iptc=True, xmp=True):
+        """
+        Copy the metadata to another image.
+        The metadata in the destination is overridden. In particular, if the
+        destination contains e.g. EXIF data and the source doesn't, it will be
+        erased in the destination, unless explicitely omitted.
+
+        @param other: the destination metadata to copy to
+        @type other:  L{pyexiv2.ImageMetadata}
+        @param exif:  whether to copy the EXIF metadata (C{True} by default)
+        @type exif:   C{bool}
+        @param iptc:  whether to copy the IPTC metadata (C{True} by default)
+        @type iptc:   C{bool}
+        @param xmp:   whether to copy the XMP metadata (C{True} by default)
+        @type xmp:    C{bool}
+        """
+        self._image.copyMetadata(other._image, exif, iptc, xmp)
+        # Empty the cache where needed
+        if exif:
+            other._keys['exif'] = None
+            other._tags['exif'] = {}
+        if iptc:
+            other._keys['iptc'] = None
+            other._tags['iptc'] = {}
+        if xmp:
+            other._keys['xmp'] = None
+            other._tags['xmp'] = {}
+
