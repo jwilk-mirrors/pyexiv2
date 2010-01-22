@@ -109,6 +109,9 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("readMetadata", &Image::readMetadata)
         .def("writeMetadata", &Image::writeMetadata)
 
+        .def("_getPixelWidth", &Image::pixelWidth)
+        .def("_getPixelHeight", &Image::pixelHeight)
+
         .def("exifKeys", &Image::exifKeys)
         .def("getExifTag", &Image::getExifTag)
         .def("setExifTagValue", &Image::setExifTagValue)

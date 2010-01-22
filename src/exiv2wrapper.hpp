@@ -156,6 +156,10 @@ public:
     void readMetadata();
     void writeMetadata();
 
+    // Read-only access to the dimensions of the picture.
+    unsigned int pixelWidth() const;
+    unsigned int pixelHeight() const;
+
     // Read and write access to the EXIF tags.
     // For a complete list of the available EXIF tags, see
     // libexiv2's documentation (http://exiv2.org/tags.html).

@@ -77,6 +77,11 @@ class ImageMetadata(object):
         self._image.writeMetadata()
 
     @property
+    def dimensions(self):
+        """The width and height of the image, expressed in pixels."""
+        return (self._image._getPixelWidth(), self._image._getPixelHeight())
+
+    @property
     def exif_keys(self):
         """Keys of the available EXIF tags embedded in the image."""
         if self._keys['exif'] is None:
