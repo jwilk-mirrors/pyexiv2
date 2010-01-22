@@ -82,6 +82,11 @@ class ImageMetadata(object):
         return (self._image._getPixelWidth(), self._image._getPixelHeight())
 
     @property
+    def mime_type(self):
+        """The mime type of the image."""
+        return self._image._getMimeType()
+
+    @property
     def exif_keys(self):
         """Keys of the available EXIF tags embedded in the image."""
         if self._keys['exif'] is None:

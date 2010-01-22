@@ -118,6 +118,12 @@ unsigned int Image::pixelHeight() const
     return _image->pixelHeight();
 }
 
+std::string Image::mimeType() const
+{
+    CHECK_METADATA_READ
+    return _image->mimeType();
+}
+
 boost::python::list Image::exifKeys()
 {
     CHECK_METADATA_READ
