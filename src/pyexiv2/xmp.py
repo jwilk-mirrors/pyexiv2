@@ -64,7 +64,6 @@ class XmpTag(object):
      - alt, bag, seq: C{list} of the contained simple type
      - lang alt: C{dict} of (language-code: value)
      - Boolean: C{bool}
-     - Choice: [not implemented yet]
      - Colorant: [not implemented yet]
      - Date: C{datetime.date}, C{datetime.datetime}
      - Dimensions: [not implemented yet]
@@ -251,10 +250,6 @@ class XmpTag(object):
                 return False
             else:
                 raise XmpValueError(value, type)
-
-        elif type == 'Choice':
-            # TODO
-            raise NotImplementedError('XMP conversion for type [%s]' % type)
 
         elif type == 'Colorant':
             # TODO
