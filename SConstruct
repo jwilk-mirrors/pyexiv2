@@ -1,5 +1,4 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-BuildDir('build', 'src', duplicate=0)
-SConscript('build/SConscript')
+SConscript('src/SConscript', variant_dir='build', duplicate=0)
