@@ -1,11 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os.path
+import os
 from glob import glob
 from distutils.sysconfig import get_python_inc, get_python_lib
+import SCons.Util
 
 env = Environment()
+
+# Take environment variables into account
+# (see https://bugs.launchpad.net/pyexiv2/+bug/249835)
+if os.environ.has_key('CXX'):
+    env['CXX'] = os.environ['CXX']
+if os.environ.has_key('CXXFLAGS'):
+    env['CXXFLAGS'] += SCons.Util.CLVar(os.environ['CXXFLAGS'])
+if os.environ.has_key('LDFLAGS'):
+    env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
 
 # Include directories to look for 'Python.h' in
 env.Append(CPPPATH=[get_python_inc(plat_specific=True)])
