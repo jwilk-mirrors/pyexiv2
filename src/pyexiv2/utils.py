@@ -185,10 +185,12 @@ class Rational(object):
 
     @property
     def numerator(self):
+        """The numerator of the rational number."""
         return self._numerator
 
     @property
     def denominator(self):
+        """The denominator of the rational number."""
         return self._denominator
 
     @staticmethod
@@ -402,18 +404,22 @@ class GPSCoordinate(object):
 
     @property
     def degrees(self):
+        """The degrees component of the coordinate."""
         return self._degrees
 
     @property
     def minutes(self):
+        """The minutes component of the coordinate."""
         return self._minutes
 
     @property
     def seconds(self):
+        """The seconds component of the coordinate."""
         return self._seconds
 
     @property
     def direction(self):
+        """The direction component of the coordinate."""
         return self._direction
 
     @staticmethod
@@ -449,9 +455,11 @@ class GPSCoordinate(object):
         """
         Compare two GPS coordinates for equality.
 
+        Two coordinates are equal if and only if all their components are equal.
+
         @param other: the GPS coordinate to compare to self for equality
         @type other:  L{GPSCoordinate}
-        
+
         @return: C{True} if equal, C{False} otherwise
         @rtype:  C{bool}
         """
