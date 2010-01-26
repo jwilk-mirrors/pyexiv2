@@ -104,64 +104,64 @@ class ImageMock(object):
         self.written = False
         self.tags = {'exif': {}, 'iptc': {}, 'xmp': {}}
 
-    def readMetadata(self):
+    def _readMetadata(self):
         self.read = True
 
-    def writeMetadata(self):
+    def _writeMetadata(self):
         self.written = True
 
-    def exifKeys(self):
+    def _exifKeys(self):
         return self.tags['exif'].keys()
 
-    def getExifTag(self, key):
+    def _getExifTag(self, key):
         return self.tags['exif'][key]
 
-    def setExifTagValue(self, key, value):
+    def _setExifTagValue(self, key, value):
         self.tags['exif'][key] = value
 
-    def deleteExifTag(self, key):
+    def _deleteExifTag(self, key):
         try:
             del self.tags['exif'][key]
         except KeyError:
             pass
 
-    def iptcKeys(self):
+    def _iptcKeys(self):
         return self.tags['iptc'].keys()
 
-    def getIptcTag(self, key):
+    def _getIptcTag(self, key):
         return self.tags['iptc'][key]
 
-    def setIptcTagValues(self, key, values):
+    def _setIptcTagValues(self, key, values):
         self.tags['iptc'][key] = values
 
-    def deleteIptcTag(self, key):
+    def _deleteIptcTag(self, key):
         try:
             del self.tags['iptc'][key]
         except KeyError:
             pass
 
-    def xmpKeys(self):
+    def _xmpKeys(self):
         return self.tags['xmp'].keys()
 
-    def getXmpTag(self, key):
+    def _getXmpTag(self, key):
         return self.tags['xmp'][key]
 
-    def setXmpTagTextValue(self, key, value):
+    def _setXmpTagTextValue(self, key, value):
         self.tags['xmp'][key] = value
 
-    def setXmpTagArrayValue(self, key, value):
+    def _setXmpTagArrayValue(self, key, value):
         self.tags['xmp'][key] = value
 
-    def setXmpTagLangAltValue(self, key, value):
+    def _setXmpTagLangAltValue(self, key, value):
         self.tags['xmp'][key] = value
 
-    def deleteXmpTag(self, key):
+    def _deleteXmpTag(self, key):
         try:
             del self.tags['xmp'][key]
         except KeyError:
             pass
 
-    def copyMetadata(self, other, exif=True, iptc=True, xmp=True):
+    def _copyMetadata(self, other, exif=True, iptc=True, xmp=True):
         if exif:
             other.tags['exif'] = self.tags['exif']
         if iptc:

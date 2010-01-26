@@ -104,36 +104,36 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("write_to_file", &Preview::writeToFile)
     ;
 
-    class_<Image>("Image", init<std::string>())
+    class_<Image>("_Image", init<std::string>())
 
-        .def("readMetadata", &Image::readMetadata)
-        .def("writeMetadata", &Image::writeMetadata)
+        .def("_readMetadata", &Image::readMetadata)
+        .def("_writeMetadata", &Image::writeMetadata)
 
         .def("_getPixelWidth", &Image::pixelWidth)
         .def("_getPixelHeight", &Image::pixelHeight)
 
         .def("_getMimeType", &Image::mimeType)
 
-        .def("exifKeys", &Image::exifKeys)
-        .def("getExifTag", &Image::getExifTag)
-        .def("setExifTagValue", &Image::setExifTagValue)
-        .def("deleteExifTag", &Image::deleteExifTag)
+        .def("_exifKeys", &Image::exifKeys)
+        .def("_getExifTag", &Image::getExifTag)
+        .def("_setExifTagValue", &Image::setExifTagValue)
+        .def("_deleteExifTag", &Image::deleteExifTag)
 
-        .def("iptcKeys", &Image::iptcKeys)
-        .def("getIptcTag", &Image::getIptcTag)
-        .def("setIptcTagValues", &Image::setIptcTagValues)
-        .def("deleteIptcTag", &Image::deleteIptcTag)
+        .def("_iptcKeys", &Image::iptcKeys)
+        .def("_getIptcTag", &Image::getIptcTag)
+        .def("_setIptcTagValues", &Image::setIptcTagValues)
+        .def("_deleteIptcTag", &Image::deleteIptcTag)
 
-        .def("xmpKeys", &Image::xmpKeys)
-        .def("getXmpTag", &Image::getXmpTag)
-        .def("setXmpTagTextValue", &Image::setXmpTagTextValue)
-        .def("setXmpTagArrayValue", &Image::setXmpTagArrayValue)
-        .def("setXmpTagLangAltValue", &Image::setXmpTagLangAltValue)
-        .def("deleteXmpTag", &Image::deleteXmpTag)
+        .def("_xmpKeys", &Image::xmpKeys)
+        .def("_getXmpTag", &Image::getXmpTag)
+        .def("_setXmpTagTextValue", &Image::setXmpTagTextValue)
+        .def("_setXmpTagArrayValue", &Image::setXmpTagArrayValue)
+        .def("_setXmpTagLangAltValue", &Image::setXmpTagLangAltValue)
+        .def("_deleteXmpTag", &Image::deleteXmpTag)
 
-        .def("previews", &Image::previews)
+        .def("_previews", &Image::previews)
 
-        .def("copyMetadata", &Image::copyMetadata)
+        .def("_copyMetadata", &Image::copyMetadata)
     ;
 }
 

@@ -57,7 +57,7 @@ class ImageMetadata(object):
     def _instantiate_image(self, filename):
         # This method is meant to be overridden in unit tests to easily replace
         # the internal image reference by a mock.
-        return libexiv2python.Image(filename)
+        return libexiv2python._Image(filename)
 
     def read(self):
         """
@@ -68,13 +68,13 @@ class ImageMetadata(object):
         """
         if self._image is None:
             self._image = self._instantiate_image(self.filename)
-        self._image.readMetadata()
+        self._image._readMetadata()
 
     def write(self):
         """
         Write the metadata back to the associated image file.
         """
-        self._image.writeMetadata()
+        self._image._writeMetadata()
 
     @property
     def dimensions(self):
@@ -90,21 +90,21 @@ class ImageMetadata(object):
     def exif_keys(self):
         """Keys of the available EXIF tags embedded in the image."""
         if self._keys['exif'] is None:
-            self._keys['exif'] = self._image.exifKeys()
+            self._keys['exif'] = self._image._exifKeys()
         return self._keys['exif']
 
     @property
     def iptc_keys(self):
         """Keys of the available IPTC tags embedded in the image."""
         if self._keys['iptc'] is None:
-            self._keys['iptc'] = self._image.iptcKeys()
+            self._keys['iptc'] = self._image._iptcKeys()
         return self._keys['iptc']
 
     @property
     def xmp_keys(self):
         """Keys of the available XMP tags embedded in the image."""
         if self._keys['xmp'] is None:
-            self._keys['xmp'] = self._image.xmpKeys()
+            self._keys['xmp'] = self._image._xmpKeys()
         return self._keys['xmp']
 
     def _get_exif_tag(self, key):
@@ -113,7 +113,7 @@ class ImageMetadata(object):
         try:
             return self._tags['exif'][key]
         except KeyError:
-            _tag = self._image.getExifTag(key)
+            _tag = self._image._getExifTag(key)
             tag = ExifTag._from_existing_tag(_tag)
             tag.metadata = self
             self._tags['exif'][key] = tag
@@ -125,7 +125,7 @@ class ImageMetadata(object):
         try:
             return self._tags['iptc'][key]
         except KeyError:
-            _tag = self._image.getIptcTag(key)
+            _tag = self._image._getIptcTag(key)
             tag = IptcTag._from_existing_tag(_tag)
             tag.metadata = self
             self._tags['iptc'][key] = tag
@@ -137,7 +137,7 @@ class ImageMetadata(object):
         try:
             return self._tags['xmp'][key]
         except KeyError:
-            _tag = self._image.getXmpTag(key)
+            _tag = self._image._getXmpTag(key)
             tag = XmpTag._from_existing_tag(_tag)
             tag.metadata = self
             self._tags['xmp'][key] = tag
@@ -166,7 +166,7 @@ class ImageMetadata(object):
         # Set an EXIF tag. If the tag already exists, its value is overwritten.
         if not isinstance(tag, ExifTag):
             raise TypeError('Expecting an ExifTag')
-        self._image.setExifTagValue(tag.key, tag.raw_value)
+        self._image._setExifTagValue(tag.key, tag.raw_value)
         self._tags['exif'][tag.key] = tag
         tag.metadata = self
 
@@ -180,14 +180,14 @@ class ImageMetadata(object):
             raise KeyError('Cannot set the value of an inexistent tag')
         if type(value) is not str:
             raise TypeError('Expecting a string')
-        self._image.setExifTagValue(key, value)
+        self._image._setExifTagValue(key, value)
 
     def _set_iptc_tag(self, tag):
         # Set an IPTC tag. If the tag already exists, its values are
         # overwritten.
         if not isinstance(tag, IptcTag):
             raise TypeError('Expecting an IptcTag')
-        self._image.setIptcTagValues(tag.key, tag.raw_values)
+        self._image._setIptcTagValues(tag.key, tag.raw_values)
         self._tags['iptc'][tag.key] = tag
         tag.metadata = self
 
@@ -205,7 +205,7 @@ class ImageMetadata(object):
         if type(values) is not list or not \
             reduce(lambda x, y: x and type(y) is str, values, True):
             raise TypeError('Expecting a list of strings')
-        self._image.setIptcTagValues(key, values)
+        self._image._setIptcTagValues(key, values)
 
     def _set_xmp_tag(self, tag):
         # Set an XMP tag. If the tag already exists, its value is overwritten.
@@ -213,11 +213,11 @@ class ImageMetadata(object):
             raise TypeError('Expecting an XmpTag')
         type = tag._tag._getExiv2Type()
         if type == 'XmpText':
-            self._image.setXmpTagTextValue(tag.key, tag.raw_value)
+            self._image._setXmpTagTextValue(tag.key, tag.raw_value)
         elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
-            self._image.setXmpTagArrayValue(tag.key, tag.raw_value)
+            self._image._setXmpTagArrayValue(tag.key, tag.raw_value)
         elif type == 'LangAlt':
-            self._image.setXmpTagLangAltValue(tag.key, tag.raw_value)
+            self._image._setXmpTagLangAltValue(tag.key, tag.raw_value)
         self._tags['xmp'][tag.key] = tag
         tag.metadata = self
 
@@ -231,11 +231,11 @@ class ImageMetadata(object):
             raise KeyError('Cannot set the value of an inexistent tag')
         type = self._tags['xmp'][key]._tag._getExiv2Type()
         if type == 'XmpText' and isinstance(value, str):
-            self._image.setXmpTagTextValue(key, value)
+            self._image._setXmpTagTextValue(key, value)
         elif type in ('XmpAlt', 'XmpBag', 'XmpSeq') and isinstance(value, (list, tuple)):
-            self._image.setXmpTagArrayValue(key, value)
+            self._image._setXmpTagArrayValue(key, value)
         elif type == 'LangAlt' and isinstance(value, dict):
-            self._image.setXmpTagLangAltValue(key, value)
+            self._image._setXmpTagLangAltValue(key, value)
         else:
             raise TypeError('Expecting either a string, a list, a tuple or a dict')
 
@@ -263,7 +263,7 @@ class ImageMetadata(object):
         # Throw a KeyError if the tag doesn't exist.
         if key not in self.exif_keys:
             raise KeyError('Cannot delete an inexistent tag')
-        self._image.deleteExifTag(key)
+        self._image._deleteExifTag(key)
         try:
             del self._tags['exif'][key]
         except KeyError:
@@ -275,7 +275,7 @@ class ImageMetadata(object):
         # Throw a KeyError if the tag doesn't exist.
         if key not in self.iptc_keys:
             raise KeyError('Cannot delete an inexistent tag')
-        self._image.deleteIptcTag(key)
+        self._image._deleteIptcTag(key)
         try:
             del self._tags['iptc'][key]
         except KeyError:
@@ -287,7 +287,7 @@ class ImageMetadata(object):
         # Throw a KeyError if the tag doesn't exist.
         if key not in self.xmp_keys:
             raise KeyError('Cannot delete an inexistent tag')
-        self._image.deleteXmpTag(key)
+        self._image._deleteXmpTag(key)
         try:
             del self._tags['xmp'][key]
         except KeyError:
@@ -313,7 +313,7 @@ class ImageMetadata(object):
 
     @property
     def previews(self):
-        return self._image.previews()
+        return self._image._previews()
 
     def copy(self, other, exif=True, iptc=True, xmp=True):
         """
@@ -331,7 +331,7 @@ class ImageMetadata(object):
         @param xmp:   whether to copy the XMP metadata (C{True} by default)
         @type xmp:    C{bool}
         """
-        self._image.copyMetadata(other._image, exif, iptc, xmp)
+        self._image._copyMetadata(other._image, exif, iptc, xmp)
         # Empty the cache where needed
         if exif:
             other._keys['exif'] = None
