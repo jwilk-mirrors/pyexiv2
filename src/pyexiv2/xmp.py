@@ -57,9 +57,6 @@ class XmpValueError(ValueError):
 
 class XmpTag(object):
 
-    # FIXME: should inherit from ListenerInterface and implement observation of
-    # changes on list/dict values.
-
     """
     An XMP tag.
 
@@ -86,6 +83,9 @@ class XmpTag(object):
     @ivar metadata: the parent metadata if any, or C{None}
     @type metadata: L{pyexiv2.metadata.ImageMetadata}
     """
+
+    # FIXME: should inherit from ListenerInterface and implement observation of
+    # changes on list/dict values.
 
     # strptime is not flexible enough to handle all valid Date formats, we use a
     # custom regular expression

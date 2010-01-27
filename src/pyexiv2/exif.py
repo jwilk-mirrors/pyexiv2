@@ -160,7 +160,7 @@ class ExifTag(ListenerInterface):
         self._value_cookie = True
 
     raw_value = property(fget=_get_raw_value, fset=_set_raw_value,
-                         doc='The raw value of the tag as a string (C{str}).')
+                         doc='The raw value of the tag as a string.')
 
     def _compute_value(self):
         # Lazy computation of the value from the raw value.
@@ -229,8 +229,8 @@ class ExifTag(ListenerInterface):
         """
         Convert one raw value to its corresponding python type.
 
-        @param value:  the raw value to be converted
-        @type value:   C{str}
+        @param value: the raw value to be converted
+        @type value:  C{str}
 
         @return: the value converted to its corresponding python type
         @rtype:  depends on C{self.type}
