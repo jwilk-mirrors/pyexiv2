@@ -24,6 +24,10 @@
 #
 # ******************************************************************************
 
+"""
+EXIF specific code.
+"""
+
 import libexiv2python
 
 from pyexiv2.utils import Rational, NotifyingList, ListenerInterface, \
