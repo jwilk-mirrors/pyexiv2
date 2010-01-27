@@ -24,6 +24,10 @@
 #
 # ******************************************************************************
 
+"""
+Provide the ImageMetadata class.
+"""
+
 import libexiv2python
 
 from pyexiv2.exif import ExifTag
@@ -40,11 +44,14 @@ class ImageMetadata(object):
     metadata embedded in image files such as JPEG and TIFF files, using Python
     types.
     It also provides access to the thumbnails embedded in an image.
+
+    @ivar filename: path to the image file
+    @type filename: C{str} or C{unicode}
     """
 
     def __init__(self, filename):
         """
-        @param filename: absolute path to an image file
+        @param filename: path to an image file
         @type filename:  C{str} or C{unicode}
         """
         self.filename = filename
@@ -72,7 +79,7 @@ class ImageMetadata(object):
 
     def write(self):
         """
-        Write the metadata back to the associated image file.
+        Write the metadata back to the image file.
         """
         self._image._writeMetadata()
 
@@ -313,6 +320,8 @@ class ImageMetadata(object):
 
     @property
     def previews(self):
+        """List of the previews available in the image, sorted by increasing
+        size."""
         return self._image._previews()
 
     def copy(self, other, exif=True, iptc=True, xmp=True):

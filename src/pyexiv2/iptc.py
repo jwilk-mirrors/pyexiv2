@@ -24,6 +24,10 @@
 #
 # ******************************************************************************
 
+"""
+IPTC specific code.
+"""
+
 import libexiv2python
 
 from pyexiv2.utils import ListenerInterface, NotifyingList, FixedOffset
@@ -165,8 +169,7 @@ class IptcTag(ListenerInterface):
         self._values_cookie = True
 
     raw_values = property(fget=_get_raw_values, fset=_set_raw_values,
-                          doc='The raw values of the tag as a list of strings' \
-                              ' (C{list} of C{str}).')
+                          doc='The raw values of the tag as a list of strings.')
 
     def _compute_values(self):
         # Lazy computation of the values from the raw values
