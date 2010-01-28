@@ -12,6 +12,7 @@
 # serve to show the default.
 
 import sys, os
+import time
 import pyexiv2
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -39,7 +40,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pyexiv2'
-copyright = u'2010, Olivier Tilloy'
+copyright = u'2006-%s, Olivier Tilloy' % time.strftime('%Y')
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
