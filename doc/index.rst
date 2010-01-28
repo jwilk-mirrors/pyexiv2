@@ -27,6 +27,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   tutorial.rst
+   api.rst
+   developers.rst
+
+
 Indices and tables
 ==================
 
