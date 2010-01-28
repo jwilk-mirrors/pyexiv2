@@ -3,8 +3,24 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pyexiv2's documentation!
-===================================
+pyexiv2 documentation
+=====================
+
+Welcome! This is the documentation for pyexiv2 |release|, last updated |today|.
+
+pyexiv2 is a python binding to `exiv2 <http://exiv2.org/>`_, the C++ library
+for manipulation of EXIF, IPTC and XMP image metadata.
+It is a python module that allows your python scripts to read and write
+metadata (EXIF, IPTC, XMP, thumbnails) embedded in image files
+(JPEG, TIFF, ...).
+
+It is designed as a high-level interface to the functionalities offered by
+libexiv2. Using python's built-in data types and standard modules, it provides
+easy manipulation of image metadata.
+
+pyexiv2 is distributed under the
+`GPL version 2 <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>`_
+license.
 
 Contents:
 
