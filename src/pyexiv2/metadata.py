@@ -28,6 +28,9 @@
 Provide the ImageMetadata class.
 """
 
+import os
+from errno import ENOENT
+
 import libexiv2python
 
 from pyexiv2.exif import ExifTag
@@ -64,6 +67,8 @@ class ImageMetadata(object):
     def _instantiate_image(self, filename):
         # This method is meant to be overridden in unit tests to easily replace
         # the internal image reference by a mock.
+        if not os.path.exists(filename) or not os.path.isfile(filename):
+            raise IOError(ENOENT, "%s: '%s'" % (os.strerror(ENOENT), filename))
         return libexiv2python._Image(filename)
 
     def read(self):

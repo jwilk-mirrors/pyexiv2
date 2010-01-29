@@ -207,6 +207,10 @@ class TestImageMetadata(unittest.TestCase):
         self.failIfEqual(self.metadata._image, None)
         self.failUnless(self.metadata._image.read)
 
+    def test_read_nonexistent_file(self):
+        metadata = ImageMetadata('idontexist')
+        self.failUnlessRaises(IOError, metadata.read)
+
     def test_write(self):
         self.metadata.read()
         self.failIf(self.metadata._image.written)
