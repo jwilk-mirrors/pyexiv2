@@ -228,7 +228,7 @@ class Rational(object):
 
         @param other: the rational number to compare to self for equality
         @type other:  L{Rational}
-        
+
         @return: C{True} if equal, C{False} otherwise
         @rtype:  C{bool}
         """
@@ -389,7 +389,11 @@ class GPSCoordinate(object):
         @param direction: direction ('N', 'S', 'E' or 'W')
         @type direction:  C{str}
         """
-        if degrees < 0 or degrees > 90:
+        if direction not in ('N', 'S', 'E', 'W'):
+            raise ValueError('Invalid direction: %s' % direction)
+        self._direction = direction
+        if (direction in ('N', 'S') and (degrees < 0 or degrees > 90)) or \
+           (direction in ('E', 'W') and (degrees < 0 or degrees > 180)):
             raise ValueError('Invalid value for degrees: %d' % degrees)
         self._degrees = degrees
         if minutes < 0 or minutes > 60:
@@ -398,9 +402,6 @@ class GPSCoordinate(object):
         if seconds < 0 or seconds > 60:
             raise ValueError('Invalid value for seconds: %d' % seconds)
         self._seconds = seconds
-        if direction not in ('N', 'S', 'E', 'W'):
-            raise ValueError('Invalid direction: %s' % direction)
-        self._direction = direction
 
     @property
     def degrees(self):
