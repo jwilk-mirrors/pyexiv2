@@ -43,16 +43,13 @@ class ImageMetadata(object):
     It provides convenient methods for the manipulation of EXIF, IPTC and XMP
     metadata embedded in image files such as JPEG and TIFF files, using Python
     types.
-    It also provides access to the thumbnails embedded in an image.
-
-    @ivar filename: path to the image file
-    @type filename: C{str} or C{unicode}
+    It also provides access to the previews embedded in an image.
     """
 
     def __init__(self, filename):
         """
-        @param filename: path to an image file
-        @type filename:  C{str} or C{unicode}
+        :param filename: path to an image file
+        :type filename: string
         """
         self.filename = filename
         if isinstance(filename, unicode):
@@ -85,31 +82,32 @@ class ImageMetadata(object):
 
     @property
     def dimensions(self):
-        """The width and height of the image, expressed in pixels."""
+        """A tuple containing the width and height of the image, expressed in
+        pixels."""
         return (self._image._getPixelWidth(), self._image._getPixelHeight())
 
     @property
     def mime_type(self):
-        """The mime type of the image."""
+        """The mime type of the image, as a string."""
         return self._image._getMimeType()
 
     @property
     def exif_keys(self):
-        """Keys of the available EXIF tags embedded in the image."""
+        """List of the keys of the available EXIF tags."""
         if self._keys['exif'] is None:
             self._keys['exif'] = self._image._exifKeys()
         return self._keys['exif']
 
     @property
     def iptc_keys(self):
-        """Keys of the available IPTC tags embedded in the image."""
+        """List of the keys of the available IPTC tags."""
         if self._keys['iptc'] is None:
             self._keys['iptc'] = self._image._iptcKeys()
         return self._keys['iptc']
 
     @property
     def xmp_keys(self):
-        """Keys of the available XMP tags embedded in the image."""
+        """List of the keys of the available XMP tags."""
         if self._keys['xmp'] is None:
             self._keys['xmp'] = self._image._xmpKeys()
         return self._keys['xmp']
@@ -154,14 +152,12 @@ class ImageMetadata(object):
         """
         Get a metadata tag for a given key.
 
-        @param key: a metadata key in the dotted form
-                    C{familyName.groupName.tagName} where C{familyName} may be
-                    C{exif}, C{iptc} or C{xmp}.
-        @type key:  C{str}
+        :param key: metadata key in the dotted form
+                    ``familyName.groupName.tagName`` where ``familyName`` may
+                    be one of ``exif``, ``iptc`` or ``xmp``.
+        :type key: string
 
-        @return: the metadata tag corresponding to the key
-
-        @raise KeyError: if the tag doesn't exist
+        :raise KeyError: if the tag doesn't exist
         """
         family = key.split('.')[0].lower()
         try:
@@ -251,13 +247,15 @@ class ImageMetadata(object):
         Set a metadata tag for a given key.
         If the tag was previously set, it is overwritten.
 
-        @param key: a metadata key in the dotted form
-                    C{familyName.groupName.tagName} where C{familyName} may be
-                    C{exif}, C{iptc} or C{xmp}.
-        @type key:  C{str}
-        @param tag: a metadata tag
+        :param key: metadata key in the dotted form
+                    ``familyName.groupName.tagName`` where ``familyName`` may
+                    be one of ``exif``, ``iptc`` or ``xmp``.
+        :type key: string
+        :param tag: an instance of the corresponding family of metadata tag
+        :type tag: :class:`pyexiv2.exif.ExifTag` or
+                   :class:`pyexiv2.iptc.IptcTag` or :class:`pyexiv2.xmp.XmpTag`
 
-        @raise KeyError: if the key is invalid
+        :raise KeyError: if the key is invalid
         """
         family = key.split('.')[0].lower()
         try:
@@ -305,12 +303,12 @@ class ImageMetadata(object):
         """
         Delete a metadata tag for a given key.
 
-        @param key: a metadata key in the dotted form
-                    C{familyName.groupName.tagName} where C{familyName} may be
-                    C{exif}, C{iptc} or C{xmp}.
-        @type key:  C{str}
+        :param key: metadata key in the dotted form
+                    ``familyName.groupName.tagName`` where ``familyName`` may
+                    be one of ``exif``, ``iptc`` or ``xmp``.
+        :type key: string
 
-        @raise KeyError: if the tag with the given key doesn't exist
+        :raise KeyError: if the tag with the given key doesn't exist
         """
         family = key.split('.')[0].lower()
         try:
@@ -329,16 +327,17 @@ class ImageMetadata(object):
         Copy the metadata to another image.
         The metadata in the destination is overridden. In particular, if the
         destination contains e.g. EXIF data and the source doesn't, it will be
-        erased in the destination, unless explicitely omitted.
+        erased in the destination, unless explicitly omitted.
 
-        @param other: the destination metadata to copy to
-        @type other:  L{pyexiv2.ImageMetadata}
-        @param exif:  whether to copy the EXIF metadata (C{True} by default)
-        @type exif:   C{bool}
-        @param iptc:  whether to copy the IPTC metadata (C{True} by default)
-        @type iptc:   C{bool}
-        @param xmp:   whether to copy the XMP metadata (C{True} by default)
-        @type xmp:    C{bool}
+        :param other: the destination metadata to copy to (it must have been
+                      :meth:`.read` beforehand)
+        :type other: :class:`pyexiv2.metadata.ImageMetadata`
+        :param exif: whether to copy the EXIF metadata
+        :type exif: boolean
+        :param iptc: whether to copy the IPTC metadata
+        :type iptc: boolean
+        :param xmp: whether to copy the XMP metadata
+        :type xmp: boolean
         """
         self._image._copyMetadata(other._image, exif, iptc, xmp)
         # Empty the cache where needed
