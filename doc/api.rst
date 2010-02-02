@@ -36,3 +36,11 @@ pyexiv2.iptc
    :members: key, type, name, title, description, photoshop_name, repeatable,
              record_name, record_description, raw_values, values
 
+pyexiv2.xmp
+###########
+
+.. module:: pyexiv2.xmp
+.. autoexception:: pyexiv2.xmp.XmpValueError
+.. autoclass:: pyexiv2.xmp.XmpTag
+   :members: key, type, name, title, description, raw_value, value
+
