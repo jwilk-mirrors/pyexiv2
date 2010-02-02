@@ -27,3 +27,12 @@ pyexiv2.exif
    :members: key, type, name, label, description, section_name,
              section_description, raw_value, value, human_value
 
+pyexiv2.iptc
+############
+
+.. module:: pyexiv2.iptc
+.. autoexception:: pyexiv2.iptc.IptcValueError
+.. autoclass:: pyexiv2.iptc.IptcTag
+   :members: key, type, name, title, description, photoshop_name, repeatable,
+             record_name, record_description, raw_values, values
+

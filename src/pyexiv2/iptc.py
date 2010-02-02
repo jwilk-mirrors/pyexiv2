@@ -40,12 +40,12 @@ import re
 class IptcValueError(ValueError):
 
     """
-    Exception raised when failing to parse the value of an IPTC tag.
+    Exception raised when failing to parse the *value* of an IPTC tag.
 
-    @ivar value: the value that fails to be parsed
-    @type value: C{str}
-    @ivar type:  the IPTC type of the tag
-    @type type:  C{str}
+    :attribute value: the value that fails to be parsed
+    :type value: string
+    :attribute type: the IPTC type of the tag
+    :type type: string
     """
 
     def __init__(self, value, type):
@@ -62,18 +62,19 @@ class IptcTag(ListenerInterface):
     """
     An IPTC tag.
 
-    This tag can have several values (tags that have the repeatable property).
+    This tag can have several values (tags that have the *repeatable* property).
 
     Here is a correspondance table between the IPTC types and the possible
     python types the value of a tag may take:
-     - Short: C{int}
-     - String: C{str}
-     - Date: C{datetime.date}
-     - Time: C{datetime.time}
-     - Undefined: C{str}
 
-    @ivar metadata: the parent metadata if any, or C{None}
-    @type metadata: L{pyexiv2.metadata.ImageMetadata}
+    - Short: int
+    - String: string
+    - Date: :class:`datetime.date`
+    - Time: :class:`datetime.time`
+    - Undefined: string
+
+    :attribute metadata: the parent metadata if any, or None
+    :type metadata: :class:`pyexiv2.metadata.ImageMetadata`
     """
 
     # strptime is not flexible enough to handle all valid Time formats, we use a
@@ -86,10 +87,9 @@ class IptcTag(ListenerInterface):
         The tag can be initialized with an optional list of values which
         expected type depends on the IPTC type of the tag.
 
-        @param key:    the key of the tag
-        @type key:     C{str}
-        @param values: the values of the tag
-        @type values:  C{list}
+        :param key: the key of the tag
+        :type key: string
+        :param values: the values of the tag
         """
         super(IptcTag, self).__init__()
         if _tag is not None:
@@ -112,7 +112,8 @@ class IptcTag(ListenerInterface):
 
     @property
     def key(self):
-        """The key of the tag in the form 'familyName.groupName.tagName'."""
+        """The key of the tag in the dotted form
+        ``familyName.groupName.tagName`` where ``familyName`` = ``iptc``."""
         return self._tag._getKey()
 
     @property
@@ -143,7 +144,7 @@ class IptcTag(ListenerInterface):
 
     @property
     def repeatable(self):
-        """Whether the tag is repeatable (can have several values)."""
+        """Whether the tag is repeatable (accepts several values)."""
         return self._tag._isRepeatable()
 
     @property
@@ -205,10 +206,8 @@ class IptcTag(ListenerInterface):
                       doc='The values of the tag as a list of python objects.')
 
     def contents_changed(self):
-        """
-        Implementation of the L{ListenerInterface}.
-        React on changes to the list of values of the tag.
-        """
+        # Implementation of the ListenerInterface.
+        # React on changes to the list of values of the tag.
         # The contents of self._values was changed.
         # The following is a quick, non optimal solution.
         self._set_values(self._values)
@@ -217,13 +216,12 @@ class IptcTag(ListenerInterface):
         """
         Convert one raw value to its corresponding python type.
 
-        @param value: the raw value to be converted
-        @type value:  C{str}
+        :param value: the raw value to be converted
+        :type value: string
 
-        @return: the value converted to its corresponding python type
-        @rtype:  depends on C{self.type}
+        :return: the value converted to its corresponding python type
 
-        @raise IptcValueError: if the conversion fails
+        :raise IptcValueError: if the conversion fails
         """
         if self.type == 'Short':
             try:
@@ -280,13 +278,12 @@ class IptcTag(ListenerInterface):
         Convert one value to its corresponding string representation, suitable
         to pass to libexiv2.
 
-        @param value: the value to be converted
-        @type value:  depends on C{self.type}
+        :param value: the value to be converted
 
-        @return: the value converted to its corresponding string representation
-        @rtype:  C{str}
+        :return: the value converted to its corresponding string representation
+        :rtype: string
 
-        @raise IptcValueError: if the conversion fails
+        :raise IptcValueError: if the conversion fails
         """
         if self.type == 'Short':
             if type(value) is int:
@@ -337,9 +334,8 @@ class IptcTag(ListenerInterface):
 
     def __str__(self):
         """
-        Return a string representation of the IPTC tag for debugging purposes.
-
-        @rtype: C{str}
+        :return: a string representation of the IPTC tag for debugging purposes
+        :rtype: string
         """
         left = '%s [%s]' % (self.key, self.type)
         if self._raw_values is None:
