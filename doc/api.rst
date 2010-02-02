@@ -18,3 +18,12 @@ pyexiv2.metadata
    :members: read, write, dimensions, mime_type, exif_keys, iptc_keys,
              xmp_keys, __getitem__, __setitem__, __delitem__, previews, copy
 
+pyexiv2.exif
+############
+
+.. module:: pyexiv2.exif
+.. autoexception:: pyexiv2.exif.ExifValueError
+.. autoclass:: pyexiv2.exif.ExifTag
+   :members: key, type, name, label, description, section_name,
+             section_description, raw_value, value, human_value
+
