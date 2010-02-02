@@ -44,3 +44,15 @@ pyexiv2.xmp
 .. autoclass:: XmpTag
    :members: key, type, name, title, description, raw_value, value
 
+pyexiv2.utils
+#############
+
+.. module:: pyexiv2.utils
+.. autofunction:: undefined_to_string
+.. autofunction:: string_to_undefined
+
+.. autoclass:: Rational
+   :members: numerator, denominator, from_string, to_float, __eq__
+.. autoclass:: GPSCoordinate
+   :members: degrees, minutes, seconds, direction, from_string, __eq__, __str__
+
