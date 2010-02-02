@@ -5,16 +5,16 @@ pyexiv2
 #######
 
 .. module:: pyexiv2
-.. autodata:: pyexiv2.version_info
-.. autodata:: pyexiv2.__version__
-.. autodata:: pyexiv2.exiv2_version_info
-.. autodata:: pyexiv2.__exiv2_version__
+.. autodata:: version_info
+.. autodata:: __version__
+.. autodata:: exiv2_version_info
+.. autodata:: __exiv2_version__
 
 pyexiv2.metadata
 ################
 
 .. module:: pyexiv2.metadata
-.. autoclass:: pyexiv2.metadata.ImageMetadata
+.. autoclass:: ImageMetadata
    :members: read, write, dimensions, mime_type, exif_keys, iptc_keys,
              xmp_keys, __getitem__, __setitem__, __delitem__, previews, copy
 
@@ -22,8 +22,8 @@ pyexiv2.exif
 ############
 
 .. module:: pyexiv2.exif
-.. autoexception:: pyexiv2.exif.ExifValueError
-.. autoclass:: pyexiv2.exif.ExifTag
+.. autoexception:: ExifValueError
+.. autoclass:: ExifTag
    :members: key, type, name, label, description, section_name,
              section_description, raw_value, value, human_value
 
@@ -31,8 +31,8 @@ pyexiv2.iptc
 ############
 
 .. module:: pyexiv2.iptc
-.. autoexception:: pyexiv2.iptc.IptcValueError
-.. autoclass:: pyexiv2.iptc.IptcTag
+.. autoexception:: IptcValueError
+.. autoclass:: IptcTag
    :members: key, type, name, title, description, photoshop_name, repeatable,
              record_name, record_description, raw_values, values
 
@@ -40,7 +40,7 @@ pyexiv2.xmp
 ###########
 
 .. module:: pyexiv2.xmp
-.. autoexception:: pyexiv2.xmp.XmpValueError
-.. autoclass:: pyexiv2.xmp.XmpTag
+.. autoexception:: XmpValueError
+.. autoclass:: XmpTag
    :members: key, type, name, title, description, raw_value, value
 
