@@ -39,17 +39,32 @@ class ReadMetadataTestCase(unittest.TestCase):
     Test case on reading the metadata contained in a file.
     """
 
-    def checkTypeAndValue(self, tag, etype, evalue):
+    def checkEXIFTypeAndValue(self, tag, etype, evalue):
         """
-        Check the type and the value of a metadata tag against expected values.
+        Check the type and the value of an EXIF tag against expected values.
 
         Keyword arguments:
         tag -- the full name of the tag (eg. 'Exif.Image.DateTime')
         etype -- the expected type of the tag value
         evalue -- the expected value of the tag
         """
-        self.assertEqual(tag.__class__, etype)
-        self.assertEqual(tag, evalue)
+        self.assertEqual(type(tag.value), etype)
+        self.assertEqual(tag.value, evalue)
+
+    def checkIPTCTypeAndValue(self, tag, etype, evalue):
+        """
+        Check the type and the value of an IPTC tag against expected values.
+
+        Keyword arguments:
+        tag -- the full name of the tag (eg. 'Exif.Image.DateTime')
+        etype -- the expected type of the tag value
+        evalue -- the expected value of the tag
+        """
+        if issubclass(etype, tuple):
+            self.assertEqual(list(tag.values), list(evalue))
+        else:
+            self.assertEqual(type(tag.values[0]), etype)
+            self.assertEqual(tag.values[0], evalue)
 
     def testReadMetadata(self):
         """
@@ -61,8 +76,8 @@ class ReadMetadataTestCase(unittest.TestCase):
         self.assert_(testutils.CheckFileSum(filename, md5sum))
 
         # Read the image metadata
-        image = pyexiv2.Image(filename)
-        image.readMetadata()
+        image = pyexiv2.ImageMetadata(filename)
+        image.read()
 
         # Exhaustive tests on the values of EXIF metadata
         exifTags = [('Exif.Image.ImageDescription', str, 'Well it is a smiley that happens to be green'),
@@ -77,9 +92,9 @@ class ReadMetadataTestCase(unittest.TestCase):
                     ('Exif.Photo.Flash', int, 80),
                     ('Exif.Photo.PixelXDimension', long, 167L),
                     ('Exif.Photo.PixelYDimension', long, 140L)]
-        self.assertEqual(image.exifKeys(), [tag[0] for tag in exifTags])
-        for tag in exifTags:
-            self.checkTypeAndValue(image[tag[0]], tag[1], tag[2])
+        self.assertEqual(image.exif_keys, [tag[0] for tag in exifTags])
+        for key, ktype, value in exifTags:
+            self.checkEXIFTypeAndValue(image[key], ktype, value)
 
         # Exhaustive tests on the values of IPTC metadata
         iptcTags = [('Iptc.Application2.Caption', str, 'yelimS green faced dude (iptc caption)'),
@@ -93,11 +108,6 @@ class ReadMetadataTestCase(unittest.TestCase):
                     ('Iptc.Application2.Category', str, 'Things'),
                     ('Iptc.Application2.Keywords', tuple, ('Green', 'Smiley', 'Dude')),
                     ('Iptc.Application2.Copyright', str, '\xa9 2004 Nobody')]
-        self.assertEqual(image.iptcKeys(), [tag[0] for tag in iptcTags])
-        for tag in iptcTags:
-            self.checkTypeAndValue(image[tag[0]], tag[1], tag[2])
-
-        # Test on the JPEG comment
-        self.checkTypeAndValue(image.getComment(),
-            str, 'This is a jpeg comment, about the green smiley.')
-
+        self.assertEqual(image.iptc_keys, [tag[0] for tag in iptcTags])
+        for key, ktype, value in iptcTags:
+            self.checkIPTCTypeAndValue(image[key], ktype, value)

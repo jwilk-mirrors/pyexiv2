@@ -28,7 +28,7 @@
 import unittest
 
 # Test cases to run
-#from ReadMetadataTestCase import ReadMetadataTestCase
+from ReadMetadataTestCase import ReadMetadataTestCase
 #from Bug146313_TestCase import Bug146313_TestCase
 #from Bug173387_TestCase import Bug173387_TestCase
 #from Bug175070_TestCase import Bug175070_TestCase
@@ -46,7 +46,7 @@ from metadata import TestImageMetadata
 if __name__ == '__main__':
     # Instantiate a test suite containing all the test cases
     suite = unittest.TestSuite()
-    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(ReadMetadataTestCase))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(ReadMetadataTestCase))
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug146313_TestCase))
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug173387_TestCase))
     #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug175070_TestCase))
