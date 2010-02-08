@@ -39,5 +39,5 @@ if (dest_dir is None) or (not os.path.isabs(dest_dir)):
 else:
     install_dir = os.path.join(dest_dir, python_lib_path[1:])
 env.Install(install_dir, [libpyexiv2])
-env.Install(os.path.join(install_dir, 'pyexiv2'), glob('pyexiv2/*.py'))
+env.Install(os.path.join(install_dir, 'pyexiv2'), Glob('pyexiv2/*.py'))
 env.Alias('install', install_dir)
