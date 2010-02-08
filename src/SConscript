@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-from glob import glob
 from distutils.sysconfig import get_python_inc, get_python_lib
 import SCons.Util
 
