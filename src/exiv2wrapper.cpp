@@ -41,36 +41,51 @@
 namespace exiv2wrapper
 {
 
-// Base constructor
-Image::Image(const std::string& filename)
+void Image::_instantiate_image()
 {
+    bool success = true;
+    int error_code;
+
     // Release the GIL to allow other python threads to run
     // while opening the file.
     Py_BEGIN_ALLOW_THREADS
 
-    _filename = filename;
-    _image = Exiv2::ImageFactory::open(filename);
-    assert(_image.get() != 0);
-    _dataRead = false;
+    try
+    {
+        _image = Exiv2::ImageFactory::open(_filename);
+    }
+    catch (Exiv2::Error& error)
+    {
+        success = false;
+        error_code = error.code();
+    }
 
     // Re-acquire the GIL
     Py_END_ALLOW_THREADS
+
+    if (success)
+    {
+        assert(_image.get() != 0);
+        _dataRead = false;
+    }
+    else
+    {
+        throw Exiv2::Error(error_code, _filename);
+    }
+}
+
+// Base constructor
+Image::Image(const std::string& filename)
+{
+    _filename = filename;
+    _instantiate_image();
 }
 
 // Copy constructor
 Image::Image(const Image& image)
 {
-    // Release the GIL to allow other python threads to run
-    // while opening the file.
-    Py_BEGIN_ALLOW_THREADS
-
     _filename = image._filename;
-    _image = Exiv2::ImageFactory::open(_filename);
-    assert(_image.get() != 0);
-    _dataRead = false;
-
-    // Re-acquire the GIL
-    Py_END_ALLOW_THREADS
+    _instantiate_image();
 }
 
 void Image::readMetadata()

@@ -234,6 +234,8 @@ private:
     // true if the image's internal metadata has already been read,
     // false otherwise
     bool _dataRead;
+
+    void _instantiate_image();
 };
 
 
