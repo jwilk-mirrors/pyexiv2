@@ -46,6 +46,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     app = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    app.connect('destroy', lambda app: gtk.main_quit())
 
     # Load the image, read the metadata and extract the thumbnail data
     metadata = ImageMetadata(sys.argv[1])
@@ -68,8 +69,6 @@ if __name__ == '__main__':
     imgwidget.set_from_pixbuf(pixbuf)
 
     # Show the application's main window
-    # Note: closing the window will not terminate the application as no
-    # appropriate signal has been defined.
     app.add(imgwidget)
     imgwidget.show()
     app.show()
