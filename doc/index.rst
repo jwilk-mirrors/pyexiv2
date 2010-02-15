@@ -9,7 +9,9 @@ pyexiv2 documentation
 Welcome! This is the documentation for pyexiv2 |release|, last updated |today|.
 
 pyexiv2 is a python binding to `exiv2 <http://exiv2.org/>`_, the C++ library
-for manipulation of EXIF, IPTC and XMP image metadata.
+for manipulation of :abbr:`EXIF (EXchangeable Image File)`,
+:abbr:`IPTC (International Press Telecommunications Council)` and
+:abbr:`XMP (eXtensible Metadata Platform)` image metadata.
 It is a python module that allows your python scripts to read and write
 metadata (EXIF, IPTC, XMP, thumbnails) embedded in image files
 (JPEG, TIFF, ...).
