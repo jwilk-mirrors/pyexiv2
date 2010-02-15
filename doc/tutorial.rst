@@ -209,3 +209,26 @@ pair (see exiv2's documentation for a list of valid
   >>> value = 'A beautiful picture.'
   >>> metadata[key] = pyexiv2.XmpTag(key, value)
 
+Accessing embedded previews
+###########################
+
+Images may embed previews (also called thumbnails) of various sizes in their
+metadata. pyexiv2 allows to easily access them::
+
+  >>> previews = metadata.previews
+
+  >>> len(previews)
+  2
+
+They are sorted by increasing size. Let's play with the largest one::
+
+  >>> largest = previews[-1]
+
+  >>> largest.dimensions
+  (320, 240)
+
+  >>> largest.mime_type
+  'image/jpeg'
+
+  >>> largest.write_to_file('largest')
+
