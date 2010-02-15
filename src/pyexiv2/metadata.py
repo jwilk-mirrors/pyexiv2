@@ -180,6 +180,8 @@ class ImageMetadata(object):
             raise TypeError('Expecting an ExifTag')
         self._image._setExifTagValue(tag.key, tag.raw_value)
         self._tags['exif'][tag.key] = tag
+        if tag.key not in self.exif_keys:
+            self._keys['exif'].append(tag.key)
         tag.metadata = self
 
     def _set_exif_tag_value(self, key, value):
@@ -201,6 +203,8 @@ class ImageMetadata(object):
             raise TypeError('Expecting an IptcTag')
         self._image._setIptcTagValues(tag.key, tag.raw_values)
         self._tags['iptc'][tag.key] = tag
+        if tag.key not in self.iptc_keys:
+            self._keys['iptc'].append(tag.key)
         tag.metadata = self
 
     def _set_iptc_tag_values(self, key, values):
@@ -231,6 +235,8 @@ class ImageMetadata(object):
         elif type == 'LangAlt':
             self._image._setXmpTagLangAltValue(tag.key, tag.raw_value)
         self._tags['xmp'][tag.key] = tag
+        if tag.key not in self.xmp_keys:
+            self._keys['xmp'].append(tag.key)
         tag.metadata = self
 
     def _set_xmp_tag_value(self, key, value):
