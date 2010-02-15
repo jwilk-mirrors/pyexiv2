@@ -259,8 +259,10 @@ class TestImageMetadata(unittest.TestCase):
         # Create a new tag
         tag = ExifTag('Exif.Thumbnail.Orientation', 1)
         self.assertEqual(tag.metadata, None)
+        self.assert_(tag.key not in self.metadata.exif_keys)
         self.metadata._set_exif_tag(tag)
         self.assertEqual(tag.metadata, self.metadata)
+        self.assert_(tag.key in self.metadata.exif_keys)
         self.assertEqual(self.metadata._tags['exif'], {tag.key: tag})
         self.assert_(self.metadata._image.tags['exif'].has_key(tag.key))
         self.assertEqual(self.metadata._image.tags['exif'][tag.key],
@@ -393,8 +395,10 @@ class TestImageMetadata(unittest.TestCase):
         # Create a new tag
         tag = IptcTag('Iptc.Application2.Writer', ['Nobody'])
         self.assertEqual(tag.metadata, None)
+        self.assert_(tag.key not in self.metadata.iptc_keys)
         self.metadata._set_iptc_tag(tag)
         self.assertEqual(tag.metadata, self.metadata)
+        self.assert_(tag.key in self.metadata.iptc_keys)
         self.assertEqual(self.metadata._tags['iptc'], {tag.key: tag})
         self.assert_(self.metadata._image.tags['iptc'].has_key(tag.key))
         self.assertEqual(self.metadata._image.tags['iptc'][tag.key],
@@ -530,8 +534,10 @@ class TestImageMetadata(unittest.TestCase):
         tag = XmpTag('Xmp.dc.title', {'x-default': 'This is not a title',
                                       'fr-FR': "Ceci n'est pas un titre"})
         self.assertEqual(tag.metadata, None)
+        self.assert_(tag.key not in self.metadata.xmp_keys)
         self.metadata._set_xmp_tag(tag)
         self.assertEqual(tag.metadata, self.metadata)
+        self.assert_(tag.key in self.metadata.xmp_keys)
         self.assertEqual(self.metadata._tags['xmp'], {tag.key: tag})
         self.assert_(self.metadata._image.tags['xmp'].has_key(tag.key))
         self.assertEqual(self.metadata._image.tags['xmp'][tag.key],
