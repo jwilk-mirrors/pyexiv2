@@ -27,6 +27,7 @@ env.Append(LIBS=libs)
 # Build shared library libpyexiv2
 cpp_sources = ['exiv2wrapper.cpp', 'exiv2wrapper_python.cpp']
 libpyexiv2 = env.SharedLibrary('exiv2python', cpp_sources)
+env.Alias('lib', libpyexiv2)
 
 # Install the shared library and the Python modules, invoked using
 # 'scons install'. If DESTDIR is specified on the command line when invoking
@@ -41,3 +42,4 @@ else:
 env.Install(install_dir, [libpyexiv2])
 env.Install(os.path.join(install_dir, 'pyexiv2'), glob('pyexiv2/*.py'))
 env.Alias('install', install_dir)
+
