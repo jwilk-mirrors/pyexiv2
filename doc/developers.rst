@@ -76,12 +76,14 @@ Documentation
 
 The present documentation is generated using
 `Sphinx <http://sphinx.pocoo.org/>`_ from reStructuredText sources found in the
-doc/ directory. Issue the following command to (re)build the HTML
-documentation::
+doc/ directory. Invoke ``scons doc`` to (re)build the HTML documentation.
+Alternatively, you can issue the following command::
 
   sphinx-build -b html doc/ doc/_build/
 
 The index of the documentation will then be found under doc/_build/index.html.
+Note that you will need pyexiv2 to be installed system-wide or to be found on
+the ``PYTHONPATH`` for the documentation to build successfully.
 
 Unit tests
 ##########
