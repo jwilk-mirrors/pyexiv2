@@ -40,12 +40,12 @@ import datetime
 class ExifValueError(ValueError):
 
     """
-    Exception raised when failing to parse the value of an EXIF tag.
+    Exception raised when failing to parse the *value* of an EXIF tag.
 
-    @ivar value: the value that fails to be parsed
-    @type value: C{str}
-    @ivar type:  the EXIF type of the tag
-    @type type:  C{str}
+    :attribute value: the value that fails to be parsed
+    :type value: string
+    :attribute type: the EXIF type of the tag
+    :type type: string
     """
 
     def __init__(self, value, type):
@@ -64,16 +64,17 @@ class ExifTag(ListenerInterface):
 
     Here is a correspondance table between the EXIF types and the possible
     python types the value of a tag may take:
-     - Ascii: C{datetime.datetime}, C{datetime.date}, C{str}
-     - Byte, SByte: C{str}
-     - Comment: C{str}
-     - Short, SShort: [list of] C{int}
-     - Long, SLong: [list of] C{long}
-     - Rational, SRational: [list of] L{pyexiv2.utils.Rational}
-     - Undefined: C{str}
 
-    @ivar metadata: the parent metadata if any, or C{None}
-    @type metadata: L{pyexiv2.metadata.ImageMetadata}
+    - Ascii: :class:`datetime.datetime`, :class:`datetime.date`, string
+    - Byte, SByte: string
+    - Comment: string
+    - Long, SLong: [list of] long
+    - Short, SShort: [list of] int
+    - Rational, SRational: [list of] :class:`pyexiv2.utils.Rational`
+    - Undefined: string
+
+    :attribute metadata: the parent metadata if any, or None
+    :type metadata: :class:`pyexiv2.metadata.ImageMetadata`
     """
 
     # According to the EXIF specification, the only accepted format for an Ascii
@@ -90,9 +91,9 @@ class ExifTag(ListenerInterface):
         The tag can be initialized with an optional value which expected type
         depends on the EXIF type of the tag.
 
-        @param key:   the key of the tag
-        @type key:    C{str}
-        @param value: the value of the tag
+        :param key: the key of the tag
+        :type key: string
+        :param value: the value of the tag
         """
         super(ExifTag, self).__init__()
         if _tag is not None:
@@ -115,7 +116,8 @@ class ExifTag(ListenerInterface):
 
     @property
     def key(self):
-        """The key of the tag in the form 'familyName.groupName.tagName'."""
+        """The key of the tag in the dotted form
+        ``familyName.groupName.tagName`` where ``familyName`` = ``exif``."""
         return self._tag._getKey()
 
     @property
@@ -213,15 +215,13 @@ class ExifTag(ListenerInterface):
 
     @property
     def human_value(self):
-        """A human-readable representation of the value of the tag."""
+        """A (read-only) human-readable representation
+        of the value of the tag."""
         return self._tag._getHumanValue() or None
 
-    # Implement the ListenerInterface
     def contents_changed(self):
-        """
-        Implementation of the L{ListenerInterface}.
-        React on changes to the list of values of the tag.
-        """
+        # Implementation of the ListenerInterface.
+        # React on changes to the list of values of the tag.
         # self._value is a list of values and its contents changed.
         self._set_value(self._value)
 
@@ -229,13 +229,12 @@ class ExifTag(ListenerInterface):
         """
         Convert one raw value to its corresponding python type.
 
-        @param value: the raw value to be converted
-        @type value:  C{str}
+        :param value: the raw value to be converted
+        :type value: string
 
-        @return: the value converted to its corresponding python type
-        @rtype:  depends on C{self.type}
+        :return: the value converted to its corresponding python type
 
-        @raise ExifValueError: if the conversion fails
+        :raise ExifValueError: if the conversion fails
         """
         if self.type == 'Ascii':
             # The value may contain a Datetime
@@ -304,13 +303,12 @@ class ExifTag(ListenerInterface):
         Convert one value to its corresponding string representation, suitable
         to pass to libexiv2.
 
-        @param value: the value to be converted
-        @type value:  depends on C{self.type}
+        :param value: the value to be converted
 
-        @return: the value converted to its corresponding string representation
-        @rtype:  C{str}
+        :return: the value converted to its corresponding string representation
+        :rtype: string
 
-        @raise ExifValueError: if the conversion fails
+        :raise ExifValueError: if the conversion fails
         """
         if self.type == 'Ascii':
             if type(value) is datetime.datetime:
@@ -404,9 +402,8 @@ class ExifTag(ListenerInterface):
 
     def __str__(self):
         """
-        Return a string representation of the EXIF tag for debugging purposes.
-
-        @rtype: C{str}
+        :return: a string representation of the EXIF tag for debugging purposes
+        :rtype: string
         """
         left = '%s [%s]' % (self.key, self.type)
         if self._raw_value is None:

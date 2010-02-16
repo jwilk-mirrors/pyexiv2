@@ -72,9 +72,15 @@ def _make_version(version_info):
     return '.'.join([str(i) for i in version_info])
 
 
+#: A tuple containing the three components of the version number: major, minor, micro.
 version_info = (0, 2, 0)
+
+#: The version of the module as a string (major.minor.micro).
 __version__ = _make_version(version_info)
 
+#: A tuple containing the three components of the version number of libexiv2: major, minor, micro.
 exiv2_version_info = libexiv2python.exiv2_version_info
+
+#: The version of libexiv2 as a string (major.minor.micro).
 __exiv2_version__ = _make_version(exiv2_version_info)
 

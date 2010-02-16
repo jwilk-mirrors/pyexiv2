@@ -37,13 +37,12 @@ class FixedOffset(datetime.tzinfo):
     """
     Fixed positive or negative offset from a local time east from UTC.
 
-    @ivar sign:    the sign of the offset ('+' or '-')
-    @type sign:    C{str}
-    @ivar hours:   the absolute number of hours of the offset
-    @type hours:   C{int}
-    @ivar minutes: the absolute number of minutes of the offset
-    @type minutes: C{int}
-
+    :attribute sign: the sign of the offset ('+' or '-')
+    :type sign: string
+    :attribute hours: the absolute number of hours of the offset
+    :type hours: int
+    :attribute minutes: the absolute number of minutes of the offset
+    :type minutes: int
     """
 
     def __init__(self, sign='+', hours=0, minutes=0):
@@ -53,12 +52,12 @@ class FixedOffset(datetime.tzinfo):
         No check on the validity of those values is performed, it is the
         responsibility of the caller to pass valid values.
 
-        @param sign:    the sign of the offset ('+' or '-')
-        @type sign:     C{str}
-        @param hours:   an absolute number of hours
-        @type hours:    C{int}
-        @param minutes: an absolute number of minutes
-        @type minutes:  C{int}
+        :param sign: the sign of the offset ('+' or '-')
+        :type sign: string
+        :param hours: an absolute number of hours
+        :type hours: int
+        :param minutes: an absolute number of minutes
+        :type minutes: int
         """
         self.sign = sign
         self.hours = hours
@@ -69,11 +68,11 @@ class FixedOffset(datetime.tzinfo):
         Return offset of local time from UTC, in minutes east of UTC.
         If local time is west of UTC, this value will be negative.
 
-        @param dt: the local time
-        @type dt:  C{datetime.time}
+        :param dt: the local time
+        :type dt: :class:`datetime.time`
 
-        @return: a whole number of minutes in the range -1439 to 1439 inclusive
-        @rtype:  C{datetime.timedelta}
+        :return: a whole number of minutes in the range -1439 to 1439 inclusive
+        :rtype: :class:`datetime.timedelta`
         """
         total = self.hours * 60 + self.minutes
         if self.sign == '-':
@@ -85,11 +84,11 @@ class FixedOffset(datetime.tzinfo):
         Return the daylight saving time (DST) adjustment.
         In this implementation, it is always nil.
 
-        @param dt: the local time
-        @type dt:  C{datetime.time}
+        :param dt: the local time
+        :type dt: :class:`datetime.time`
 
-        @return: the DST adjustment (always nil)
-        @rtype:  C{datetime.timedelta}
+        :return: the DST adjustment (always nil)
+        :rtype: :class:`datetime.timedelta`
         """
         return datetime.timedelta(0)
 
@@ -98,11 +97,11 @@ class FixedOffset(datetime.tzinfo):
         Return a string representation of the offset in the format '±%H:%M'.
         If the offset is nil, the representation is, by convention, 'Z'.
 
-        @param dt: the local time
-        @type dt:  C{datetime.time}
+        :param dt: the local time
+        :type dt: :class:`datetime.time`
 
-        @return: a human-readable representation of the offset
-        @rtype:  C{str}
+        :return: a human-readable representation of the offset
+        :rtype: string
         """
         if self.hours == 0 and self.minutes == 0:
             return 'Z'
@@ -113,11 +112,11 @@ class FixedOffset(datetime.tzinfo):
         """
         Test equality between this offset and another offset.
 
-        @param other: another offset
-        @type other:  L{FixedOffset}
+        :param other: another offset
+        :type other: :class:`FixedOffset`
 
-        @return: C{True} if the offset are equal, C{False} otherwise
-        @rtype:  C{bool}
+        :return: True if the offset are equal, False otherwise
+        :rtype: boolean
         """
         return (self.sign == other.sign) and (self.hours == other.hours) and \
             (self.minutes == other.minutes)
@@ -131,11 +130,11 @@ def undefined_to_string(undefined):
     "0221").
     The Undefined type is part of the EXIF specification.
 
-    @param undefined: an undefined string
-    @type undefined:  C{str}
+    :param undefined: an undefined string
+    :type undefined: string
 
-    @return: the corresponding decoded string
-    @rtype:  C{str}
+    :return: the corresponding decoded string
+    :rtype: string
     """
     return ''.join(map(lambda x: chr(int(x)), undefined.rstrip().split(' ')))
 
@@ -147,11 +146,11 @@ def string_to_undefined(sequence):
     blank space (e.g. "0221" will be converted into "48 50 50 49 ").
     The Undefined type is part of the EXIF specification.
 
-    @param sequence: a sequence of bytes
-    @type sequence:  C{str}
+    :param sequence: a sequence of bytes
+    :type sequence: string
 
-    @return: the corresponding undefined string
-    @rtype:  C{str}
+    :return: the corresponding undefined string
+    :rtype: string
     """
     return ''.join(map(lambda x: '%d ' % ord(x), sequence))
 
@@ -168,14 +167,12 @@ class Rational(object):
 
     def __init__(self, numerator, denominator):
         """
-        Constructor.
+        :param numerator: the numerator
+        :type numerator: long
+        :param denominator: the denominator
+        :type denominator: long
 
-        @param numerator:   the numerator
-        @type numerator:    C{long}
-        @param denominator: the denominator
-        @type denominator:  C{long}
-
-        @raise ZeroDivisionError: if the denominator equals zero
+        :raise ZeroDivisionError: if the denominator equals zero
         """
         if denominator == 0:
             msg = 'Denominator of a rational number cannot be zero.'
@@ -196,16 +193,16 @@ class Rational(object):
     @staticmethod
     def from_string(string):
         """
-        Instantiate a Rational from a string formatted as
-        C{[-]numerator/denominator}.
+        Instantiate a :class:`Rational` from a string formatted as
+        ``[-]numerator/denominator``.
 
-        @param string: a string representation of a rational number
-        @type string:  C{str}
+        :param string: a string representation of a rational number
+        :type string: string
 
-        @return: the rational number parsed
-        @rtype:  L{Rational}
+        :return: the rational number parsed
+        :rtype: :class:`Rational`
 
-        @raise ValueError: if the format of the string is invalid
+        :raise ValueError: if the format of the string is invalid
         """
         match = Rational._format_re.match(string)
         if match is None:
@@ -215,8 +212,8 @@ class Rational(object):
 
     def to_float(self):
         """
-        @return: a floating point number approximation of the value
-        @rtype:  C{float}
+        :return: a floating point number approximation of the value
+        :rtype: float
         """
         return float(self._numerator) / self._denominator
 
@@ -226,18 +223,19 @@ class Rational(object):
 
         Two rational numbers are equal if their reduced forms are equal.
 
-        @param other: the rational number to compare to self for equality
-        @type other:  L{Rational}
-
-        @return: C{True} if equal, C{False} otherwise
-        @rtype:  C{bool}
+        :param other: the rational number to compare to self for equality
+        :type other: :class:`Rational`
+        
+        :return: True if equal, False otherwise
+        :rtype: boolean
         """
         return (self._numerator * other._denominator) == \
                (other._numerator * self._denominator)
 
     def __str__(self):
         """
-        Return a string representation of the rational number.
+        :return: a string representation of the rational number
+        :rtype: string
         """
         return '%d/%d' % (self._numerator, self._denominator)
 
@@ -262,7 +260,8 @@ class NotifyingList(list):
     """
     A simplistic implementation of a notifying list.
     Any changes to the list are notified in a synchronous way to all previously
-    registered listeners. A listener must implement the L{ListenerInterface}.
+    registered listeners. A listener must implement the
+    :class:`ListenerInterface`.
     """
 
     # Useful documentation:
@@ -277,8 +276,8 @@ class NotifyingList(list):
         """
         Register a new listener to be notified of changes.
 
-        @param listener: any object that listens for changes
-        @type listener:  any class that implements the L{ListenerInterface}
+        :param listener: any object that listens for changes
+        :type listener: :class:`ListenerInterface`
         """
         self._listeners.add(listener)
 
@@ -286,10 +285,10 @@ class NotifyingList(list):
         """
         Unregister a previously registered listener.
 
-        @param listener: a previously registered listener
-        @type listener:  any class that implements the L{ListenerInterface}
+        :param listener: a previously registered listener
+        :type listener: :class:`ListenerInterface`
 
-        @raise KeyError: if the listener was not previously registered
+        :raise KeyError: if the listener was not previously registered
         """
         self._listeners.remove(listener)
 
@@ -378,16 +377,17 @@ class GPSCoordinate(object):
 
     def __init__(self, degrees, minutes, seconds, direction):
         """
-        Constructor.
+        :param degrees: degrees
+        :type degrees: int
+        :param minutes: minutes
+        :type minutes: int
+        :param seconds: seconds
+        :type seconds: int
+        :param direction: direction ('N', 'S', 'E' or 'W')
+        :type direction: string
 
-        @param degrees:   degrees
-        @type degrees:    C{int}
-        @param minutes:   minutes
-        @type minutes:    C{int}
-        @param seconds:   seconds
-        @type seconds:    C{int}
-        @param direction: direction ('N', 'S', 'E' or 'W')
-        @type direction:  C{str}
+        :raise ValueError: if any of the parameter is not in the expected range
+                           of values
         """
         if direction not in ('N', 'S', 'E', 'W'):
             raise ValueError('Invalid direction: %s' % direction)
@@ -426,19 +426,19 @@ class GPSCoordinate(object):
     @staticmethod
     def from_string(string):
         """
-        Instantiate a GPSCoordinate from a string formatted as C{DDD,MM,SSk} or
-        C{DDD,MM.mmk} where C{DDD} is a number of degrees, C{MM} is a number of
-        minutes, C{SS} is a number of seconds, C{mm} is a fraction of minutes,
-        and C{k} is a single character C{N}, C{S}, C{E}, or C{W} indicating a
-        direction (north, south, east, west).
+        Instantiate a :class:`GPSCoordinate` from a string formatted as
+        ``DDD,MM,SSk`` or ``DDD,MM.mmk`` where ``DDD`` is a number of degrees,
+        ``MM`` is a number of minutes, ``SS`` is a number of seconds, ``mm`` is
+        a fraction of minutes, and ``k`` is a single character N, S, E, W
+        indicating a direction (north, south, east, west).
 
-        @param string: a string representation of a GPS coordinate
-        @type string:  C{str}
+        :param string: a string representation of a GPS coordinate
+        :type string: string
 
-        @return: the GPS coordinate parsed
-        @rtype:  L{GPSCoordinate}
+        :return: the GPS coordinate parsed
+        :rtype: :class:`GPSCoordinate`
 
-        @raise ValueError: if the format of the string is invalid
+        :raise ValueError: if the format of the string is invalid
         """
         match = GPSCoordinate._format_re.match(string)
         if match is None:
@@ -458,11 +458,11 @@ class GPSCoordinate(object):
 
         Two coordinates are equal if and only if all their components are equal.
 
-        @param other: the GPS coordinate to compare to self for equality
-        @type other:  L{GPSCoordinate}
+        :param other: the GPS coordinate to compare to self for equality
+        :type other: :class:`GPSCoordinate`
 
-        @return: C{True} if equal, C{False} otherwise
-        @rtype:  C{bool}
+        :return: True if equal, False otherwise
+        :rtype: boolean
         """
         return (self._degrees == other._degrees) and \
                (self._minutes == other._minutes) and \
@@ -471,8 +471,9 @@ class GPSCoordinate(object):
 
     def __str__(self):
         """
-        Return a string representation of the GPS coordinate conforming to the
-        XMP specification.
+        :return: a string representation of the GPS coordinate conforming to the
+                 XMP specification
+        :rtype: string
         """
         return '%d,%d,%d%s' % (self._degrees, self._minutes, self._seconds,
                                self._direction)

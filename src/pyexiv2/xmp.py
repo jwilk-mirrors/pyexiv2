@@ -39,12 +39,12 @@ import re
 class XmpValueError(ValueError):
 
     """
-    Exception raised when failing to parse the value of an XMP tag.
+    Exception raised when failing to parse the *value* of an XMP tag.
 
-    @ivar value: the value that fails to be parsed
-    @type value: C{str}
-    @ivar type: the XMP type of the tag
-    @type type: C{str}
+    :attribute value: the value that fails to be parsed
+    :type value: string
+    :attribute type: the XMP type of the tag
+    :type type: string
     """
     def __init__(self, value, type):
         self.value = value
@@ -62,26 +62,27 @@ class XmpTag(object):
 
     Here is a correspondance table between the XMP types and the possible
     python types the value of a tag may take:
-     - alt, bag, seq: C{list} of the contained simple type
-     - lang alt: C{dict} of (language-code: value)
-     - Boolean: C{bool}
-     - Colorant: [not implemented yet]
-     - Date: C{datetime.date}, C{datetime.datetime}
-     - Dimensions: [not implemented yet]
-     - Font: [not implemented yet]
-     - GPSCoordinate: L{pyexiv2.utils.GPSCoordinate}
-     - Integer: C{int}
-     - Locale: [not implemented yet]
-     - MIMEType: C{tuple}
-     - Rational: L{pyexiv2.utils.Rational}
-     - Real: [not implemented yet]
-     - AgentName, ProperName, Text: C{unicode}
-     - Thumbnail: [not implemented yet]
-     - URI, URL: C{str}
-     - XPath: [not implemented yet]
 
-    @ivar metadata: the parent metadata if any, or C{None}
-    @type metadata: L{pyexiv2.metadata.ImageMetadata}
+    - alt, bag, seq: list of the contained simple type
+    - lang alt: dict of (language-code: value)
+    - Boolean: boolean
+    - Colorant: *[not implemented yet]*
+    - Date: :class:`datetime.date`, :class:`datetime.datetime`
+    - Dimensions: *[not implemented yet]*
+    - Font: *[not implemented yet]*
+    - GPSCoordinate: :class:`pyexiv2.utils.GPSCoordinate`
+    - Integer: int
+    - Locale: *[not implemented yet]*
+    - MIMEType: 2-tuple of strings
+    - Rational: :class:`pyexiv2.utils.Rational`
+    - Real: *[not implemented yet]*
+    - AgentName, ProperName, Text: unicode string
+    - Thumbnail: *[not implemented yet]*
+    - URI, URL: string
+    - XPath: *[not implemented yet]*
+
+    :attribute metadata: the parent metadata if any, or None
+    :type metadata: :class:`pyexiv2.metadata.ImageMetadata`
     """
 
     # FIXME: should inherit from ListenerInterface and implement observation of
@@ -98,9 +99,9 @@ class XmpTag(object):
         The tag can be initialized with an optional value which expected type
         depends on the XMP type of the tag.
 
-        @param key:   the key of the tag
-        @type key:    C{str}
-        @param value: the value of the tag
+        :param key: the key of the tag
+        :type key: string
+        :param value: the value of the tag
         """
         super(XmpTag, self).__init__()
         if _tag is not None:
@@ -129,7 +130,8 @@ class XmpTag(object):
 
     @property
     def key(self):
-        """The key of the tag in the form 'familyName.groupName.tagName'."""
+        """The key of the tag in the dotted form
+        ``familyName.groupName.tagName`` where ``familyName`` = ``xmp``."""
         return self._tag._getKey()
 
     @property
@@ -237,15 +239,14 @@ class XmpTag(object):
         """
         Convert a raw value to its corresponding python type.
 
-        @param value: the raw value to be converted
-        @type value:  C{str}
-        @param type:  the simple type of the raw value
-        @type type:   C{str}
+        :param value: the raw value to be converted
+        :type value: string
+        :param type: the simple type of the raw value
+        :type type: string
 
-        @return: the value converted to its corresponding python type
-        @rtype:  depends on C{type}
+        :return: the value converted to its corresponding python type
 
-        @raise XmpValueError: if the conversion fails
+        :raise XmpValueError: if the conversion fails
         """
         if type == 'Boolean':
             if value == 'True':
@@ -368,15 +369,14 @@ class XmpTag(object):
         Convert a value to its corresponding string representation, suitable to
         pass to libexiv2.
 
-        @param value: the value to be converted
-        @type value:  depends on C{type}
-        @param type:  the simple type of the value
-        @type type:   C{str}
+        :param value: the value to be converted
+        :param type: the simple type of the value
+        :type type: string
 
-        @return: the value converted to its corresponding string representation
-        @rtype:  C{str}
+        :return: the value converted to its corresponding string representation
+        :rtype: string
 
-        @raise XmpValueError: if the conversion fails
+        :raise XmpValueError: if the conversion fails
         """
         if type == 'Boolean':
             if isinstance(value, bool):
@@ -443,9 +443,8 @@ class XmpTag(object):
 
     def __str__(self):
         """
-        Return a string representation of the XMP tag for debugging purposes.
-
-        @rtype: C{str}
+        :return: a string representation of the XMP tag for debugging purposes
+        :rtype: string
         """
         left = '%s [%s]' % (self.key, self.type)
         if self._raw_value is None:
