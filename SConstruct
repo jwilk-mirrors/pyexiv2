@@ -11,7 +11,7 @@ if not BUILD_TARGETS:
     # Default target: lib
     build_lib()
 else:
-    if 'lib' in BUILD_TARGETS:
+    if 'lib' in BUILD_TARGETS or 'install' in BUILD_TARGETS:
         build_lib()
     if 'doc' in BUILD_TARGETS:
         # Note: building the doc requires the lib to be built and the pyexiv2
