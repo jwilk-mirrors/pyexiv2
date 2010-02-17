@@ -300,6 +300,22 @@ class TestImageMetadata(unittest.TestCase):
         # value.
         self.assertEqual(self.metadata._image.tags['exif'][key], new_tag.raw_value)
 
+    def test_set_exif_tag_direct_value_assignment(self):
+        self.metadata.read()
+        self._set_exif_tags()
+        self.assertEqual(self.metadata._tags['exif'], {})
+        # Direct value assignment: pass a value instead of a fully-formed tag
+        key = 'Exif.Thumbnail.Orientation'
+        value = 1
+        self.metadata._set_exif_tag(key, value)
+        self.assert_(key in self.metadata.exif_keys)
+        self.assert_(self.metadata._image.tags['exif'].has_key(key))
+        tag = self.metadata._get_exif_tag(key)
+        self.assertEqual(tag.value, value)
+        self.assertEqual(tag.metadata, self.metadata)
+        self.assertEqual(self.metadata._tags['exif'], {key: tag})
+        self.assertEqual(self.metadata._image.tags['exif'][key], tag.raw_value)
+
     def test_set_exif_tag_value_inexistent(self):
         self.metadata.read()
         self._set_exif_tags()
@@ -434,6 +450,22 @@ class TestImageMetadata(unittest.TestCase):
         self.assert_(self.metadata._image.tags['iptc'].has_key(key))
         self.assertEqual(self.metadata._image.tags['iptc'][key],
                          new_tag.raw_values)
+
+    def test_set_iptc_tag_direct_value_assignment(self):
+        self.metadata.read()
+        self._set_iptc_tags()
+        self.assertEqual(self.metadata._tags['iptc'], {})
+        # Direct value assignment: pass a value instead of a fully-formed tag
+        key = 'Iptc.Application2.Writer'
+        values = ['Nobody']
+        self.metadata._set_iptc_tag(key, values)
+        self.assert_(key in self.metadata.iptc_keys)
+        self.assert_(self.metadata._image.tags['iptc'].has_key(key))
+        tag = self.metadata._get_iptc_tag(key)
+        self.assertEqual(tag.values, values)
+        self.assertEqual(tag.metadata, self.metadata)
+        self.assertEqual(self.metadata._tags['iptc'], {key: tag})
+        self.assertEqual(self.metadata._image.tags['iptc'][key], tag.raw_values)
 
     def test_set_iptc_tag_values_inexistent(self):
         self.metadata.read()
@@ -573,6 +605,23 @@ class TestImageMetadata(unittest.TestCase):
         self.assert_(self.metadata._image.tags['xmp'].has_key(key))
         self.assertEqual(self.metadata._image.tags['xmp'][key],
                          new_tag.raw_value)
+
+    def test_set_xmp_tag_direct_value_assignment(self):
+        self.metadata.read()
+        self._set_xmp_tags()
+        self.assertEqual(self.metadata._tags['xmp'], {})
+        # Direct value assignment: pass a value instead of a fully-formed tag
+        key = 'Xmp.dc.title'
+        value = {'x-default': 'This is not a title',
+                 'fr-FR': "Ceci n'est pas un titre"}
+        self.metadata._set_xmp_tag(key, value)
+        self.assert_(key in self.metadata.xmp_keys)
+        self.assert_(self.metadata._image.tags['xmp'].has_key(key))
+        tag = self.metadata._get_xmp_tag(key)
+        self.assertEqual(tag.value, value)
+        self.assertEqual(tag.metadata, self.metadata)
+        self.assertEqual(self.metadata._tags['xmp'], {key: tag})
+        self.assertEqual(self.metadata._image.tags['xmp'][key], tag.raw_value)
 
     def test_set_xmp_tag_value_inexistent(self):
         self.metadata.read()
