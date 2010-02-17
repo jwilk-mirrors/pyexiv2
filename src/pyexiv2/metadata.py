@@ -170,10 +170,11 @@ class ImageMetadata(object):
         except AttributeError:
             raise KeyError(key)
 
-    def _set_exif_tag(self, tag):
+    def _set_exif_tag(self, key, tag):
         # Set an EXIF tag. If the tag already exists, its value is overwritten.
         if not isinstance(tag, ExifTag):
-            raise TypeError('Expecting an ExifTag')
+            # As a handy shortcut, accept direct value assignment.
+            tag = ExifTag(key, tag)
         self._image._setExifTagValue(tag.key, tag.raw_value)
         self._tags['exif'][tag.key] = tag
         if tag.key not in self.exif_keys:
@@ -192,11 +193,12 @@ class ImageMetadata(object):
             raise TypeError('Expecting a string')
         self._image._setExifTagValue(key, value)
 
-    def _set_iptc_tag(self, tag):
+    def _set_iptc_tag(self, key, tag):
         # Set an IPTC tag. If the tag already exists, its values are
         # overwritten.
         if not isinstance(tag, IptcTag):
-            raise TypeError('Expecting an IptcTag')
+            # As a handy shortcut, accept direct value assignment.
+            tag = IptcTag(key, tag)
         self._image._setIptcTagValues(tag.key, tag.raw_values)
         self._tags['iptc'][tag.key] = tag
         if tag.key not in self.iptc_keys:
@@ -219,10 +221,11 @@ class ImageMetadata(object):
             raise TypeError('Expecting a list of strings')
         self._image._setIptcTagValues(key, values)
 
-    def _set_xmp_tag(self, tag):
+    def _set_xmp_tag(self, key, tag):
         # Set an XMP tag. If the tag already exists, its value is overwritten.
         if not isinstance(tag, XmpTag):
-            raise TypeError('Expecting an XmpTag')
+            # As a handy shortcut, accept direct value assignment.
+            tag = XmpTag(key, tag)
         type = tag._tag._getExiv2Type()
         if type == 'XmpText':
             self._image._setXmpTagTextValue(tag.key, tag.raw_value)
@@ -257,6 +260,8 @@ class ImageMetadata(object):
         """
         Set a metadata tag for a given key.
         If the tag was previously set, it is overwritten.
+        As a handy shortcut, a value may be passed instead of a fully formed
+        tag. The corresponding tag object will be instantiated.
 
         :param key: metadata key in the dotted form
                     ``familyName.groupName.tagName`` where ``familyName`` may
@@ -270,7 +275,7 @@ class ImageMetadata(object):
         """
         family = key.split('.')[0].lower()
         try:
-            return getattr(self, '_set_%s_tag' % family)(tag)
+            return getattr(self, '_set_%s_tag' % family)(key, tag)
         except AttributeError:
             raise KeyError(key)
 
