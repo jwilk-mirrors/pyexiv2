@@ -170,10 +170,13 @@ class ImageMetadata(object):
         except AttributeError:
             raise KeyError(key)
 
-    def _set_exif_tag(self, tag):
+    def _set_exif_tag(self, key, tag_or_value):
         # Set an EXIF tag. If the tag already exists, its value is overwritten.
-        if not isinstance(tag, ExifTag):
-            raise TypeError('Expecting an ExifTag')
+        if isinstance(tag_or_value, ExifTag):
+            tag = tag_or_value
+        else:
+            # As a handy shortcut, accept direct value assignment.
+            tag = ExifTag(key, tag_or_value)
         self._image._setExifTagValue(tag.key, tag.raw_value)
         self._tags['exif'][tag.key] = tag
         if tag.key not in self.exif_keys:
@@ -192,11 +195,14 @@ class ImageMetadata(object):
             raise TypeError('Expecting a string')
         self._image._setExifTagValue(key, value)
 
-    def _set_iptc_tag(self, tag):
+    def _set_iptc_tag(self, key, tag_or_values):
         # Set an IPTC tag. If the tag already exists, its values are
         # overwritten.
-        if not isinstance(tag, IptcTag):
-            raise TypeError('Expecting an IptcTag')
+        if isinstance(tag_or_values, IptcTag):
+            tag = tag_or_values
+        else:
+            # As a handy shortcut, accept direct value assignment.
+            tag = IptcTag(key, tag_or_values)
         self._image._setIptcTagValues(tag.key, tag.raw_values)
         self._tags['iptc'][tag.key] = tag
         if tag.key not in self.iptc_keys:
@@ -219,10 +225,13 @@ class ImageMetadata(object):
             raise TypeError('Expecting a list of strings')
         self._image._setIptcTagValues(key, values)
 
-    def _set_xmp_tag(self, tag):
+    def _set_xmp_tag(self, key, tag_or_value):
         # Set an XMP tag. If the tag already exists, its value is overwritten.
-        if not isinstance(tag, XmpTag):
-            raise TypeError('Expecting an XmpTag')
+        if isinstance(tag_or_value, XmpTag):
+            tag = tag_or_value
+        else:
+            # As a handy shortcut, accept direct value assignment.
+            tag = XmpTag(key, tag_or_value)
         type = tag._tag._getExiv2Type()
         if type == 'XmpText':
             self._image._setXmpTagTextValue(tag.key, tag.raw_value)
@@ -253,24 +262,28 @@ class ImageMetadata(object):
         else:
             raise TypeError('Expecting either a string, a list, a tuple or a dict')
 
-    def __setitem__(self, key, tag):
+    def __setitem__(self, key, tag_or_value):
         """
         Set a metadata tag for a given key.
         If the tag was previously set, it is overwritten.
+        As a handy shortcut, a value may be passed instead of a fully formed
+        tag. The corresponding tag object will be instantiated.
 
         :param key: metadata key in the dotted form
                     ``familyName.groupName.tagName`` where ``familyName`` may
                     be one of ``exif``, ``iptc`` or ``xmp``.
         :type key: string
-        :param tag: an instance of the corresponding family of metadata tag
-        :type tag: :class:`pyexiv2.exif.ExifTag` or
-                   :class:`pyexiv2.iptc.IptcTag` or :class:`pyexiv2.xmp.XmpTag`
+        :param tag_or_value: an instance of the corresponding family of metadata
+                             tag, or a value
+        :type tag_or_value: :class:`pyexiv2.exif.ExifTag` or
+                            :class:`pyexiv2.iptc.IptcTag` or
+                            :class:`pyexiv2.xmp.XmpTag` or any valid value type
 
         :raise KeyError: if the key is invalid
         """
         family = key.split('.')[0].lower()
         try:
-            return getattr(self, '_set_%s_tag' % family)(tag)
+            return getattr(self, '_set_%s_tag' % family)(key, tag_or_value)
         except AttributeError:
             raise KeyError(key)
 

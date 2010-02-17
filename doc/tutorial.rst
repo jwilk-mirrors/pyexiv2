@@ -87,6 +87,13 @@ pair (see exiv2's documentation for a list of valid
   >>> value = 'This is a useful comment.'
   >>> metadata[key] = pyexiv2.ExifTag(key, value)
 
+As a handy shortcut, you can always assign a value for a given key regardless
+of whether it's already present in the metadata.
+If a tag was present, its value is overwritten.
+If the tag was not present, one is created and its value is set::
+
+  >>> metadata[key] = value
+
 
 Reading and writing IPTC tags
 #############################
@@ -155,6 +162,13 @@ pair (see exiv2's documentation for a list of valid
   >>> values = ['John', 'Paul', 'Ringo', 'George']
   >>> metadata[key] = pyexiv2.IptcTag(key, values)
 
+As a handy shortcut, you can always assign values for a given key regardless
+of whether it's already present in the metadata.
+If a tag was present, its values are overwritten.
+If the tag was not present, one is created and its values are set::
+
+  >>> metadata[key] = values
+
 Reading and writing XMP tags
 ############################
 
@@ -208,6 +222,13 @@ pair (see exiv2's documentation for a list of valid
   >>> key = 'Xmp.xmp.Label'
   >>> value = 'A beautiful picture.'
   >>> metadata[key] = pyexiv2.XmpTag(key, value)
+
+As a handy shortcut, you can always assign a value for a given key regardless
+of whether it's already present in the metadata.
+If a tag was present, its value is overwritten.
+If the tag was not present, one is created and its value is set::
+
+  >>> metadata[key] = value
 
 Accessing embedded previews
 ###########################
