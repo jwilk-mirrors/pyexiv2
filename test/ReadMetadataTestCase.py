@@ -49,20 +49,18 @@ class ReadMetadataTestCase(unittest.TestCase):
         self.assertEqual(type(tag.value), etype)
         self.assertEqual(tag.value, evalue)
 
-    def checkIPTCTypeAndValue(self, tag, etype, evalue):
+    def checkIPTCTypeAndValues(self, tag, etype, evalues):
         """
-        Check the type and the value of an IPTC tag against expected values.
+        Check the type and the values of an IPTC tag against expected values.
 
         Keyword arguments:
         tag -- the full name of the tag (eg. 'Exif.Image.DateTime')
         etype -- the expected type of the tag value
-        evalue -- the expected value of the tag
+        evalues -- the expected values of the tag
         """
-        if issubclass(etype, tuple):
-            self.assertEqual(list(tag.values), list(evalue))
-        else:
-            self.assertEqual(type(tag.values[0]), etype)
-            self.assertEqual(tag.values[0], evalue)
+        for value in tag.values:
+            self.assertEqual(type(value), etype)
+        self.assertEqual(tag.values, evalues)
 
     def assertCorrectFile(self, filename, md5sum):
         """
@@ -101,20 +99,20 @@ class ReadMetadataTestCase(unittest.TestCase):
             self.checkEXIFTypeAndValue(image[key], ktype, value)
 
         # Exhaustive tests on the values of IPTC metadata
-        iptcTags = [('Iptc.Application2.Caption', str, 'yelimS green faced dude (iptc caption)'),
-                    ('Iptc.Application2.Writer', str, 'Nobody'),
-                    ('Iptc.Application2.Byline', str, 'Its me'),
-                    ('Iptc.Application2.ObjectName', str, 'GreeenDude'),
-                    ('Iptc.Application2.DateCreated', datetime.date, datetime.date(2004, 7, 13)),
-                    ('Iptc.Application2.City', str, 'Seattle'),
-                    ('Iptc.Application2.ProvinceState', str, 'WA'),
-                    ('Iptc.Application2.CountryName', str, 'USA'),
-                    ('Iptc.Application2.Category', str, 'Things'),
-                    ('Iptc.Application2.Keywords', tuple, ('Green', 'Smiley', 'Dude')),
-                    ('Iptc.Application2.Copyright', str, '\xa9 2004 Nobody')]
+        iptcTags = [('Iptc.Application2.Caption', str, ['yelimS green faced dude (iptc caption)']),
+                    ('Iptc.Application2.Writer', str, ['Nobody']),
+                    ('Iptc.Application2.Byline', str, ['Its me']),
+                    ('Iptc.Application2.ObjectName', str, ['GreeenDude']),
+                    ('Iptc.Application2.DateCreated', datetime.date, [datetime.date(2004, 7, 13)]),
+                    ('Iptc.Application2.City', str, ['Seattle']),
+                    ('Iptc.Application2.ProvinceState', str, ['WA']),
+                    ('Iptc.Application2.CountryName', str, ['USA']),
+                    ('Iptc.Application2.Category', str, ['Things']),
+                    ('Iptc.Application2.Keywords', str, ['Green', 'Smiley', 'Dude']),
+                    ('Iptc.Application2.Copyright', str, ['\xa9 2004 Nobody'])]
         self.assertEqual(image.iptc_keys, [tag[0] for tag in iptcTags])
-        for key, ktype, value in iptcTags:
-            self.checkIPTCTypeAndValue(image[key], ktype, value)
+        for key, ktype, values in iptcTags:
+            self.checkIPTCTypeAndValues(image[key], ktype, values)
 
     def testReadMetadataXMP(self):
         filename = os.path.join('data', 'exiv2-bug540.jpg')
