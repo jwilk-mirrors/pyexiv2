@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # ******************************************************************************
@@ -21,9 +20,8 @@
 # along with pyexiv2; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
 #
-#
-# File:      ReadMetadataTestCase.py
-# Author(s): Olivier Tilloy <olivier@tilloy.net>
+# Authors: Olivier Tilloy <olivier@tilloy.net>
+#          Mark Lee <marklee@malept.com>
 #
 # ******************************************************************************
 
