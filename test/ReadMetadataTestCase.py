@@ -37,27 +37,11 @@ class ReadMetadataTestCase(unittest.TestCase):
     Test case on reading the metadata contained in a file.
     """
 
-    def checkEXIFTypeAndValue(self, tag, etype, evalue):
-        """
-        Check the type and the value of an EXIF tag against expected values.
-
-        Keyword arguments:
-        tag -- the full name of the tag (eg. 'Exif.Image.DateTime')
-        etype -- the expected type of the tag value
-        evalue -- the expected value of the tag
-        """
+    def check_type_and_value(self, tag, etype, evalue):
         self.assertEqual(type(tag.value), etype)
         self.assertEqual(tag.value, evalue)
 
-    def checkIPTCTypeAndValues(self, tag, etype, evalues):
-        """
-        Check the type and the values of an IPTC tag against expected values.
-
-        Keyword arguments:
-        tag -- the full name of the tag (eg. 'Exif.Image.DateTime')
-        etype -- the expected type of the tag value
-        evalues -- the expected values of the tag
-        """
+    def check_type_and_values(self, tag, etype, evalues):
         for value in tag.values:
             self.assertEqual(type(value), etype)
         self.assertEqual(tag.values, evalues)
@@ -96,7 +80,7 @@ class ReadMetadataTestCase(unittest.TestCase):
                     ('Exif.Photo.PixelYDimension', long, 140L)]
         self.assertEqual(image.exif_keys, [tag[0] for tag in exifTags])
         for key, ktype, value in exifTags:
-            self.checkEXIFTypeAndValue(image[key], ktype, value)
+            self.check_type_and_value(image[key], ktype, value)
 
         # Exhaustive tests on the values of IPTC metadata
         iptcTags = [('Iptc.Application2.Caption', str, ['yelimS green faced dude (iptc caption)']),
@@ -112,7 +96,7 @@ class ReadMetadataTestCase(unittest.TestCase):
                     ('Iptc.Application2.Copyright', str, ['\xa9 2004 Nobody'])]
         self.assertEqual(image.iptc_keys, [tag[0] for tag in iptcTags])
         for key, ktype, values in iptcTags:
-            self.checkIPTCTypeAndValues(image[key], ktype, values)
+            self.check_type_and_values(image[key], ktype, values)
 
     def testReadMetadataXMP(self):
         filename = os.path.join('data', 'exiv2-bug540.jpg')
@@ -226,7 +210,6 @@ class ReadMetadataTestCase(unittest.TestCase):
                     'adobe:docid:photoshop:84d4dba8-9b11-11d6-895d-c4d063a70fb0'),
                    ('Xmp.xmpRights.Marked', bool, True),
                    ('Xmp.xmpRights.WebStatement', str, 'www.freefoto.com')]
-        for key, xtype, value in xmpTags:
-            tag = image[key]
-            self.assertEqual(type(tag.value), xtype)
-            self.assertEqual(tag.value, value)
+        self.assertEqual(image.xmp_keys, [tag[0] for tag in xmpTags])
+        for key, ktype, value in xmpTags:
+            self.check_type_and_value(image[key], ktype, value)
