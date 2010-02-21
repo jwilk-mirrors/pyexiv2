@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # ******************************************************************************
@@ -21,9 +20,8 @@
 # along with pyexiv2; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
 #
-#
-# File:      ReadMetadataTestCase.py
-# Author(s): Olivier Tilloy <olivier@tilloy.net>
+# Authors: Olivier Tilloy <olivier@tilloy.net>
+#          Mark Lee <marklee@malept.com>
 #
 # ******************************************************************************
 
@@ -39,17 +37,20 @@ class ReadMetadataTestCase(unittest.TestCase):
     Test case on reading the metadata contained in a file.
     """
 
-    def checkTypeAndValue(self, tag, etype, evalue):
-        """
-        Check the type and the value of a metadata tag against expected values.
+    def check_type_and_value(self, tag, etype, evalue):
+        self.assertEqual(type(tag.value), etype)
+        self.assertEqual(tag.value, evalue)
 
-        Keyword arguments:
-        tag -- the full name of the tag (eg. 'Exif.Image.DateTime')
-        etype -- the expected type of the tag value
-        evalue -- the expected value of the tag
+    def check_type_and_values(self, tag, etype, evalues):
+        for value in tag.values:
+            self.assertEqual(type(value), etype)
+        self.assertEqual(tag.values, evalues)
+
+    def assertCorrectFile(self, filename, md5sum):
         """
-        self.assertEqual(tag.__class__, etype)
-        self.assertEqual(tag, evalue)
+        Ensure that the filename and the MD5 checksum match up.
+        """
+        self.assert_(testutils.CheckFileSum(filename, md5sum))
 
     def testReadMetadata(self):
         """
@@ -58,11 +59,11 @@ class ReadMetadataTestCase(unittest.TestCase):
         # Check that the reference file is not corrupted
         filename = os.path.join('data', 'smiley1.jpg')
         md5sum = 'c066958457c685853293058f9bf129c1'
-        self.assert_(testutils.CheckFileSum(filename, md5sum))
+        self.assertCorrectFile(filename, md5sum)
 
         # Read the image metadata
-        image = pyexiv2.Image(filename)
-        image.readMetadata()
+        image = pyexiv2.ImageMetadata(filename)
+        image.read()
 
         # Exhaustive tests on the values of EXIF metadata
         exifTags = [('Exif.Image.ImageDescription', str, 'Well it is a smiley that happens to be green'),
@@ -77,27 +78,138 @@ class ReadMetadataTestCase(unittest.TestCase):
                     ('Exif.Photo.Flash', int, 80),
                     ('Exif.Photo.PixelXDimension', long, 167L),
                     ('Exif.Photo.PixelYDimension', long, 140L)]
-        self.assertEqual(image.exifKeys(), [tag[0] for tag in exifTags])
-        for tag in exifTags:
-            self.checkTypeAndValue(image[tag[0]], tag[1], tag[2])
+        self.assertEqual(image.exif_keys, [tag[0] for tag in exifTags])
+        for key, ktype, value in exifTags:
+            self.check_type_and_value(image[key], ktype, value)
 
         # Exhaustive tests on the values of IPTC metadata
-        iptcTags = [('Iptc.Application2.Caption', str, 'yelimS green faced dude (iptc caption)'),
-                    ('Iptc.Application2.Writer', str, 'Nobody'),
-                    ('Iptc.Application2.Byline', str, 'Its me'),
-                    ('Iptc.Application2.ObjectName', str, 'GreeenDude'),
-                    ('Iptc.Application2.DateCreated', datetime.date, datetime.date(2004, 7, 13)),
-                    ('Iptc.Application2.City', str, 'Seattle'),
-                    ('Iptc.Application2.ProvinceState', str, 'WA'),
-                    ('Iptc.Application2.CountryName', str, 'USA'),
-                    ('Iptc.Application2.Category', str, 'Things'),
-                    ('Iptc.Application2.Keywords', tuple, ('Green', 'Smiley', 'Dude')),
-                    ('Iptc.Application2.Copyright', str, '\xa9 2004 Nobody')]
-        self.assertEqual(image.iptcKeys(), [tag[0] for tag in iptcTags])
-        for tag in iptcTags:
-            self.checkTypeAndValue(image[tag[0]], tag[1], tag[2])
+        iptcTags = [('Iptc.Application2.Caption', str, ['yelimS green faced dude (iptc caption)']),
+                    ('Iptc.Application2.Writer', str, ['Nobody']),
+                    ('Iptc.Application2.Byline', str, ['Its me']),
+                    ('Iptc.Application2.ObjectName', str, ['GreeenDude']),
+                    ('Iptc.Application2.DateCreated', datetime.date, [datetime.date(2004, 7, 13)]),
+                    ('Iptc.Application2.City', str, ['Seattle']),
+                    ('Iptc.Application2.ProvinceState', str, ['WA']),
+                    ('Iptc.Application2.CountryName', str, ['USA']),
+                    ('Iptc.Application2.Category', str, ['Things']),
+                    ('Iptc.Application2.Keywords', str, ['Green', 'Smiley', 'Dude']),
+                    ('Iptc.Application2.Copyright', str, ['\xa9 2004 Nobody'])]
+        self.assertEqual(image.iptc_keys, [tag[0] for tag in iptcTags])
+        for key, ktype, values in iptcTags:
+            self.check_type_and_values(image[key], ktype, values)
 
-        # Test on the JPEG comment
-        self.checkTypeAndValue(image.getComment(),
-            str, 'This is a jpeg comment, about the green smiley.')
+    def testReadMetadataXMP(self):
+        filename = os.path.join('data', 'exiv2-bug540.jpg')
+        md5sum = '64d4b7eab1e78f1f6bfb3c966e99eef2'
+        self.assertCorrectFile(filename, md5sum)
 
+        # Read the image metadata
+        image = pyexiv2.ImageMetadata(filename)
+        image.read()
+
+        xmpTags = [('Xmp.dc.creator', list, [u'Ian Britton']),
+                   ('Xmp.dc.description', dict, {u'x-default': u'Communications'}),
+                   ('Xmp.dc.rights', dict, {u'x-default': u'ian Britton - FreeFoto.com'}),
+                   ('Xmp.dc.source', unicode, u'FreeFoto.com'),
+                   ('Xmp.dc.subject', list, [u'Communications']),
+                   ('Xmp.dc.title', dict, {u'x-default': u'Communications'}),
+                   ('Xmp.exif.ApertureValue',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(8, 1)),
+                   ('Xmp.exif.BrightnessValue',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(333, 1280)),
+                   ('Xmp.exif.ColorSpace', int, 1),
+                   ('Xmp.exif.DateTimeOriginal',
+                    datetime.datetime,
+                    datetime.datetime(2002, 7, 13, 15, 58, 28, tzinfo=pyexiv2.utils.FixedOffset())),
+                   ('Xmp.exif.ExifVersion', unicode, u'0200'),
+                   ('Xmp.exif.ExposureBiasValue',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(-13, 20)),
+                   ('Xmp.exif.ExposureProgram', int, 4),
+                   ('Xmp.exif.FNumber',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(3, 5)),
+                   ('Xmp.exif.FileSource', int, 0),
+                   ('Xmp.exif.FlashpixVersion', unicode, u'0100'),
+                   ('Xmp.exif.FocalLength',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(0, 1)),
+                   ('Xmp.exif.FocalPlaneResolutionUnit', int, 2),
+                   ('Xmp.exif.FocalPlaneXResolution',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(3085, 256)),
+                   ('Xmp.exif.FocalPlaneYResolution',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(3085, 256)),
+                   ('Xmp.exif.GPSLatitude',
+                    pyexiv2.utils.GPSCoordinate,
+                    pyexiv2.utils.GPSCoordinate.from_string('54,59.380000N')),
+                   ('Xmp.exif.GPSLongitude',
+                    pyexiv2.utils.GPSCoordinate,
+                    pyexiv2.utils.GPSCoordinate.from_string('1,54.850000W')),
+                   ('Xmp.exif.GPSMapDatum', unicode, u'WGS84'),
+                   ('Xmp.exif.GPSTimeStamp',
+                    datetime.datetime,
+                    datetime.datetime(2002, 7, 13, 14, 58, 24, tzinfo=pyexiv2.utils.FixedOffset())),
+                   ('Xmp.exif.GPSVersionID', unicode, u'2.0.0.0'),
+                   ('Xmp.exif.ISOSpeedRatings', list, [0]),
+                   ('Xmp.exif.MeteringMode', int, 5),
+                   ('Xmp.exif.PixelXDimension', int, 2400),
+                   ('Xmp.exif.PixelYDimension', int, 1600),
+                   ('Xmp.exif.SceneType', int, 0),
+                   ('Xmp.exif.SensingMethod', int, 2),
+                   ('Xmp.exif.ShutterSpeedValue',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(30827, 3245)),
+                   ('Xmp.pdf.Keywords', unicode, u'Communications'),
+                   ('Xmp.photoshop.AuthorsPosition', unicode, u'Photographer'),
+                   ('Xmp.photoshop.CaptionWriter', unicode, u'Ian Britton'),
+                   ('Xmp.photoshop.Category', unicode, u'BUS'),
+                   ('Xmp.photoshop.City', unicode, u' '),
+                   ('Xmp.photoshop.Country', unicode, u'Ubited Kingdom'),
+                   ('Xmp.photoshop.Credit', unicode, u'Ian Britton'),
+                   ('Xmp.photoshop.DateCreated', datetime.date, datetime.date(2002, 6, 20)),
+                   ('Xmp.photoshop.Headline', unicode, u'Communications'),
+                   ('Xmp.photoshop.State', unicode, u' '),
+                   ('Xmp.photoshop.SupplementalCategories', list, [u'Communications']),
+                   ('Xmp.photoshop.Urgency', int, 5),
+                   ('Xmp.tiff.Artist', unicode, u'Ian Britton'),
+                   ('Xmp.tiff.BitsPerSample', list, [8]),
+                   ('Xmp.tiff.Compression', int, 6),
+                   ('Xmp.tiff.Copyright',
+                    dict,
+                    {u'x-default': u'ian Britton - FreeFoto.com'}),
+                   ('Xmp.tiff.ImageDescription', dict, {u'x-default': u'Communications'}),
+                   ('Xmp.tiff.ImageLength', int, 400),
+                   ('Xmp.tiff.ImageWidth', int, 600),
+                   ('Xmp.tiff.Make', unicode, u'FUJIFILM'),
+                   ('Xmp.tiff.Model', unicode, u'FinePixS1Pro'),
+                   ('Xmp.tiff.Orientation', int, 1),
+                   ('Xmp.tiff.ResolutionUnit', int, 2),
+                   ('Xmp.tiff.Software', unicode, u'Adobe Photoshop 7.0'),
+                   ('Xmp.tiff.XResolution',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(300, 1)),
+                   ('Xmp.tiff.YCbCrPositioning', int, 2),
+                   ('Xmp.tiff.YResolution',
+                    pyexiv2.utils.Rational,
+                    pyexiv2.utils.Rational(300, 1)),
+                   ('Xmp.xmp.CreateDate',
+                    datetime.datetime,
+                    datetime.datetime(2002, 7, 13, 15, 58, 28, tzinfo=pyexiv2.utils.FixedOffset())),
+                   ('Xmp.xmp.ModifyDate',
+                    datetime.datetime,
+                    datetime.datetime(2002, 7, 19, 13, 28, 10, tzinfo=pyexiv2.utils.FixedOffset())),
+                   ('Xmp.xmpBJ.JobRef', list, []),
+                   ('Xmp.xmpBJ.JobRef[1]', str, ''),
+                   ('Xmp.xmpBJ.JobRef[1]/stJob:name', str, 'Photographer'),
+                   ('Xmp.xmpMM.DocumentID',
+                    str,
+                    'adobe:docid:photoshop:84d4dba8-9b11-11d6-895d-c4d063a70fb0'),
+                   ('Xmp.xmpRights.Marked', bool, True),
+                   ('Xmp.xmpRights.WebStatement', str, 'www.freefoto.com')]
+        self.assertEqual(image.xmp_keys, [tag[0] for tag in xmpTags])
+        for key, ktype, value in xmpTags:
+            self.check_type_and_value(image[key], ktype, value)
