@@ -19,7 +19,7 @@ if os.environ.has_key('LDFLAGS'):
 env.Append(CPPPATH=[get_python_inc(plat_specific=True)])
 
 # Libraries to link against
-libs = ['boost_python', 'exiv2']
+libs = [ARGUMENTS.get('BOOSTLIB', 'boost_python'), 'exiv2']
 env.Append(LIBS=libs)
 
 # Build shared library libpyexiv2
