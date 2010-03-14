@@ -37,6 +37,6 @@ def CheckFileSum(filename, md5sum):
     filename -- the name of the file to test
     md5sum -- the expected value of the MD5 sum of the file
     """
-    f = open(filename)
+    f = open(filename, 'rb')
     return (hashlib.md5(f.read()).hexdigest() == md5sum)
 
