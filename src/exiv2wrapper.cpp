@@ -484,6 +484,51 @@ void Image::copyMetadata(Image& other, bool exif, bool iptc, bool xmp) const
         other._xmpData = _xmpData;
 }
 
+std::string Image::getDataBuffer() const
+{
+    Exiv2::BasicIo& io = _image->io();
+    long size = io.size();
+    long pos = -1;
+
+    if (io.isopen())
+    {
+        // Remember the current position in the stream
+        pos = io.tell();
+        // Go to the beginning of the stream
+        io.seek(0, Exiv2::BasicIo::beg);
+    }
+    else
+    {
+        io.open();
+    }
+
+    // Copy the data buffer in a string. Since the data buffer can contain null
+    // characters ('\x00'), the string cannot be simply constructed like that:
+    //     _data = std::string((char*) previewImage.pData());
+    // because it would be truncated after the first occurence of a null
+    // character. Therefore, it has to be copied character by character.
+    // First allocate the memory for the whole string...
+    std::string buffer(size, ' ');
+    // ... then fill it with the raw data.
+    for (unsigned long i = 0; i < size; ++i)
+    {
+        io.read((Exiv2::byte*) &buffer[i], 1);
+    }
+
+    if (pos == -1)
+    {
+        // The stream was initially closed
+        io.close();
+    }
+    else
+    {
+        // Reset to the initial position in the stream
+        io.seek(pos, Exiv2::BasicIo::beg);
+    }
+
+    return buffer;
+}
+
 
 ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifData* data): _key(key)
 {

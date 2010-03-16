@@ -387,3 +387,11 @@ class ImageMetadata(object):
             other._keys['xmp'] = None
             other._tags['xmp'] = {}
 
+    def data_buffer(self):
+        """
+        Return the image data as a string.
+        If metadata has been modified, the data buffer won't be up-to-date until
+        write() is called.
+        """ 
+        return self._image._getDataBuffer()
+

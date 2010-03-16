@@ -148,6 +148,8 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_previews", &Image::previews)
 
         .def("_copyMetadata", &Image::copyMetadata)
+
+        .def("_getDataBuffer", &Image::getDataBuffer)
     ;
 }
 

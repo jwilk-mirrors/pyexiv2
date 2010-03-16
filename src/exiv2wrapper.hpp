@@ -225,6 +225,9 @@ public:
     // Copy the metadata to another image.
     void copyMetadata(Image& other, bool exif=true, bool iptc=true, bool xmp=true) const;
 
+    // Return the image data buffer.
+    std::string getDataBuffer() const;
+
 private:
     std::string _filename;
     Exiv2::Image::AutoPtr _image;
