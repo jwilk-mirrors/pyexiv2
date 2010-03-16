@@ -88,35 +88,63 @@ Image::Image(const Image& image)
 
 void Image::readMetadata()
 {
+    Exiv2::Error error(0);
+
     // Release the GIL to allow other python threads to run
     // while reading metadata.
     Py_BEGIN_ALLOW_THREADS
 
-    _image->readMetadata();
-    _exifData = _image->exifData();
-    _iptcData = _image->iptcData();
-    _xmpData = _image->xmpData();
-    _dataRead = true;
+    try
+    {
+        _image->readMetadata();
+        _exifData = _image->exifData();
+        _iptcData = _image->iptcData();
+        _xmpData = _image->xmpData();
+        _dataRead = true;
+    }
+    catch (Exiv2::Error& err)
+    {
+        error = err;
+    }
 
     // Re-acquire the GIL
     Py_END_ALLOW_THREADS
+
+    if (error.code() != 0)
+    {
+        throw error;
+    }
 }
 
 void Image::writeMetadata()
 {
     CHECK_METADATA_READ
 
+    Exiv2::Error error(0);
+
     // Release the GIL to allow other python threads to run
     // while writing metadata.
     Py_BEGIN_ALLOW_THREADS
 
-    _image->setExifData(_exifData);
-    _image->setIptcData(_iptcData);
-    _image->setXmpData(_xmpData);
-    _image->writeMetadata();
+    try
+    {
+        _image->setExifData(_exifData);
+        _image->setIptcData(_iptcData);
+        _image->setXmpData(_xmpData);
+        _image->writeMetadata();
+    }
+    catch (Exiv2::Error& err)
+    {
+        error = err;
+    }
 
     // Re-acquire the GIL
     Py_END_ALLOW_THREADS
+
+    if (error.code() != 0)
+    {
+        throw error;
+    }
 }
 
 unsigned int Image::pixelWidth() const
