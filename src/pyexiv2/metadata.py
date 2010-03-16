@@ -69,15 +69,15 @@ class ImageMetadata(object):
         return libexiv2python._Image(filename)
 
     @classmethod
-    def from_buffer(cls, data):
+    def from_buffer(cls, buffer):
         """
-        Instantiate an image container from a data buffer.
+        Instantiate an image container from an image buffer.
 
-        :param data: a buffer containing image data
-        :type data: string
+        :param buffer: a buffer containing image data
+        :type buffer: string
         """
         obj = cls(None)
-        obj._image = libexiv2python._Image(data, len(data))
+        obj._image = libexiv2python._Image(buffer, len(buffer))
         return obj
 
     def read(self):
@@ -390,9 +390,9 @@ class ImageMetadata(object):
     @property
     def buffer(self):
         """
-        The image data as a string.
-        If metadata has been modified, the data buffer won't be up-to-date until
-        write() has been called.
+        The image buffer as a string.
+        If metadata has been modified, the data won't be up-to-date until
+        :meth:`.write` has been called.
         """
         return self._image._getDataBuffer()
 
