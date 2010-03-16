@@ -43,7 +43,6 @@ namespace exiv2wrapper
 
 void Image::_instantiate_image()
 {
-    bool success = true;
     Exiv2::Error error(0);
 
     // Release the GIL to allow other python threads to run
@@ -56,14 +55,13 @@ void Image::_instantiate_image()
     }
     catch (Exiv2::Error& err)
     {
-        success = false;
         error = err;
     }
 
     // Re-acquire the GIL
     Py_END_ALLOW_THREADS
 
-    if (success)
+    if (error.code() == 0)
     {
         assert(_image.get() != 0);
         _dataRead = false;
