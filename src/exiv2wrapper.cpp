@@ -44,7 +44,7 @@ namespace exiv2wrapper
 void Image::_instantiate_image()
 {
     bool success = true;
-    int error_code;
+    Exiv2::Error error(0);
 
     // Release the GIL to allow other python threads to run
     // while opening the file.
@@ -54,10 +54,10 @@ void Image::_instantiate_image()
     {
         _image = Exiv2::ImageFactory::open(_filename);
     }
-    catch (Exiv2::Error& error)
+    catch (Exiv2::Error& err)
     {
         success = false;
-        error_code = error.code();
+        error = err;
     }
 
     // Re-acquire the GIL
@@ -70,7 +70,7 @@ void Image::_instantiate_image()
     }
     else
     {
-        throw Exiv2::Error(error_code, _filename);
+        throw error;
     }
 }
 
