@@ -151,6 +151,7 @@ class Image
 public:
     // Constructors
     Image(const std::string& filename);
+    Image(const std::string& buffer, long size);
     Image(const Image& image);
 
     void readMetadata();
@@ -235,7 +236,7 @@ private:
     // false otherwise
     bool _dataRead;
 
-    void _instantiate_image();
+    void _instantiate_image(Exiv2::byte* data=0, long size=0);
 };
 
 

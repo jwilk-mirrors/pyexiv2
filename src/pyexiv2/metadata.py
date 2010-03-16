@@ -68,9 +68,21 @@ class ImageMetadata(object):
             raise IOError(ENOENT, "%s: '%s'" % (os.strerror(ENOENT), filename))
         return libexiv2python._Image(filename)
 
+    @classmethod
+    def from_buffer(cls, data):
+        """
+        Instantiate an image container from a data buffer.
+
+        :param data: a buffer containing image data
+        :type data: string
+        """
+        obj = cls(None)
+        obj._image = libexiv2python._Image(data, len(data))
+        return obj
+
     def read(self):
         """
-        Read the metadata embedded in the associated image file.
+        Read the metadata embedded in the associated image.
         It is necessary to call this method once before attempting to access
         the metadata (an exception will be raised if trying to access metadata
         before calling this method).
@@ -81,7 +93,7 @@ class ImageMetadata(object):
 
     def write(self):
         """
-        Write the metadata back to the image file.
+        Write the metadata back to the image.
         """
         self._image._writeMetadata()
 

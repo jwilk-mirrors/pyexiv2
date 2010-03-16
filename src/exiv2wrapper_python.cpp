@@ -118,6 +118,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
     ;
 
     class_<Image>("_Image", init<std::string>())
+        .def(init<std::string, long>())
 
         .def("_readMetadata", &Image::readMetadata)
         .def("_writeMetadata", &Image::writeMetadata)
