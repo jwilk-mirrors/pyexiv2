@@ -43,6 +43,8 @@ namespace exiv2wrapper
 
 void Image::_instantiate_image()
 {
+    // If an exception is thrown, it has to be done outside of the
+    // Py_{BEGIN,END}_ALLOW_THREADS block.
     Exiv2::Error error(0);
 
     // Release the GIL to allow other python threads to run
@@ -88,6 +90,8 @@ Image::Image(const Image& image)
 
 void Image::readMetadata()
 {
+    // If an exception is thrown, it has to be done outside of the
+    // Py_{BEGIN,END}_ALLOW_THREADS block.
     Exiv2::Error error(0);
 
     // Release the GIL to allow other python threads to run
@@ -120,6 +124,8 @@ void Image::writeMetadata()
 {
     CHECK_METADATA_READ
 
+    // If an exception is thrown, it has to be done outside of the
+    // Py_{BEGIN,END}_ALLOW_THREADS block.
     Exiv2::Error error(0);
 
     // Release the GIL to allow other python threads to run
