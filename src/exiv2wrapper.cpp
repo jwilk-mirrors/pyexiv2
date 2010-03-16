@@ -43,8 +43,9 @@ namespace exiv2wrapper
 
 void Image::_instantiate_image()
 {
-    bool success = true;
-    int error_code;
+    // If an exception is thrown, it has to be done outside of the
+    // Py_{BEGIN,END}_ALLOW_THREADS block.
+    Exiv2::Error error(0);
 
     // Release the GIL to allow other python threads to run
     // while opening the file.
@@ -54,23 +55,22 @@ void Image::_instantiate_image()
     {
         _image = Exiv2::ImageFactory::open(_filename);
     }
-    catch (Exiv2::Error& error)
+    catch (Exiv2::Error& err)
     {
-        success = false;
-        error_code = error.code();
+        error = err;
     }
 
     // Re-acquire the GIL
     Py_END_ALLOW_THREADS
 
-    if (success)
+    if (error.code() == 0)
     {
         assert(_image.get() != 0);
         _dataRead = false;
     }
     else
     {
-        throw Exiv2::Error(error_code, _filename);
+        throw error;
     }
 }
 
@@ -90,35 +90,67 @@ Image::Image(const Image& image)
 
 void Image::readMetadata()
 {
+    // If an exception is thrown, it has to be done outside of the
+    // Py_{BEGIN,END}_ALLOW_THREADS block.
+    Exiv2::Error error(0);
+
     // Release the GIL to allow other python threads to run
     // while reading metadata.
     Py_BEGIN_ALLOW_THREADS
 
-    _image->readMetadata();
-    _exifData = _image->exifData();
-    _iptcData = _image->iptcData();
-    _xmpData = _image->xmpData();
-    _dataRead = true;
+    try
+    {
+        _image->readMetadata();
+        _exifData = _image->exifData();
+        _iptcData = _image->iptcData();
+        _xmpData = _image->xmpData();
+        _dataRead = true;
+    }
+    catch (Exiv2::Error& err)
+    {
+        error = err;
+    }
 
     // Re-acquire the GIL
     Py_END_ALLOW_THREADS
+
+    if (error.code() != 0)
+    {
+        throw error;
+    }
 }
 
 void Image::writeMetadata()
 {
     CHECK_METADATA_READ
 
+    // If an exception is thrown, it has to be done outside of the
+    // Py_{BEGIN,END}_ALLOW_THREADS block.
+    Exiv2::Error error(0);
+
     // Release the GIL to allow other python threads to run
     // while writing metadata.
     Py_BEGIN_ALLOW_THREADS
 
-    _image->setExifData(_exifData);
-    _image->setIptcData(_iptcData);
-    _image->setXmpData(_xmpData);
-    _image->writeMetadata();
+    try
+    {
+        _image->setExifData(_exifData);
+        _image->setIptcData(_iptcData);
+        _image->setXmpData(_xmpData);
+        _image->writeMetadata();
+    }
+    catch (Exiv2::Error& err)
+    {
+        error = err;
+    }
 
     // Re-acquire the GIL
     Py_END_ALLOW_THREADS
+
+    if (error.code() != 0)
+    {
+        throw error;
+    }
 }
 
 unsigned int Image::pixelWidth() const
