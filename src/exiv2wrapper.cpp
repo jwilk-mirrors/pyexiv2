@@ -486,6 +486,12 @@ void Image::copyMetadata(Image& other, bool exif, bool iptc, bool xmp) const
 
 std::string Image::getDataBuffer() const
 {
+    std::string buffer;
+
+    // Release the GIL to allow other python threads to run
+    // while reading the image data.
+    Py_BEGIN_ALLOW_THREADS
+
     Exiv2::BasicIo& io = _image->io();
     long size = io.size();
     long pos = -1;
@@ -508,7 +514,7 @@ std::string Image::getDataBuffer() const
     // because it would be truncated after the first occurence of a null
     // character. Therefore, it has to be copied character by character.
     // First allocate the memory for the whole string...
-    std::string buffer(size, ' ');
+    buffer.resize(size, ' ');
     // ... then fill it with the raw data.
     for (unsigned long i = 0; i < size; ++i)
     {
@@ -525,6 +531,9 @@ std::string Image::getDataBuffer() const
         // Reset to the initial position in the stream
         io.seek(pos, Exiv2::BasicIo::beg);
     }
+
+    // Re-acquire the GIL
+    Py_END_ALLOW_THREADS
 
     return buffer;
 }
