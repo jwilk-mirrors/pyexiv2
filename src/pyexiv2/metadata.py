@@ -55,7 +55,9 @@ class ImageMetadata(object):
         :param filename: path to an image file
         :type filename: string
         """
-        self.filename = filename.encode(sys.getfilesystemencoding())
+        self.filename = filename
+        if filename is not None:
+            self.filename = filename.encode(sys.getfilesystemencoding())
         self._image = None
         self._keys = {'exif': None, 'iptc': None, 'xmp': None}
         self._tags = {'exif': {}, 'iptc': {}, 'xmp': {}}
