@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 
 def build_lib():
-    AddOption('--user', action='store_true')
+    try:
+        from site import USER_SITE
+    except ImportError:
+        # Installing in the user site directory requires Python ≥ 2.6.
+        pass
+    else:
+        AddOption('--user', action='store_true')
     SConscript('src/SConscript', variant_dir='build', duplicate=0)
 
 def build_doc():

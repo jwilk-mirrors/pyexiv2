@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import site
 from distutils.sysconfig import get_python_inc, get_python_lib
-from site import USER_SITE
 import SCons.Util
 
 env = Environment()
@@ -33,14 +33,19 @@ env.Alias('lib', libpyexiv2)
 
 # Install the shared library and the Python modules, invoked with
 # 'scons install'.
-if GetOption('user'):
+try:
+    user_site = GetOption('user')
+except AttributeError:
+    user_site = False
+
+if user_site:
     # Install in the current user site directory.
     # See http://www.python.org/dev/peps/pep-0370/ for reference.
-    install_dir = USER_SITE
+    install_dir = site.USER_SITE
 else:
     python_lib_path = get_python_lib(plat_specific=True)
     # If DESTDIR is specified on the command line when invoking
-    # scons, it will be prepended to each installed target file. See
+    # scons, its value will be prepended to each installed target file. See
     # http://www.gnu.org/prep/standards/html_node/DESTDIR.html for reference.
     dest_dir = ARGUMENTS.get('DESTDIR')
     if dest_dir is None or not os.path.isabs(dest_dir):
