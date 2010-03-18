@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import site
 from distutils.sysconfig import get_python_inc, get_python_lib
 import SCons.Util
 
@@ -30,17 +31,31 @@ cpp_sources = ['exiv2wrapper.cpp', 'exiv2wrapper_python.cpp']
 libpyexiv2 = env.SharedLibrary('exiv2python', cpp_sources)
 env.Alias('lib', libpyexiv2)
 
-# Install the shared library and the Python modules, invoked using
-# 'scons install'. If DESTDIR is specified on the command line when invoking
-# scons, it will be prepended to each installed target file. See
-# http://www.gnu.org/prep/standards/html_node/DESTDIR.html for reference.
-python_lib_path = get_python_lib(plat_specific=True)
-dest_dir = ARGUMENTS.get('DESTDIR')
-if (dest_dir is None) or (not os.path.isabs(dest_dir)):
-    install_dir = python_lib_path
+# Install the shared library and the Python modules, invoked with
+# 'scons install'.
+try:
+    user_site = GetOption('user')
+except AttributeError:
+    user_site = False
+
+if user_site:
+    # Install in the current user site directory.
+    # See http://www.python.org/dev/peps/pep-0370/ for reference.
+    install_dir = site.USER_SITE
 else:
-    install_dir = os.path.join(dest_dir, python_lib_path[1:])
+    python_lib_path = get_python_lib(plat_specific=True)
+    # If DESTDIR is specified on the command line when invoking
+    # scons, its value will be prepended to each installed target file. See
+    # http://www.gnu.org/prep/standards/html_node/DESTDIR.html for reference.
+    dest_dir = ARGUMENTS.get('DESTDIR')
+    if dest_dir is None or not os.path.isabs(dest_dir):
+        install_dir = python_lib_path
+    else:
+        install_dir = os.path.join(dest_dir, python_lib_path[1:])
+
 env.Install(install_dir, [libpyexiv2])
-env.Install(os.path.join(install_dir, 'pyexiv2'), Glob('pyexiv2/*.py'))
+modules = ['__init__', 'metadata', 'exif', 'iptc', 'xmp', 'utils']
+env.Install(os.path.join(install_dir, 'pyexiv2'),
+            ['pyexiv2/%s.py' % module for module in modules])
 env.Alias('install', install_dir)
 

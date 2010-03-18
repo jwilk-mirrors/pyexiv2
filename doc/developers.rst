@@ -68,8 +68,16 @@ the build directory::
   osomon@granuja:~/dev/pyexiv2$ ls build/
   exiv2wrapper.os  exiv2wrapper_python.os  libexiv2python.so
 
-To install pyexiv2, just invoke ``scons install``. You will most likely need
-administrative privileges to proceed.
+To install pyexiv2 system-wide, just invoke ``scons install``.
+You will most likely need administrative privileges to proceed.
+The ``--user`` switch will install pyexiv2 in the current
+`user site directory <http://www.python.org/dev/peps/pep-0370/>`_
+(Python ≥ 2.6 is required).
+
+Note to packagers:
+if `DESTDIR <http://www.gnu.org/prep/standards/html_node/DESTDIR.html>`_ is
+specified on the command line when invoking ``scons install``, its value will be
+prepended to each installed target file.
 
 Documentation
 #############

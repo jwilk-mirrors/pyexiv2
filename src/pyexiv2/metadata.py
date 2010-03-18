@@ -29,6 +29,7 @@ Provide the ImageMetadata class.
 """
 
 import os
+import sys
 from errno import ENOENT
 
 import libexiv2python
@@ -54,9 +55,7 @@ class ImageMetadata(object):
         :param filename: path to an image file
         :type filename: string
         """
-        self.filename = filename
-        if isinstance(filename, unicode):
-            self.filename = filename.encode('utf-8')
+        self.filename = filename.encode(sys.getfilesystemencoding())
         self._image = None
         self._keys = {'exif': None, 'iptc': None, 'xmp': None}
         self._tags = {'exif': {}, 'iptc': {}, 'xmp': {}}
