@@ -29,11 +29,6 @@ import unittest
 
 # Test cases to run
 from ReadMetadataTestCase import ReadMetadataTestCase
-#from Bug146313_TestCase import Bug146313_TestCase
-#from Bug173387_TestCase import Bug173387_TestCase
-#from Bug175070_TestCase import Bug175070_TestCase
-#from Bug183332_TestCase import Bug183332_TestCase
-#from Bug183618_TestCase import Bug183618_TestCase
 from rational import TestRational
 from gps_coordinate import TestGPSCoordinate
 from notifying_list import TestNotifyingList
@@ -41,17 +36,13 @@ from exif import TestExifTag
 from iptc import TestIptcTag
 from xmp import TestXmpTag
 from metadata import TestImageMetadata
+from encoding import TestEncodings
 
 
 if __name__ == '__main__':
     # Instantiate a test suite containing all the test cases
     suite = unittest.TestSuite()
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(ReadMetadataTestCase))
-    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug146313_TestCase))
-    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug173387_TestCase))
-    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug175070_TestCase))
-    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183332_TestCase))
-    #suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(Bug183618_TestCase))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestRational))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestGPSCoordinate))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestNotifyingList))
@@ -59,5 +50,6 @@ if __name__ == '__main__':
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIptcTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestImageMetadata))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestEncodings))
     # Run the test suite
     unittest.TextTestRunner(verbosity=2).run(suite)
