@@ -51,6 +51,9 @@ A typical list of packages to install on a Debian/Ubuntu system is::
 Building and installing
 #######################
 
+Linux
++++++
+
 Building pyexiv2 is as simple as invoking ``scons`` in the top-level directory::
 
   osomon@granuja:~/dev/pyexiv2$ scons
@@ -78,6 +81,21 @@ Note to packagers:
 if `DESTDIR <http://www.gnu.org/prep/standards/html_node/DESTDIR.html>`_ is
 specified on the command line when invoking ``scons install``, its value will be
 prepended to each installed target file.
+
+Windows
++++++++
+
+The top-level directory of the development branch contains a shell script named
+``cross-compile.sh`` that retrieves all the dependencies required and
+cross-compiles pyexiv2 for Windows on a Linux host.
+Read the comments in the header of the script to know the pre-requisites.
+
+The result of the compilation is a DLL, ``libexiv2python.pyd``, in the build
+directory. This file and the ``pyexiv2`` folder in ``src`` should be copied to
+the system-wide site directory of a Python 2.6 setup
+(typically ``C:\Python26\Lib\site-packages\``) or to the user site directory
+(``%APPDATA%\Python\Python26\site-packages\``).
+
 
 Documentation
 #############
