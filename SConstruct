@@ -7,7 +7,8 @@ def build_lib():
         # Installing in the user site directory requires Python ≥ 2.6.
         pass
     else:
-        AddOption('--user', action='store_true')
+        AddOption('--user', action='store_true',
+                  help='Install in the user site directory.')
     SConscript('src/SConscript', variant_dir='build', duplicate=0)
 
 def build_doc():
