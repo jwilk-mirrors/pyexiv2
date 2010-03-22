@@ -20,6 +20,8 @@ OutFile "pyexiv2-0.2-setup.exe"
 
 !insertmacro MUI_LANGUAGE "English"
 
+!define PYEXIV2_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-0.2"
+
 Function .onInit
   Var /GLOBAL python_install_path
   ReadRegStr $python_install_path HKLM Software\Python\PythonCore\2.6\InstallPath ""
@@ -45,21 +47,18 @@ Section "pyexiv2"
   File src\pyexiv2\utils.py
 
   WriteUninstaller $INSTDIR\pyexiv2-0.2-uninstaller.exe
-  Var /GLOBAL key
-  StrCpy $key "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-0.2"
-  WriteRegStr HKLM $key "DisplayName" "pyexiv2 0.2"
-  WriteRegStr HKLM $key "DisplayVersion" "0.2"
-  WriteRegStr HKLM $key "UninstallString" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
-  WriteRegDWORD HKLM $key "NoModify" 1
-  WriteRegDWORD HKLM $key "NoRepair" 1
+  WriteRegStr HKLM ${PYEXIV2_KEY} "DisplayName" "pyexiv2 0.2"
+  WriteRegStr HKLM ${PYEXIV2_KEY} "DisplayVersion" "0.2"
+  WriteRegStr HKLM ${PYEXIV2_KEY} "UninstallString" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
+  WriteRegDWORD HKLM ${PYEXIV2_KEY} "NoModify" 1
+  WriteRegDWORD HKLM ${PYEXIV2_KEY} "NoRepair" 1
 SectionEnd
 
 Section "Uninstall"
   Delete $INSTDIR\libexiv2python.py*
   RMDir /r $INSTDIR\pyexiv2
 
-  StrCpy $key "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-0.2"
-  DeleteRegKey HKLM $key
+  DeleteRegKey HKLM ${PYEXIV2_KEY}
 
   Delete $INSTDIR\pyexiv2-0.2-uninstaller.exe
 SectionEnd
