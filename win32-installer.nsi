@@ -4,6 +4,7 @@
 
 Name "pyexiv2 0.2"
 OutFile "pyexiv2-0.2-setup.exe"
+SetCompressor /SOLID lzma
 
 !define MUI_ICON "art\pyexiv2.ico"
 !define MUI_UNICON "art\pyexiv2.ico"
