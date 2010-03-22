@@ -5,6 +5,9 @@
 Name "pyexiv2 0.2"
 OutFile "pyexiv2-0.2-setup.exe"
 
+!define MUI_ICON "art\pyexiv2.ico"
+!define MUI_UNICON "art\pyexiv2.ico"
+
 ;!insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "COPYING"
 ; Need for a custom page here to choose wether to install for all users or only
