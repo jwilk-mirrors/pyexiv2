@@ -49,6 +49,7 @@ Section "pyexiv2"
   WriteUninstaller $INSTDIR\pyexiv2-0.2-uninstaller.exe
   WriteRegStr HKLM ${PYEXIV2_KEY} "DisplayName" "pyexiv2 0.2"
   WriteRegStr HKLM ${PYEXIV2_KEY} "DisplayVersion" "0.2"
+  WriteRegStr HKLM ${PYEXIV2_KEY} "DisplayIcon" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
   WriteRegStr HKLM ${PYEXIV2_KEY} "UninstallString" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
   WriteRegDWORD HKLM ${PYEXIV2_KEY} "NoModify" 1
   WriteRegDWORD HKLM ${PYEXIV2_KEY} "NoRepair" 1
