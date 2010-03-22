@@ -1,3 +1,5 @@
+; NSIS installer script for pyexiv2 0.2.
+
 !include MUI.nsh
 
 Name "pyexiv2 0.2"
@@ -30,6 +32,7 @@ FunctionEnd
 Section "pyexiv2"
   SetOutPath $INSTDIR
   File build\libexiv2python.pyd
+
   SetOutPath $INSTDIR\pyexiv2
   File src\pyexiv2\__init__.py
   File src\pyexiv2\metadata.py
@@ -37,12 +40,24 @@ Section "pyexiv2"
   File src\pyexiv2\iptc.py
   File src\pyexiv2\xmp.py
   File src\pyexiv2\utils.py
+
   WriteUninstaller $INSTDIR\pyexiv2-0.2-uninstaller.exe
+  Var /GLOBAL key
+  StrCpy $key "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-0.2"
+  WriteRegStr HKLM $key "DisplayName" "pyexiv2 0.2"
+  WriteRegStr HKLM $key "DisplayVersion" "0.2"
+  WriteRegStr HKLM $key "UninstallString" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
+  WriteRegDWORD HKLM $key "NoModify" 1
+  WriteRegDWORD HKLM $key "NoRepair" 1
 SectionEnd
 
 Section "Uninstall"
-  Delete $INSTDIR\pyexiv2-0.2-uninstaller.exe
   Delete $INSTDIR\libexiv2python.py*
   RMDir /r $INSTDIR\pyexiv2
+
+  StrCpy $key "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-0.2"
+  DeleteRegKey HKLM $key
+
+  Delete $INSTDIR\pyexiv2-0.2-uninstaller.exe
 SectionEnd
 
