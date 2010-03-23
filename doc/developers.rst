@@ -96,6 +96,15 @@ the system-wide site directory of a Python 2.6 setup
 (typically ``C:\Python26\Lib\site-packages\``) or to the user site directory
 (``%APPDATA%\Python\Python26\site-packages\``).
 
+The top-level directory of the branch also contains an
+`NSIS <http://nsis.sourceforge.net/>`_ installer script named
+``win32-installer.nsi``.
+From the top-level directory of the branch, run the following command::
+
+  makensis win32-installer.nsi
+
+This will generate a ready-to-distribute installer executable named
+``pyexiv2-0.2-setup.exe``.
 
 Documentation
 #############
