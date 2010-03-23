@@ -48,6 +48,18 @@ A typical list of packages to install on a Debian/Ubuntu system is::
 
   python-all-dev libboost-python-dev libexiv2-dev scons
 
+Additionally, if you want to cross-compile pyexiv2 for Windows and generate a
+Windows installer, you will need the following dependencies:
+
+* `MinGW <http://www.mingw.org/>`_
+* `7-Zip <http://7-zip.org/>`_
+* `BJam <http://boost.org/boost-build2/doc/html/index.html>`_
+* `NSIS <http://nsis.sourceforge.net/>`_
+
+A typical list of packages to install on a Debian/Ubuntu system is::
+
+  mingw32 p7zip-full bjam nsis
+
 Building and installing
 #######################
 
@@ -96,9 +108,8 @@ the system-wide site directory of a Python 2.6 setup
 (typically ``C:\Python26\Lib\site-packages\``) or to the user site directory
 (``%APPDATA%\Python\Python26\site-packages\``).
 
-The top-level directory of the branch also contains an
-`NSIS <http://nsis.sourceforge.net/>`_ installer script named
-``win32-installer.nsi``.
+The top-level directory of the branch also contains an NSIS installer script
+named ``win32-installer.nsi``.
 From the top-level directory of the branch, run the following command::
 
   makensis win32-installer.nsi
