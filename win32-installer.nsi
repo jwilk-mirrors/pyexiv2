@@ -53,7 +53,7 @@ Function .onInit
   ; Look for Python system-wide (HKLM)
   SetShellVarContext all
   ReadRegStr $python_install_path SHCTX ${PYTHON_KEY} ""
-  StrCmp $python_install_path "" 0 Continue
+  StrCmp $python_install_path "" 0 ContinueSystemWide
 
   ; Look for Python for the current user (HKCU)
   SetShellVarContext current
@@ -62,6 +62,16 @@ Function .onInit
 
   MessageBox MB_OK|MB_ICONSTOP "Unable to locate Python ${PYTHON_MAJOR}.${PYTHON_MINOR}."
   Quit
+
+  ContinueSystemWide:
+    ; Python was installed for all users
+    ; The user needs to be an admin to install pyexiv2
+    userInfo::getAccountType
+    pop $0
+    StrCmp $0 "Admin" Continue 0
+
+    MessageBox MB_OK|MB_ICONSTOP "You need to be an administrator to install $(^Name)."
+    Quit
 
   Continue:
     StrCpy $system_wide "$python_install_pathLib\site-packages"
