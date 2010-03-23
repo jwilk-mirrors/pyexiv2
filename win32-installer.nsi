@@ -4,8 +4,10 @@
 !include nsDialogs.nsh
 !include LogicLib.nsh
 
-Name "pyexiv2 0.2"
-OutFile "pyexiv2-0.2-setup.exe"
+!define PYEXIV2_VERSION "0.2"
+
+Name "pyexiv2 ${PYEXIV2_VERSION}"
+OutFile "pyexiv2-${PYEXIV2_VERSION}-setup.exe"
 SetCompressor /SOLID lzma
 
 !define MUI_ICON "art\pyexiv2.ico"
@@ -23,7 +25,7 @@ Page custom InstallationOptions InstallationOptionsLeave
 !define PYTHON_MAJOR "2"
 !define PYTHON_MINOR "6"
 !define PYTHON_KEY "Software\Python\PythonCore\${PYTHON_MAJOR}.${PYTHON_MINOR}\InstallPath"
-!define PYEXIV2_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-0.2"
+!define PYEXIV2_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-${PYEXIV2_VERSION}"
 
 Var python_install_path
 Var system_wide
@@ -104,12 +106,12 @@ Section "pyexiv2"
   File src\pyexiv2\xmp.py
   File src\pyexiv2\utils.py
 
-  WriteUninstaller $INSTDIR\pyexiv2-0.2-uninstaller.exe
-  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayName" "pyexiv2 0.2"
-  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayVersion" "0.2"
-  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayIcon" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
+  WriteUninstaller $INSTDIR\pyexiv2-${PYEXIV2_VERSION}-uninstaller.exe
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayName" "pyexiv2 ${PYEXIV2_VERSION}"
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayVersion" ${PYEXIV2_VERSION}
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayIcon" "$INSTDIR\pyexiv2-${PYEXIV2_VERSION}-uninstaller.exe"
   WriteRegStr SHCTX ${PYEXIV2_KEY} "InstallLocation" $INSTDIR
-  WriteRegStr SHCTX ${PYEXIV2_KEY} "UninstallString" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "UninstallString" "$INSTDIR\pyexiv2-${PYEXIV2_VERSION}-uninstaller.exe"
   WriteRegDWORD SHCTX ${PYEXIV2_KEY} "NoModify" 1
   WriteRegDWORD SHCTX ${PYEXIV2_KEY} "NoRepair" 1
 SectionEnd
@@ -120,6 +122,6 @@ Section "Uninstall"
 
   DeleteRegKey SHCTX ${PYEXIV2_KEY}
 
-  Delete $INSTDIR\pyexiv2-0.2-uninstaller.exe
+  Delete $INSTDIR\pyexiv2-${PYEXIV2_VERSION}-uninstaller.exe
 SectionEnd
 
