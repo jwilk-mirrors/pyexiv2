@@ -20,7 +20,9 @@ Page custom InstallationOptions InstallationOptionsLeave
 
 !insertmacro MUI_LANGUAGE "English"
 
-!define PYTHON_KEY "Software\Python\PythonCore\2.6\InstallPath"
+!define PYTHON_MAJOR "2"
+!define PYTHON_MINOR "6"
+!define PYTHON_KEY "Software\Python\PythonCore\${PYTHON_MAJOR}.${PYTHON_MINOR}\InstallPath"
 !define PYEXIV2_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-0.2"
 
 Var python_install_path
@@ -36,12 +38,12 @@ Function .onInit
   ReadRegStr $python_install_path SHCTX ${PYTHON_KEY} ""
   StrCmp $python_install_path "" 0 Continue
 
-  MessageBox MB_OK|MB_ICONSTOP "Unable to locate Python 2.6."
+  MessageBox MB_OK|MB_ICONSTOP "Unable to locate Python ${PYTHON_MAJOR}.${PYTHON_MINOR}."
   Quit
 
   Continue:
     StrCpy $system_wide "$python_install_pathLib\site-packages"
-    StrCpy $user_site "$APPDATA\Python\Python26\site-packages"
+    StrCpy $user_site "$APPDATA\Python\Python${PYTHON_MAJOR}${PYTHON_MINOR}\site-packages"
 FunctionEnd
 
 Function un.onInit
