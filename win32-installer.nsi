@@ -20,22 +20,43 @@ Page custom InstallationOptions InstallationOptionsLeave
 
 !insertmacro MUI_LANGUAGE "English"
 
+!define PYTHON_KEY "Software\Python\PythonCore\2.6\InstallPath"
 !define PYEXIV2_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-0.2"
 
+Var python_install_path
 Var system_wide
 Var user_site
 
 Function .onInit
-  Var /GLOBAL python_install_path
-  ReadRegStr $python_install_path HKLM Software\Python\PythonCore\2.6\InstallPath ""
+  SetShellVarContext all
+  ReadRegStr $python_install_path SHCTX ${PYTHON_KEY} ""
   StrCmp $python_install_path "" 0 Continue
-  ReadRegStr $python_install_path HKCU Software\Python\PythonCore\2.6\InstallPath ""
+
+  SetShellVarContext current
+  ReadRegStr $python_install_path SHCTX ${PYTHON_KEY} ""
   StrCmp $python_install_path "" 0 Continue
+
   MessageBox MB_OK|MB_ICONSTOP "Unable to locate Python 2.6."
   Quit
+
   Continue:
     StrCpy $system_wide "$python_install_pathLib\site-packages"
     StrCpy $user_site "$APPDATA\Python\Python26\site-packages"
+FunctionEnd
+
+Function un.onInit
+  SetShellVarContext all
+  ReadRegStr $INSTDIR SHCTX ${PYEXIV2_KEY} "InstallLocation"
+  StrCmp $INSTDIR "" 0 Continue
+
+  SetShellVarContext current
+  ReadRegStr $INSTDIR SHCTX ${PYEXIV2_KEY} "InstallLocation"
+  StrCmp $INSTDIR "" 0 Continue
+
+  MessageBox MB_OK|MB_ICONSTOP "Unable to locate $(^Name)."
+  Quit
+
+  Continue:
 FunctionEnd
 
 Function InstallationOptions
@@ -82,19 +103,20 @@ Section "pyexiv2"
   File src\pyexiv2\utils.py
 
   WriteUninstaller $INSTDIR\pyexiv2-0.2-uninstaller.exe
-  WriteRegStr HKLM ${PYEXIV2_KEY} "DisplayName" "pyexiv2 0.2"
-  WriteRegStr HKLM ${PYEXIV2_KEY} "DisplayVersion" "0.2"
-  WriteRegStr HKLM ${PYEXIV2_KEY} "DisplayIcon" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
-  WriteRegStr HKLM ${PYEXIV2_KEY} "UninstallString" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
-  WriteRegDWORD HKLM ${PYEXIV2_KEY} "NoModify" 1
-  WriteRegDWORD HKLM ${PYEXIV2_KEY} "NoRepair" 1
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayName" "pyexiv2 0.2"
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayVersion" "0.2"
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayIcon" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "InstallLocation" $INSTDIR
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "UninstallString" "$INSTDIR\pyexiv2-0.2-uninstaller.exe"
+  WriteRegDWORD SHCTX ${PYEXIV2_KEY} "NoModify" 1
+  WriteRegDWORD SHCTX ${PYEXIV2_KEY} "NoRepair" 1
 SectionEnd
 
 Section "Uninstall"
   Delete $INSTDIR\libexiv2python.py*
   RMDir /r $INSTDIR\pyexiv2
 
-  DeleteRegKey HKLM ${PYEXIV2_KEY}
+  DeleteRegKey SHCTX ${PYEXIV2_KEY}
 
   Delete $INSTDIR\pyexiv2-0.2-uninstaller.exe
 SectionEnd
