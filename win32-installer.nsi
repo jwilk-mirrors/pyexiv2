@@ -106,12 +106,14 @@ Section "pyexiv2"
   File src\pyexiv2\xmp.py
   File src\pyexiv2\utils.py
 
-  WriteUninstaller $INSTDIR\pyexiv2-${PYEXIV2_VERSION}-uninstaller.exe
+  !define UNINSTALLER "$INSTDIR\pyexiv2-${PYEXIV2_VERSION}-uninstaller.exe"
+  WriteUninstaller ${UNINSTALLER}
   WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayName" "pyexiv2 ${PYEXIV2_VERSION}"
   WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayVersion" ${PYEXIV2_VERSION}
-  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayIcon" "$INSTDIR\pyexiv2-${PYEXIV2_VERSION}-uninstaller.exe"
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayIcon" "$\"${UNINSTALLER}$\""
   WriteRegStr SHCTX ${PYEXIV2_KEY} "InstallLocation" $INSTDIR
-  WriteRegStr SHCTX ${PYEXIV2_KEY} "UninstallString" "$INSTDIR\pyexiv2-${PYEXIV2_VERSION}-uninstaller.exe"
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "UninstallString" "$\"${UNINSTALLER}$\""
+  WriteRegStr SHCTX ${PYEXIV2_KEY} "QuietUninstallString" "$\"${UNINSTALLER}$\" /S"
   WriteRegDWORD SHCTX ${PYEXIV2_KEY} "NoModify" 1
   WriteRegDWORD SHCTX ${PYEXIV2_KEY} "NoRepair" 1
 SectionEnd
