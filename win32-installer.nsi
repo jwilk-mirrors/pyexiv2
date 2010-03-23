@@ -13,10 +13,12 @@ SetCompressor /SOLID lzma
 !define MUI_ICON "art\pyexiv2.ico"
 !define MUI_UNICON "art\pyexiv2.ico"
 
+; Installer pages
 !insertmacro MUI_PAGE_LICENSE "COPYING"
 Page custom InstallationOptions InstallationOptionsLeave
 !insertmacro MUI_PAGE_INSTFILES
 
+; Uninstaller pages
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 
@@ -31,11 +33,14 @@ Var python_install_path
 Var system_wide
 Var user_site
 
+; Function called when finishing initialization of the installer
 Function .onInit
+  ; Look for Python system-wide (HKLM)
   SetShellVarContext all
   ReadRegStr $python_install_path SHCTX ${PYTHON_KEY} ""
   StrCmp $python_install_path "" 0 Continue
 
+  ; Look for Python for the current user (HKCU)
   SetShellVarContext current
   ReadRegStr $python_install_path SHCTX ${PYTHON_KEY} ""
   StrCmp $python_install_path "" 0 Continue
@@ -48,21 +53,26 @@ Function .onInit
     StrCpy $user_site "$APPDATA\Python\Python${PYTHON_MAJOR}${PYTHON_MINOR}\site-packages"
 FunctionEnd
 
+; Function called when finishing initialization of the uninstaller
 Function un.onInit
+  ; Look for pyexiv2 installed system-wide (HKLM)
   SetShellVarContext all
   ReadRegStr $INSTDIR SHCTX ${PYEXIV2_KEY} "InstallLocation"
   StrCmp $INSTDIR "" 0 Continue
 
+  ; Look for pyexiv2 installed for the current user (HKCU)
   SetShellVarContext current
   ReadRegStr $INSTDIR SHCTX ${PYEXIV2_KEY} "InstallLocation"
   StrCmp $INSTDIR "" 0 Continue
 
+  ; Cannot find pyexiv2 in the registry, aborting the uninstallation
   MessageBox MB_OK|MB_ICONSTOP "Unable to locate $(^Name)."
   Quit
 
   Continue:
 FunctionEnd
 
+; Custom page initialization for installation options
 Function InstallationOptions
   !insertmacro MUI_HEADER_TEXT "Installation options" "Choose where to install pyexiv2."
 
@@ -85,15 +95,19 @@ Function InstallationOptions
   nsDialogs::Show
 FunctionEnd
 
+; Custom page on-leave callback
 Function InstallationOptionsLeave
   ${NSD_GetState} $rb1 $0
   ${If} $0 == ${BST_CHECKED}
+    ; Install pyexiv2 system wide
     StrCpy $INSTDIR $system_wide
   ${Else}
+    ; Install pyexiv2 in the user site directory
     StrCpy $INSTDIR $user_site
   ${EndIf}
 FunctionEnd
 
+; Installation section
 Section "pyexiv2"
   SetOutPath $INSTDIR
   File build\libexiv2python.pyd
@@ -106,6 +120,7 @@ Section "pyexiv2"
   File src\pyexiv2\xmp.py
   File src\pyexiv2\utils.py
 
+  ; Create the uninstaller and publish it in the registry
   !define UNINSTALLER "$INSTDIR\pyexiv2-${PYEXIV2_VERSION}-uninstaller.exe"
   WriteUninstaller ${UNINSTALLER}
   WriteRegStr SHCTX ${PYEXIV2_KEY} "DisplayName" "pyexiv2 ${PYEXIV2_VERSION}"
@@ -118,6 +133,7 @@ Section "pyexiv2"
   WriteRegDWORD SHCTX ${PYEXIV2_KEY} "NoRepair" 1
 SectionEnd
 
+; Uninstallation section
 Section "Uninstall"
   Delete $INSTDIR\libexiv2python.py*
   RMDir /r $INSTDIR\pyexiv2
