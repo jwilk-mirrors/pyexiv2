@@ -1,6 +1,8 @@
 ; NSIS installer script for pyexiv2 0.2.
 
 !include MUI.nsh
+!include nsDialogs.nsh
+!include LogicLib.nsh
 
 Name "pyexiv2 0.2"
 OutFile "pyexiv2-0.2-setup.exe"
@@ -9,12 +11,9 @@ SetCompressor /SOLID lzma
 !define MUI_ICON "art\pyexiv2.ico"
 !define MUI_UNICON "art\pyexiv2.ico"
 
-;!insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "COPYING"
-; Need for a custom page here to choose wether to install for all users or only
-; for the current user ($APPDATA\Python\Python26\site-packages)
+Page custom InstallationOptions InstallationOptionsLeave
 !insertmacro MUI_PAGE_INSTFILES
-;!insertmacro MUI_PAGE_FINISH
 
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
@@ -22,6 +21,9 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_LANGUAGE "English"
 
 !define PYEXIV2_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-0.2"
+
+Var system_wide
+Var user_site
 
 Function .onInit
   Var /GLOBAL python_install_path
@@ -32,7 +34,39 @@ Function .onInit
   MessageBox MB_OK|MB_ICONSTOP "Unable to locate Python 2.6."
   Quit
   Continue:
-    StrCpy $INSTDIR "$python_install_path\Lib\site-packages"
+    StrCpy $system_wide "$python_install_pathLib\site-packages"
+    StrCpy $user_site "$APPDATA\Python\Python26\site-packages"
+FunctionEnd
+
+Function InstallationOptions
+  !insertmacro MUI_HEADER_TEXT "Installation options" "Choose where to install pyexiv2."
+
+  nsDialogs::Create 1018
+  Var /GLOBAL dialog
+  Pop $dialog
+  ${If} $dialog == error
+    Abort
+  ${EndIf}
+
+  ${NSD_CreateRadioButton} 0 0 100% 24u "System wide ($system_wide)"
+  Var /GLOBAL rb1
+  Pop $rb1
+  ${NSD_SetState} $rb1 ${BST_CHECKED}
+
+  ${NSD_CreateRadioButton} 0 34 100% 24u "User site ($user_site)"
+  Var /GLOBAL rb2
+  Pop $rb2
+
+  nsDialogs::Show
+FunctionEnd
+
+Function InstallationOptionsLeave
+  ${NSD_GetState} $rb1 $0
+  ${If} $0 == ${BST_CHECKED}
+    StrCpy $INSTDIR $system_wide
+  ${Else}
+    StrCpy $INSTDIR $user_site
+  ${EndIf}
 FunctionEnd
 
 Section "pyexiv2"
