@@ -1,0 +1,85 @@
+pyexiv2 0.1.3 - 2009-03-14
+--------------------------
+
+Dependencies:
+
+- Python 2.5
+- libexiv2 0.18
+- boost.python 1.34.1
+
+Changes:
+
+- Adapted the thumbnail related methods (getThumbnailData, setThumbnailData,
+  deleteThumbnail, dumpThumbnailToFile, setThumbnailFromJpegFile) to the new
+  API of libexiv2 0.18.
+- Removed the unused __main__ from pyexiv2.py.
+
+
+pyexiv2 0.1.2 - 2008-02-09
+--------------------------
+
+Dependencies:
+
+- Python 2.5.1
+- libexiv2 0.15
+- boost.python 1.34.1
+
+Changes:
+
+- Fixed bug #177249: pyexiv2 should install in site-packages? (reported by
+  Chris Mayo).
+- Implemented feature request tracked by bug #175069: Retrieve/set the JPEG
+  comment (feature requested by manatlan).
+- Really fixed bug #146313: passing the filename to the Image constructor as
+  unicode fails (reported by Michal Čihař).
+- Fixed bug #173387: Error reading Exif.Photo.UserComment (reported by
+  vincespicer).
+- Fixed bug #175070: Deleting a tag not previously accessed raises a KeyError
+  exception (reported by manatlan).
+- Fixed bug #183618: Exif.GPSInfo.{GPSLongitude,Latitude} are not decoded
+  (reported by dr who).
+- Added a method to copy all EXIF and IPTC metadata and the comment from one
+  image to another one (patch submitted by vincespicer).
+- Added a rational number type (class pyexiv2.Rational) to handle rational
+  values stored in EXIF tags.
+- Fixed a bug that prevented from setting an EXIF tag with multiple values.
+- Added some unit tests to test various basic functionalities and bug fixes.
+- Fixed bug #183332: Cached metadata is not converted to its correct type
+  (reported by Christopher Ellison).
+
+
+pyexiv2 0.1.1 - 2007-10-14
+--------------------------
+
+Dependencies:
+
+- Python 2.5.1
+- libexiv2 0.12
+- boost.python 1.33.1
+
+Changes:
+
+- Fixed a bug due to interface changes for exceptions management in
+  libexiv2 0.13 (reported by Damon Lynch).
+- Added support for DESTDIR in SConscript for installation (feature
+  requested by Michal Čihař).
+- Fixed bug #146313: passing the filename to the Image constructor as
+  unicode fails (reported by Michal Čihař).
+- Fixed bug #146323: Multi value fields are broken (reported by Michal Čihař).
+- Implemented feature request tracked by bug #147534: Provide access to
+  interpreted (translated) data (feature requested by Michal Čihař).
+- Implemented feature request tracked by bug #149212: Add access to tag labels
+  (feature requested by Michal Čihař).
+
+
+pyexiv2 0.1 - 2007-08-30
+------------------------
+
+Dependencies:
+
+- Python 2.5.1
+- libexiv2 0.12
+- boost.python 1.33.1
+
+This is the initial release of pyexiv2.
+
