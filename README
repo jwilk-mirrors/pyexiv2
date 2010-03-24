@@ -1,8 +1,11 @@
 pyexiv2
 *******
 
-Welcome to pyexiv2, a Python binding to the excellent C++ library Exiv2
-(http://www.exiv2.org/).
+Welcome to pyexiv2, a python binding to exiv2 (http://exiv2.org/), the C++
+library for manipulation of EXIF, IPTC and XMP image metadata.
+It is a python module that allows your python scripts to read and write
+metadata (EXIF, IPTC, XMP, thumbnails) embedded in image files
+(JPEG, TIFF, ...).
 
 Point your browser to http://exiv2.org/metadata.html for the complete metadata
 tag reference.
@@ -24,10 +27,10 @@ those are optional dependencies.
 
 This is a typical list of build dependencies for a Debian/Ubuntu system:
 
- * python-all-dev
+ * python-all-dev (≥ 2.5)
  * scons
- * libexiv2-dev (>= 0.18)
- * libboost-python-dev
+ * libexiv2-dev (≥ 0.19)
+ * libboost-python-dev (≥ 1.35)
 
 
 Building and installing
@@ -58,15 +61,11 @@ In a python interpreter, type:
  >>> import pyexiv2
  >>> help(pyexiv2)
 
-Alternatively, you can generate HTML documentation using python's built-in
-module, pydoc:
+Alternatively, you can generate HTML documentation using sphinx:
 
- $ cd doc/
- $ pydoc -w ../src/pyexiv2/*.py
+ $ scons doc
 
-Or using the more complete tool epydoc (http://epydoc.sourceforge.net/):
-
- $ epydoc --html -o doc src/pyexiv2/*.py
+The generated documentation can be found in doc/_build/.
 
 
 License
@@ -92,7 +91,7 @@ Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
 Developers
 ==========
 
-pyexiv2 is free software, meaning that you are encouraged to play with it,
+pyexiv2 is Free Software, meaning that you are encouraged to play with it,
 modify it to suit your needs and contribute back your changes and bug fixes.
 
 The bug tracking system and the main bazaar branch are hosted at Launchpad:
@@ -100,7 +99,7 @@ The bug tracking system and the main bazaar branch are hosted at Launchpad:
  https://launchpad.net/pyexiv2
 
 To get a working copy of the latest version of the code, you need to have bazaar
-(http://bazaar-vcs.org/) installed:
+(http://bazaar.canonical.com/) installed:
 
  $ bzr branch lp:pyexiv2
 
