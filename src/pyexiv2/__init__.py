@@ -27,14 +27,14 @@
 """
 Manipulation of EXIF, IPTC and XMP metadata and thumbnails embedded in images.
 
-The L{ImageMetadata} class provides read/write access to all the metadata and
+The ImageMetadata class provides read/write access to all the metadata and
 the various thumbnails embedded in an image file such as JPEG and TIFF files.
 
-Metadata is accessed through tag classes (L{ExifTag}, L{IptcTag}, L{XmpTag})
+Metadata is accessed through tag classes (ExifTag, IptcTag, XmpTag)
 and the tag values are conveniently wrapped in python objects.
 For example, a tag containing a date/time information for the image
-(e.g. C{Exif.Photo.DateTimeOriginal}) will be represented by a python
-C{datetime.datetime} object.
+(e.g. Exif.Photo.DateTimeOriginal) will be represented by a python
+datetime.datetime object.
 
 This module is a python layer on top of the low-level python binding of the
 C++ library Exiv2, libexiv2python.
