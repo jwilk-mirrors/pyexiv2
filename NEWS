@@ -1,3 +1,65 @@
+pyexiv2 0.2.0 "Commuting" - 2010-03-25
+--------------------------------------
+
+Dependencies:
+
+- Python ≥ 2.5
+- libexiv2 ≥ 0.19
+- boost.python ≥ 1.38
+
+Changes:
+
+- Almost complete, not backward compatible, rewrite of the 0.1 branch
+- Support reading and writing XMP metadata
+- Support reading images from stream
+- The API is fully documented, the documentation also includes a tutorial and
+  detailed instructions for developers
+- Compiled and tested on Linux and Windows
+- The code is now reasonably covered by a battery of unit tests
+
+Bugs fixed:
+
+- 183337: Support of XMP metadata
+- 332419: pyexiv2 can not open files with accents in filename on windows
+- 343403: writing iptc field raises exception oldValues has no len() and/or
+  newValues not iterable
+- 363873: Pb setting IPTC Tags
+- 369640: Thumbnail images from a variety of RAW images cannot be extracted
+- 372321: GIL remains locked during metadata writes
+- 389960: Can't write geotag data
+- 392767: Error writing metadata after copying all from another image
+- 421984: Iptc Keywords and SuppCat should always be tuples
+- 503272: Doesn't compile against libexiv2 >= 0.19
+- 510392: Adding values to a repeatable IPTC tag segfaults
+- 514590: Longitude should accept 0 to 180 degrees
+- 517536: pyexiv2 module is not installed
+- 522216: Inserting a new tag doesn't update the list of keys
+- 523858: Build fails on Ubuntu Karmic (and others)
+- 183618: Exif.GPSInfo.{GPSLongitude,Latitude} are not decoded
+- 249835: pyexiv2 build ignores environmental variables for compilation
+- 256875: Unable to add/modify multiple value short tags
+- 401684: Support per-user site-packages
+- 401876: Exif.CanonCs.LensType not interpreted
+- 411730: lib is currently hardcoded in src/SConscript
+- 461853: feature request : version information in code
+- 510393: Setting an XMP seq to the empty list segfaults
+- 514408: segfault when reading a nonexistent file
+- 517298: Port ReadMetadataTestCase to 0.2
+- 519566: Segmentation Fault when tried to read metadata from a non-image file
+- 521404: pygtk example does not quit after closing window
+- 379270: pyexiv2 access to pixelWidth and pixelHeight accessors?
+- 518732: Add support for loading image streams
+- 401784: Reimplement copyMetadataTo in cpp
+
+Contributors:
+
+- Damien Moore
+- Mark Lee
+- Olivier Tilloy
+- Rob Wallace
+- Xoff
+
+
 pyexiv2 0.1.3 - 2009-03-14
 --------------------------
 
