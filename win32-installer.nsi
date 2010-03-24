@@ -45,37 +45,33 @@ Page custom InstallationOptions InstallationOptionsLeave
 !define PYEXIV2_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-${PYEXIV2_VERSION}"
 
 Var python_install_path
+Var python_installed_for_all
 Var system_wide
 Var user_site
 
 ; Function called when finishing initialization of the installer
 Function .onInit
+  ; The user site directory is always for the current user only, not for all users
+  SetShellVarContext current
+  StrCpy $user_site "$APPDATA\Python\Python${PYTHON_MAJOR}${PYTHON_MINOR}\site-packages"
+
   ; Look for Python system-wide (HKLM)
   SetShellVarContext all
+  StrCpy $python_installed_for_all "true"
   ReadRegStr $python_install_path SHCTX ${PYTHON_KEY} ""
-  StrCmp $python_install_path "" 0 ContinueSystemWide
+  StrCmp $python_install_path "" 0 Continue
 
   ; Look for Python for the current user (HKCU)
   SetShellVarContext current
+  StrCpy $python_installed_for_all "false"
   ReadRegStr $python_install_path SHCTX ${PYTHON_KEY} ""
   StrCmp $python_install_path "" 0 Continue
 
   MessageBox MB_OK|MB_ICONSTOP "Unable to locate Python ${PYTHON_MAJOR}.${PYTHON_MINOR}."
   Quit
 
-  ContinueSystemWide:
-    ; Python was installed for all users
-    ; The user needs to be an admin to install pyexiv2
-    userInfo::getAccountType
-    pop $0
-    StrCmp $0 "Admin" Continue 0
-
-    MessageBox MB_OK|MB_ICONSTOP "You need to be an administrator to install $(^Name)."
-    Quit
-
   Continue:
     StrCpy $system_wide "$python_install_pathLib\site-packages"
-    StrCpy $user_site "$APPDATA\Python\Python${PYTHON_MAJOR}${PYTHON_MINOR}\site-packages"
 FunctionEnd
 
 ; Function called when finishing initialization of the uninstaller
@@ -126,9 +122,22 @@ Function InstallationOptionsLeave
   ${If} $0 == ${BST_CHECKED}
     ; Install pyexiv2 system wide
     StrCpy $INSTDIR $system_wide
+
+    ; If Python was installed for all users, the user needs to be an
+    ; administrator to install pyexiv2
+    StrCmp $python_installed_for_all "true" 0 Continue
+    userInfo::getAccountType
+    pop $0
+    StrCmp $0 "Admin" Continue 0
+
+    MessageBox MB_OK|MB_ICONSTOP "You need to be an administrator to install $(^Name)."
+    Quit
+
+    Continue:
   ${Else}
     ; Install pyexiv2 in the user site directory
     StrCpy $INSTDIR $user_site
+    SetShellVarContext current
   ${EndIf}
 FunctionEnd
 
