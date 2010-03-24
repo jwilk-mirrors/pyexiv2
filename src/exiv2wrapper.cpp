@@ -41,7 +41,7 @@
 namespace exiv2wrapper
 {
 
-void Image::_instantiate_image()
+void Image::_instantiate_image(Exiv2::byte* data, long size)
 {
     // If an exception is thrown, it has to be done outside of the
     // Py_{BEGIN,END}_ALLOW_THREADS block.
@@ -53,7 +53,14 @@ void Image::_instantiate_image()
 
     try
     {
-        _image = Exiv2::ImageFactory::open(_filename);
+        if (data != 0)
+        {
+            _image = Exiv2::ImageFactory::open(data, size);
+        }
+        else
+        {
+            _image = Exiv2::ImageFactory::open(_filename);
+        }
     }
     catch (Exiv2::Error& err)
     {
@@ -79,6 +86,19 @@ Image::Image(const std::string& filename)
 {
     _filename = filename;
     _instantiate_image();
+}
+
+// From buffer constructor
+Image::Image(const std::string& buffer, long size)
+{
+    // Deep copy of the data buffer
+    Exiv2::byte* data = new Exiv2::byte[size];
+    for (unsigned long i = 0; i < size; ++i)
+    {
+        data[i] = buffer[i];
+    }
+
+    _instantiate_image(data, size);
 }
 
 // Copy constructor
@@ -462,6 +482,60 @@ void Image::copyMetadata(Image& other, bool exif, bool iptc, bool xmp) const
         other._iptcData = _iptcData;
     if (xmp)
         other._xmpData = _xmpData;
+}
+
+std::string Image::getDataBuffer() const
+{
+    std::string buffer;
+
+    // Release the GIL to allow other python threads to run
+    // while reading the image data.
+    Py_BEGIN_ALLOW_THREADS
+
+    Exiv2::BasicIo& io = _image->io();
+    long size = io.size();
+    long pos = -1;
+
+    if (io.isopen())
+    {
+        // Remember the current position in the stream
+        pos = io.tell();
+        // Go to the beginning of the stream
+        io.seek(0, Exiv2::BasicIo::beg);
+    }
+    else
+    {
+        io.open();
+    }
+
+    // Copy the data buffer in a string. Since the data buffer can contain null
+    // characters ('\x00'), the string cannot be simply constructed like that:
+    //     _data = std::string((char*) previewImage.pData());
+    // because it would be truncated after the first occurence of a null
+    // character. Therefore, it has to be copied character by character.
+    // First allocate the memory for the whole string...
+    buffer.resize(size, ' ');
+    // ... then fill it with the raw data.
+    for (unsigned long i = 0; i < size; ++i)
+    {
+        io.read((Exiv2::byte*) &buffer[i], 1);
+    }
+
+    if (pos == -1)
+    {
+        // The stream was initially closed
+        io.close();
+    }
+    else
+    {
+        // Reset to the initial position in the stream
+        io.seek(pos, Exiv2::BasicIo::beg);
+    }
+
+    // Re-acquire the GIL
+    Py_END_ALLOW_THREADS
+
+    return buffer;
 }
 
 

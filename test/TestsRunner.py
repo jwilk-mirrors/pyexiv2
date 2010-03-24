@@ -36,6 +36,7 @@ from exif import TestExifTag
 from iptc import TestIptcTag
 from xmp import TestXmpTag
 from metadata import TestImageMetadata
+from buffer import TestBuffer
 from encoding import TestEncodings
 
 
@@ -50,6 +51,7 @@ if __name__ == '__main__':
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIptcTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestImageMetadata))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestBuffer))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestEncodings))
     # Run the test suite
     unittest.TextTestRunner(verbosity=2).run(suite)

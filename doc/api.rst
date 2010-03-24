@@ -15,8 +15,9 @@ pyexiv2.metadata
 
 .. module:: pyexiv2.metadata
 .. autoclass:: ImageMetadata
-   :members: read, write, dimensions, mime_type, exif_keys, iptc_keys,
-             xmp_keys, __getitem__, __setitem__, __delitem__, previews, copy
+   :members: from_buffer, read, write, dimensions, mime_type, exif_keys,
+             iptc_keys, xmp_keys, __getitem__, __setitem__, __delitem__,
+             previews, copy, buffer
 
 pyexiv2.exif
 ############

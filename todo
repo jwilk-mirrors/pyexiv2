@@ -1,6 +1,5 @@
 todo list
 
-- The constructor of the Image class should accept a filename OR a buffered stream
 - Unit test the C++ wrapper (in python, if possible)
 - Use logging to log, among other things, decoding and type conversion errors
 - Tag getters/setters should support unicode strings as well as regular strings (see bug #146313).

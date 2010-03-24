@@ -151,6 +151,7 @@ class Image
 public:
     // Constructors
     Image(const std::string& filename);
+    Image(const std::string& buffer, long size);
     Image(const Image& image);
 
     void readMetadata();
@@ -224,6 +225,9 @@ public:
     // Copy the metadata to another image.
     void copyMetadata(Image& other, bool exif=true, bool iptc=true, bool xmp=true) const;
 
+    // Return the image data buffer.
+    std::string getDataBuffer() const;
+
 private:
     std::string _filename;
     Exiv2::Image::AutoPtr _image;
@@ -235,7 +239,7 @@ private:
     // false otherwise
     bool _dataRead;
 
-    void _instantiate_image();
+    void _instantiate_image(Exiv2::byte* data=0, long size=0);
 };
 
 

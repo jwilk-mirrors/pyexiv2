@@ -55,7 +55,9 @@ class ImageMetadata(object):
         :param filename: path to an image file
         :type filename: string
         """
-        self.filename = filename.encode(sys.getfilesystemencoding())
+        self.filename = filename
+        if filename is not None:
+            self.filename = filename.encode(sys.getfilesystemencoding())
         self._image = None
         self._keys = {'exif': None, 'iptc': None, 'xmp': None}
         self._tags = {'exif': {}, 'iptc': {}, 'xmp': {}}
@@ -67,9 +69,21 @@ class ImageMetadata(object):
             raise IOError(ENOENT, "%s: '%s'" % (os.strerror(ENOENT), filename))
         return libexiv2python._Image(filename)
 
+    @classmethod
+    def from_buffer(cls, buffer):
+        """
+        Instantiate an image container from an image buffer.
+
+        :param buffer: a buffer containing image data
+        :type buffer: string
+        """
+        obj = cls(None)
+        obj._image = libexiv2python._Image(buffer, len(buffer))
+        return obj
+
     def read(self):
         """
-        Read the metadata embedded in the associated image file.
+        Read the metadata embedded in the associated image.
         It is necessary to call this method once before attempting to access
         the metadata (an exception will be raised if trying to access metadata
         before calling this method).
@@ -80,7 +94,7 @@ class ImageMetadata(object):
 
     def write(self):
         """
-        Write the metadata back to the image file.
+        Write the metadata back to the image.
         """
         self._image._writeMetadata()
 
@@ -373,4 +387,13 @@ class ImageMetadata(object):
         if xmp:
             other._keys['xmp'] = None
             other._tags['xmp'] = {}
+
+    @property
+    def buffer(self):
+        """
+        The image buffer as a string.
+        If metadata has been modified, the data won't be up-to-date until
+        :meth:`.write` has been called.
+        """
+        return self._image._getDataBuffer()
 
