@@ -20,7 +20,7 @@
 # pyexiv2 for windows on a linux host.
 #
 # Typical dependencies (of this script) on an Ubuntu system:
-#  wget unzip tar build-essential mingw32 p7zip-full bjam bzr
+#  wget unzip tar build-essential mingw32 p7zip-full bjam
 #
 # After execution is complete, copy the following file and folder to the
 # site-packages directory of a Python 2.6 windows setup:
@@ -29,6 +29,11 @@
 #
 ###############################################################################
 
+# Determine the absolute path of the pyexiv2 branch
+# (this is where this script is located)
+cd $(dirname $0) && BRANCH="$PWD" && cd -
+
+# Where to retrieve and compile dependencies
 BASE=$HOME/dev/win32
 mkdir -p $BASE
 cd $BASE
@@ -80,9 +85,7 @@ bjam install -j 3 --prefix=$BASE/boost --with-python toolset=gcc link=static
 cd ..
 
 # pyexiv2
-bzr branch lp:pyexiv2
-cd pyexiv2
+cd $BRANCH
 mkdir build
 $COMPILER -o build/libexiv2python.pyd -DBOOST_PYTHON_STATIC_LIB -shared src/exiv2wrapper.cpp src/exiv2wrapper_python.cpp $BASE/exiv2/lib/libexiv2.a $BASE/zlib/lib/libz.a $BASE/libiconv/lib/libiconv.a $BASE/expat/lib/libexpat.a $BASE/boost/lib/libboost_python.a -I$BASE/exiv2/include -I$BASE/python -I$BASE/boost/include -L$BASE/python -lpython26
-cd ..
 
