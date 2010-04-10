@@ -21,7 +21,7 @@
 # Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
 #
 # Authors: Olivier Tilloy <olivier@tilloy.net>
-#          Mark Lee <marklee@malept.com>
+#          Mark Lee <pyexiv2@lazymalevolence.com>
 #
 # ******************************************************************************
 
