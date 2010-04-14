@@ -3,6 +3,13 @@
 import os
 import sys
 
+def _fiddle_with_pythonpath():
+    # Fiddle with the pythonpath to allow builders to locate pyexiv2
+    # (see https://bugs.launchpad.net/pyexiv2/+bug/549398).
+    curdir = os.path.abspath(os.curdir)
+    sys.path.insert(0, os.path.join(curdir, 'build'))
+    sys.path.insert(0, os.path.join(curdir, 'src'))
+
 def build_lib():
     try:
         from site import USER_SITE
@@ -15,15 +22,15 @@ def build_lib():
     SConscript('src/SConscript', variant_dir='build', duplicate=0)
 
 def build_doc():
-    # Fiddle with the pythonpath to allow the doc builder to locate pyexiv2
-    # (see https://bugs.launchpad.net/pyexiv2/+bug/549398).
-    curdir = os.path.abspath(os.curdir)
-    sys.path.insert(0, os.path.join(curdir, 'build'))
-    sys.path.insert(0, os.path.join(curdir, 'src'))
+    _fiddle_with_pythonpath()
     SConscript('doc/SConscript')
 
 def run_tests():
+    _fiddle_with_pythonpath()
     from test.TestsRunner import run_unit_tests
+    # FIXME: this is not really well integrated as scons is not informed
+    # whether the unit tests passed or failed.
+    # http://www.scons.org/wiki/UnitTests may be of use.
     run_unit_tests()
 
 if not BUILD_TARGETS:
