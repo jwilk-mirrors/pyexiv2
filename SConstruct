@@ -22,6 +22,10 @@ def build_doc():
     sys.path.insert(0, os.path.join(curdir, 'src'))
     SConscript('doc/SConscript')
 
+def run_tests():
+    from test.TestsRunner import run_unit_tests
+    run_unit_tests()
+
 if not BUILD_TARGETS:
     # Default target: lib
     build_lib()
@@ -32,4 +36,6 @@ else:
         # Note: building the doc requires the lib to be built and the pyexiv2
         # module to be in the python path.
         build_doc()
+    if 'test' in BUILD_TARGETS:
+        run_tests()
 
