@@ -41,7 +41,7 @@
 namespace exiv2wrapper
 {
 
-void Image::_instantiate_image(Exiv2::byte* data, long size)
+void Image::_instantiate_image()
 {
     // If an exception is thrown, it has to be done outside of the
     // Py_{BEGIN,END}_ALLOW_THREADS block.
@@ -53,9 +53,9 @@ void Image::_instantiate_image(Exiv2::byte* data, long size)
 
     try
     {
-        if (data != 0)
+        if (_data != 0)
         {
-            _image = Exiv2::ImageFactory::open(data, size);
+            _image = Exiv2::ImageFactory::open(_data, _size);
         }
         else
         {
@@ -85,6 +85,7 @@ void Image::_instantiate_image(Exiv2::byte* data, long size)
 Image::Image(const std::string& filename)
 {
     _filename = filename;
+    _data = 0;
     _instantiate_image();
 }
 
@@ -92,13 +93,14 @@ Image::Image(const std::string& filename)
 Image::Image(const std::string& buffer, long size)
 {
     // Deep copy of the data buffer
-    Exiv2::byte* data = new Exiv2::byte[size];
+    _data = new Exiv2::byte[size];
     for (unsigned long i = 0; i < size; ++i)
     {
-        data[i] = buffer[i];
+        _data[i] = buffer[i];
     }
 
-    _instantiate_image(data, size);
+    _size = size;
+    _instantiate_image();
 }
 
 // Copy constructor
@@ -106,6 +108,14 @@ Image::Image(const Image& image)
 {
     _filename = image._filename;
     _instantiate_image();
+}
+
+Image::~Image()
+{
+    if (_data != 0)
+    {
+        delete _data;
+    }
 }
 
 void Image::readMetadata()

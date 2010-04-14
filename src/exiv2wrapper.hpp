@@ -154,6 +154,8 @@ public:
     Image(const std::string& buffer, long size);
     Image(const Image& image);
 
+    ~Image();
+
     void readMetadata();
     void writeMetadata();
 
@@ -230,6 +232,8 @@ public:
 
 private:
     std::string _filename;
+    Exiv2::byte* _data;
+    long _size;
     Exiv2::Image::AutoPtr _image;
     Exiv2::ExifData _exifData;
     Exiv2::IptcData _iptcData;
@@ -239,7 +243,7 @@ private:
     // false otherwise
     bool _dataRead;
 
-    void _instantiate_image(Exiv2::byte* data=0, long size=0);
+    void _instantiate_image();
 };
 
 
