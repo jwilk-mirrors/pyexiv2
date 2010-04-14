@@ -27,7 +27,17 @@
 #
 # ******************************************************************************
 
+import os.path
 import hashlib
+
+
+def get_absolute_file_path(filepath):
+    """
+    Return the absolute file path for the file path given in argument,
+    considering it is relative to the caller script's directory.
+    """
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), filepath)
+
 
 def CheckFileSum(filename, md5sum):
     """

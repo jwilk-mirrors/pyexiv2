@@ -40,7 +40,7 @@ from buffer import TestBuffer
 from encoding import TestEncodings
 
 
-if __name__ == '__main__':
+def run_unit_tests():
     # Instantiate a test suite containing all the test cases
     suite = unittest.TestSuite()
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(ReadMetadataTestCase))
@@ -54,4 +54,9 @@ if __name__ == '__main__':
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestBuffer))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestEncodings))
     # Run the test suite
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    return unittest.TextTestRunner(verbosity=2).run(suite)
+
+
+if __name__ == '__main__':
+    run_unit_tests()
+
