@@ -58,11 +58,12 @@ class ReadMetadataTestCase(unittest.TestCase):
         """
         # Check that the reference file is not corrupted
         filename = os.path.join('data', 'smiley1.jpg')
+        filepath = testutils.get_absolute_file_path(filename)
         md5sum = 'c066958457c685853293058f9bf129c1'
-        self.assertCorrectFile(filename, md5sum)
+        self.assertCorrectFile(filepath, md5sum)
 
         # Read the image metadata
-        image = pyexiv2.ImageMetadata(filename)
+        image = pyexiv2.ImageMetadata(filepath)
         image.read()
 
         # Exhaustive tests on the values of EXIF metadata
@@ -100,11 +101,12 @@ class ReadMetadataTestCase(unittest.TestCase):
 
     def testReadMetadataXMP(self):
         filename = os.path.join('data', 'exiv2-bug540.jpg')
+        filepath = testutils.get_absolute_file_path(filename)
         md5sum = '64d4b7eab1e78f1f6bfb3c966e99eef2'
-        self.assertCorrectFile(filename, md5sum)
+        self.assertCorrectFile(filepath, md5sum)
 
         # Read the image metadata
-        image = pyexiv2.ImageMetadata(filename)
+        image = pyexiv2.ImageMetadata(filepath)
         image.read()
 
         xmpTags = [('Xmp.dc.creator', list, [u'Ian Britton']),
