@@ -51,6 +51,7 @@ Build pyexiv2::
 Build the HTML documentation::
 
   PYTHONPATH=$PWD/build:$PYTHONPATH scons doc
+  mv doc/_build doc/html
 
 Create the tarball and sign it::
 
