@@ -31,7 +31,7 @@ def run_tests():
     # FIXME: this is not really well integrated as scons is not informed
     # whether the unit tests passed or failed.
     # http://www.scons.org/wiki/UnitTests may be of use.
-    run_unit_tests()
+    result = run_unit_tests()
 
 if not BUILD_TARGETS:
     # Default target: lib
