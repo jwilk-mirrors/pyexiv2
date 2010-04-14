@@ -27,11 +27,7 @@ def build_doc():
 
 def run_tests():
     _fiddle_with_pythonpath()
-    from test.TestsRunner import run_unit_tests
-    # FIXME: this is not really well integrated as scons is not informed
-    # whether the unit tests passed or failed.
-    # http://www.scons.org/wiki/UnitTests may be of use.
-    result = run_unit_tests()
+    SConscript('test/SConscript')
 
 if not BUILD_TARGETS:
     # Default target: lib
@@ -44,5 +40,6 @@ else:
         # module to be in the python path.
         build_doc()
     if 'test' in BUILD_TARGETS:
+        # Note: running the unit tests requires the lib to be built.
         run_tests()
 
