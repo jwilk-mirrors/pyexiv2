@@ -29,7 +29,6 @@ else:
     if 'lib' in BUILD_TARGETS or 'install' in BUILD_TARGETS:
         build_lib()
     if 'doc' in BUILD_TARGETS:
-        # Note: building the doc requires the lib to be built and the pyexiv2
-        # module to be in the python path.
+        # Note: building the doc requires the lib to be built.
         build_doc()
 
