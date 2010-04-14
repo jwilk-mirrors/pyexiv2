@@ -133,9 +133,8 @@ Unit tests
 ##########
 
 pyexiv2's source comes with a battery of unit tests, in the test/ directory.
-To run them, ``cd`` to this directory and execute the ``TestsRunner.py``
-script, making sure that pyexiv2 is installed system-wide or can be found on
-the ``PYTHONPATH``.
+To run them, invoke ``scons test``.
+Alternatively, you can execute the ``TestsRunner.py`` script.
 
 Contributing
 ############
