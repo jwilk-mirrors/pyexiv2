@@ -128,8 +128,6 @@ Alternatively, you can issue the following command::
   sphinx-build -b html doc/ doc/_build/
 
 The index of the documentation will then be found under doc/_build/index.html.
-Note that you will need pyexiv2 to be installed system-wide or to be found on
-the ``PYTHONPATH`` for the documentation to build successfully.
 
 Unit tests
 ##########

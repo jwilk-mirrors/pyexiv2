@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import os
+import sys
+
 def build_lib():
     try:
         from site import USER_SITE
@@ -12,6 +15,11 @@ def build_lib():
     SConscript('src/SConscript', variant_dir='build', duplicate=0)
 
 def build_doc():
+    # Fiddle with the pythonpath to allow the doc builder to locate pyexiv2
+    # (see https://bugs.launchpad.net/pyexiv2/+bug/549398).
+    curdir = os.path.abspath(os.curdir)
+    sys.path.insert(0, os.path.join(curdir, 'build'))
+    sys.path.insert(0, os.path.join(curdir, 'src'))
     SConscript('doc/SConscript')
 
 if not BUILD_TARGETS:
