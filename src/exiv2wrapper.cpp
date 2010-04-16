@@ -114,7 +114,7 @@ Image::~Image()
 {
     if (_data != 0)
     {
-        delete _data;
+        delete[] _data;
     }
 }
 
