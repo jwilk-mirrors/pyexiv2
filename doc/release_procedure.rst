@@ -44,13 +44,10 @@ Source tarball
 Build pyexiv2::
 
   scons
-  cd build
-  ln -s ../src/pyexiv2
-  cd ..
 
 Build the HTML documentation::
 
-  PYTHONPATH=$PWD/build:$PYTHONPATH scons doc
+  scons doc
   mv doc/_build doc/html
 
 Create the tarball and sign it::
