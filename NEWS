@@ -1,3 +1,24 @@
+pyexiv2 0.2.1 "Employment" - 2010-04-26
+---------------------------------------
+
+Dependencies:
+
+- Python ≥ 2.5
+- libexiv2 ≥ 0.19
+- boost.python ≥ 1.38
+
+Changes:
+
+This is a maintenance release that fixes a critical memory leak and makes it
+easier to generate the documentation and run the unit tests.
+
+Bugs fixed:
+
+- 562525: memory leak in ImageMetadata.from_buffer
+- 549398: Building the doc requires fiddling with the PYTHONPATH
+- 549399: Add a "test" target to scons to run the unit tests
+
+
 pyexiv2 0.2.0 "Commuting" - 2010-03-25
 --------------------------------------
 
