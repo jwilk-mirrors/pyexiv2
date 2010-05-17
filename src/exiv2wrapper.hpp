@@ -42,6 +42,8 @@ public:
     // Constructor
     ExifTag(const std::string& key, Exiv2::Exifdatum* datum=0, Exiv2::ExifData* data=0);
 
+    ~ExifTag();
+
     void setRawValue(const std::string& value);
 
     const std::string getKey();

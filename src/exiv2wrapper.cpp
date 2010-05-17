@@ -572,6 +572,14 @@ ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifDat
     _sectionDescription = Exiv2::ExifTags::sectionDesc(tag, ifd);
 }
 
+ExifTag::~ExifTag()
+{
+    if (_data == 0)
+    {
+        delete _datum;
+    }
+}
+
 void ExifTag::setRawValue(const std::string& value)
 {
     _datum->setValue(value);
