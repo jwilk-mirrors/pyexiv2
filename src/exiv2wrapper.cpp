@@ -633,7 +633,9 @@ const std::string ExifTag::getHumanValue()
 
 IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
 {
-    if (data != 0)
+    _from_data = (data != 0);
+
+    if (_from_data)
     {
         _data = data;
     }
@@ -661,6 +663,14 @@ IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
         // The tag is not repeatable but we are trying to assign it more than
         // one value.
         throw Exiv2::Error(NON_REPEATABLE);
+    }
+}
+
+IptcTag::~IptcTag()
+{
+    if (!_from_data)
+    {
+        delete _data;
     }
 }
 

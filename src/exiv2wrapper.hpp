@@ -75,6 +75,8 @@ public:
     // Constructor
     IptcTag(const std::string& key, Exiv2::IptcMetadata* data=0);
 
+    ~IptcTag();
+
     void setRawValues(const boost::python::list& values);
 
     const std::string getKey();
@@ -90,6 +92,7 @@ public:
 
 private:
     Exiv2::IptcKey _key;
+    bool _from_data; // whether the tag is built from an existing IptcMetadata
     Exiv2::IptcMetadata* _data; // _data contains only data with _key
     std::string _type;
     std::string _name;
