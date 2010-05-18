@@ -753,7 +753,9 @@ const boost::python::list IptcTag::getRawValues()
 
 XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
 {
-    if (datum != 0)
+    _from_datum = (datum != 0);
+
+    if (_from_datum)
     {
         _datum = datum;
     }
@@ -781,6 +783,14 @@ XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
     {
         _name = info->name_;
         _type = info->xmpValueType_;
+    }
+}
+
+XmpTag::~XmpTag()
+{
+    if (!_from_datum)
+    {
+        delete _datum;
     }
 }
 

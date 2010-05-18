@@ -111,6 +111,8 @@ public:
     // Constructor
     XmpTag(const std::string& key, Exiv2::Xmpdatum* datum=0);
 
+    ~XmpTag();
+
     void setTextValue(const std::string& value);
     void setArrayValue(const boost::python::list& values);
     void setLangAltValue(const boost::python::dict& values);
@@ -127,6 +129,7 @@ public:
 
 private:
     Exiv2::XmpKey _key;
+    bool _from_datum; // whether the tag is built from an existing Xmpdatum
     Exiv2::Xmpdatum* _datum;
     std::string _exiv2_type;
     std::string _type;
