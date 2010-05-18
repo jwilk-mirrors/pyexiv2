@@ -42,6 +42,8 @@ public:
     // Constructor
     ExifTag(const std::string& key, Exiv2::Exifdatum* datum=0, Exiv2::ExifData* data=0);
 
+    ~ExifTag();
+
     void setRawValue(const std::string& value);
 
     const std::string getKey();
@@ -73,6 +75,8 @@ public:
     // Constructor
     IptcTag(const std::string& key, Exiv2::IptcMetadata* data=0);
 
+    ~IptcTag();
+
     void setRawValues(const boost::python::list& values);
 
     const std::string getKey();
@@ -88,6 +92,7 @@ public:
 
 private:
     Exiv2::IptcKey _key;
+    bool _from_data; // whether the tag is built from an existing IptcMetadata
     Exiv2::IptcMetadata* _data; // _data contains only data with _key
     std::string _type;
     std::string _name;
@@ -106,6 +111,8 @@ public:
     // Constructor
     XmpTag(const std::string& key, Exiv2::Xmpdatum* datum=0);
 
+    ~XmpTag();
+
     void setTextValue(const std::string& value);
     void setArrayValue(const boost::python::list& values);
     void setLangAltValue(const boost::python::dict& values);
@@ -122,6 +129,7 @@ public:
 
 private:
     Exiv2::XmpKey _key;
+    bool _from_datum; // whether the tag is built from an existing Xmpdatum
     Exiv2::Xmpdatum* _datum;
     std::string _exiv2_type;
     std::string _type;

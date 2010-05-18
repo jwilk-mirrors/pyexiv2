@@ -572,6 +572,14 @@ ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifDat
     _sectionDescription = Exiv2::ExifTags::sectionDesc(tag, ifd);
 }
 
+ExifTag::~ExifTag()
+{
+    if (_data == 0)
+    {
+        delete _datum;
+    }
+}
+
 void ExifTag::setRawValue(const std::string& value)
 {
     _datum->setValue(value);
@@ -625,7 +633,9 @@ const std::string ExifTag::getHumanValue()
 
 IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
 {
-    if (data != 0)
+    _from_data = (data != 0);
+
+    if (_from_data)
     {
         _data = data;
     }
@@ -653,6 +663,14 @@ IptcTag::IptcTag(const std::string& key, Exiv2::IptcMetadata* data): _key(key)
         // The tag is not repeatable but we are trying to assign it more than
         // one value.
         throw Exiv2::Error(NON_REPEATABLE);
+    }
+}
+
+IptcTag::~IptcTag()
+{
+    if (!_from_data)
+    {
+        delete _data;
     }
 }
 
@@ -735,7 +753,9 @@ const boost::python::list IptcTag::getRawValues()
 
 XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
 {
-    if (datum != 0)
+    _from_datum = (datum != 0);
+
+    if (_from_datum)
     {
         _datum = datum;
     }
@@ -763,6 +783,14 @@ XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
     {
         _name = info->name_;
         _type = info->xmpValueType_;
+    }
+}
+
+XmpTag::~XmpTag()
+{
+    if (!_from_datum)
+    {
+        delete _datum;
     }
 }
 
