@@ -281,13 +281,6 @@ const ExifTag Image::getExifTag(std::string key)
     return ExifTag(key, &_exifData[key], &_exifData);
 }
 
-void Image::setExifTagValue(std::string key, std::string value)
-{
-    CHECK_METADATA_READ
-
-    _exifData[key] = value;
-}
-
 void Image::deleteExifTag(std::string key)
 {
     CHECK_METADATA_READ
@@ -568,6 +561,15 @@ ExifTag::~ExifTag()
 
 void ExifTag::setRawValue(const std::string& value)
 {
+    _datum->setValue(value);
+}
+
+void ExifTag::setParentImage(Image& image)
+{
+    _data = image.getExifData();
+    std::string value = _datum->toString();
+    delete _datum;
+    _datum = &(*_data)[_key.key()];
     _datum->setValue(value);
 }
 

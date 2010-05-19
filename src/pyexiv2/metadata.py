@@ -138,7 +138,6 @@ class ImageMetadata(object):
         except KeyError:
             _tag = self._image._getExifTag(key)
             tag = ExifTag._from_existing_tag(_tag)
-            tag.metadata = self
             self._tags['exif'][key] = tag
             return tag
 
@@ -190,23 +189,10 @@ class ImageMetadata(object):
         else:
             # As a handy shortcut, accept direct value assignment.
             tag = ExifTag(key, tag_or_value)
-        self._image._setExifTagValue(tag.key, tag.raw_value)
+        tag._set_owner(self)
         self._tags['exif'][tag.key] = tag
         if tag.key not in self.exif_keys:
             self._keys['exif'].append(tag.key)
-        tag.metadata = self
-
-    def _set_exif_tag_value(self, key, value):
-        # Overwrite the tag value for an already existing tag.
-        # The tag is already in cache.
-        # Warning: this is not meant to be called directly as it doesn't update
-        # the internal cache (which would leave the object in an inconsistent
-        # state).
-        if key not in self.exif_keys:
-            raise KeyError('Cannot set the value of an inexistent tag')
-        if type(value) is not str:
-            raise TypeError('Expecting a string')
-        self._image._setExifTagValue(key, value)
 
     def _set_iptc_tag(self, key, tag_or_values):
         # Set an IPTC tag. If the tag already exists, its values are

@@ -48,6 +48,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
     class_<ExifTag>("_ExifTag", init<std::string>())
 
         .def("_setRawValue", &ExifTag::setRawValue)
+        .def("_setParentImage", &ExifTag::setParentImage)
 
         .def("_getKey", &ExifTag::getKey)
         .def("_getType", &ExifTag::getType)
@@ -130,7 +131,6 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
         .def("_exifKeys", &Image::exifKeys)
         .def("_getExifTag", &Image::getExifTag)
-        .def("_setExifTagValue", &Image::setExifTagValue)
         .def("_deleteExifTag", &Image::deleteExifTag)
 
         .def("_iptcKeys", &Image::iptcKeys)

@@ -95,7 +95,6 @@ class TestImageMetadata(unittest.TestCase):
         key = 'Exif.Image.Make'
         tag = self.metadata._get_exif_tag(key)
         self.assertEqual(type(tag), ExifTag)
-        self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['exif'][key], tag)
         # Try to get an nonexistent tag
         key = 'Exif.Photo.Sharpness'
@@ -114,10 +113,8 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._tags['exif'], {})
         # Create a new tag
         tag = ExifTag('Exif.Thumbnail.Orientation', 1)
-        self.assertEqual(tag.metadata, None)
         self.assert_(tag.key not in self.metadata.exif_keys)
         self.metadata._set_exif_tag(tag.key, tag)
-        self.assertEqual(tag.metadata, self.metadata)
         self.assert_(tag.key in self.metadata.exif_keys)
         self.assertEqual(self.metadata._tags['exif'], {tag.key: tag})
         self.assert_(tag.key in self.metadata._image._exifKeys())
@@ -129,9 +126,7 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._tags['exif'], {})
         # Overwrite an existing tag
         tag = ExifTag('Exif.Image.DateTime', datetime.datetime(2009, 3, 20, 20, 32, 0))
-        self.assertEqual(tag.metadata, None)
         self.metadata._set_exif_tag(tag.key, tag)
-        self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['exif'], {tag.key: tag})
         self.assert_(tag.key in self.metadata._image._exifKeys())
         self.assertEqual(self.metadata._image._getExifTag(tag.key)._getRawValue(),
@@ -145,9 +140,7 @@ class TestImageMetadata(unittest.TestCase):
         tag = self.metadata._get_exif_tag(key)
         self.assertEqual(self.metadata._tags['exif'][key], tag)
         new_tag = ExifTag(key, 'World Company')
-        self.assertEqual(new_tag.metadata, None)
         self.metadata._set_exif_tag(key, new_tag)
-        self.assertEqual(new_tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['exif'], {key: new_tag})
         self.assert_(key in self.metadata._image._exifKeys())
         self.assertEqual(self.metadata._image._getExifTag(key)._getRawValue(),
@@ -164,33 +157,9 @@ class TestImageMetadata(unittest.TestCase):
         self.assert_(key in self.metadata._image._exifKeys())
         tag = self.metadata._get_exif_tag(key)
         self.assertEqual(tag.value, value)
-        self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['exif'], {key: tag})
         self.assertEqual(self.metadata._image._getExifTag(key)._getRawValue(),
                          tag.raw_value)
-
-    def test_set_exif_tag_value_inexistent(self):
-        self.metadata.read()
-        key = 'Exif.Photo.ExposureTime'
-        value = '1/500'
-        self.failUnlessRaises(KeyError, self.metadata._set_exif_tag_value,
-                              key, value)
-
-    def test_set_exif_tag_value_wrong_type(self):
-        self.metadata.read()
-        key = 'Exif.Image.DateTime'
-        value = datetime.datetime(2009, 3, 24, 9, 37, 36)
-        self.failUnlessRaises(TypeError, self.metadata._set_exif_tag_value,
-                              key, value)
-
-    def test_set_exif_tag_value(self):
-        self.metadata.read()
-        key = 'Exif.Image.DateTime'
-        tag = self.metadata._get_exif_tag(key)
-        value = '2009:03:24 09:37:36'
-        self.failIfEqual(self.metadata._image._getExifTag(key)._getRawValue(), value)
-        self.metadata._set_exif_tag_value(key, value)
-        self.assertEqual(self.metadata._image._getExifTag(key)._getRawValue(), value)
 
     def test_delete_exif_tag_inexistent(self):
         self.metadata.read()

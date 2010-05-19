@@ -36,6 +36,8 @@
 namespace exiv2wrapper
 {
 
+class Image;
+
 class ExifTag
 {
 public:
@@ -45,6 +47,7 @@ public:
     ~ExifTag();
 
     void setRawValue(const std::string& value);
+    void setParentImage(Image& image);
 
     const std::string getKey();
     const std::string getType();
@@ -186,10 +189,6 @@ public:
     // Throw an exception if the tag is not set.
     const ExifTag getExifTag(std::string key);
 
-    // Set the EXIF tag's value.
-    // If the tag was not previously set, it is created.
-    void setExifTagValue(std::string key, std::string value);
-
     // Delete the required EXIF tag.
     // Throw an exception if the tag was not set.
     void deleteExifTag(std::string key);
@@ -237,6 +236,10 @@ public:
 
     // Return the image data buffer.
     std::string getDataBuffer() const;
+
+    // Accessors
+    Exiv2::ExifData* getExifData() { return &_exifData; };
+    // ...
 
 private:
     std::string _filename;

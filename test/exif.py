@@ -32,14 +32,6 @@ from pyexiv2.utils import Rational
 import datetime
 
 
-class ImageMetadataMock(object):
-
-    tags = {}
-
-    def _set_exif_tag_value(self, key, value):
-        self.tags[key] = value
-
-
 class TestExifTag(unittest.TestCase):
 
     def test_convert_to_python_ascii(self):
@@ -315,17 +307,9 @@ class TestExifTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 3)
 
-    def test_set_value_no_metadata(self):
+    def test_set_value(self):
         tag = ExifTag('Exif.Thumbnail.Orientation', 1) # top, left
         old_value = tag.value
         tag.value = 2
         self.failIfEqual(tag.value, old_value)
-
-    def test_set_value_with_metadata(self):
-        tag = ExifTag('Exif.Thumbnail.Orientation', 1) # top, left
-        tag.metadata = ImageMetadataMock()
-        old_value = tag.value
-        tag.value = 2
-        self.failIfEqual(tag.value, old_value)
-        self.assertEqual(tag.metadata.tags[tag.key], '2')
 
