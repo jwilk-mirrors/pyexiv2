@@ -111,7 +111,10 @@ class ExifTag(ListenerInterface):
     def _from_existing_tag(_tag):
         # Build a tag from an already existing libexiv2python._ExifTag.
         tag = ExifTag(_tag._getKey(), _tag=_tag)
-        tag.raw_value = _tag._getRawValue()
+        # Do not set the raw_value property, as it would call _tag._setRawValue
+        # (see https://bugs.launchpad.net/pyexiv2/+bug/582445).
+        tag._raw_value = _tag._getRawValue()
+        tag._value_cookie = True
         return tag
 
     @property

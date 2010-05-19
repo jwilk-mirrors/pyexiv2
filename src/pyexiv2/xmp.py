@@ -120,12 +120,16 @@ class XmpTag(object):
         # Build a tag from an already existing libexiv2python._XmpTag
         tag = XmpTag(_tag._getKey(), _tag=_tag)
         type = _tag._getExiv2Type()
+        # Do not set the raw_value property, as it would call
+        # _tag._set{Text,Array,LangAlt}Value
+        # (see https://bugs.launchpad.net/pyexiv2/+bug/582445).
         if type == 'XmpText':
-            tag.raw_value = _tag._getTextValue()
+            tag._raw_value = _tag._getTextValue()
         elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
-            tag.raw_value = _tag._getArrayValue()
+            tag._raw_value = _tag._getArrayValue()
         elif type == 'LangAlt':
-            tag.raw_value = _tag._getLangAltValue()
+            tag._raw_value = _tag._getLangAltValue()
+        tag._value_cookie = True
         return tag
 
     @property

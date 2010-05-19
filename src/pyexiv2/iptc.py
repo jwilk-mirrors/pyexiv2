@@ -107,7 +107,11 @@ class IptcTag(ListenerInterface):
     def _from_existing_tag(_tag):
         # Build a tag from an already existing libexiv2python._IptcTag
         tag = IptcTag(_tag._getKey(), _tag=_tag)
-        tag.raw_values = _tag._getRawValues()
+        # Do not set the raw_values property, as it would call
+        # _tag._setRawValues
+        # (see https://bugs.launchpad.net/pyexiv2/+bug/582445).
+        tag._raw_values = _tag._getRawValues()
+        tag._values_cookie = True
         return tag
 
     @property
