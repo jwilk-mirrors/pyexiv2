@@ -64,6 +64,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
     class_<IptcTag>("_IptcTag", init<std::string>())
 
         .def("_setRawValues", &IptcTag::setRawValues)
+        .def("_setParentImage", &IptcTag::setParentImage)
 
         .def("_getKey", &IptcTag::getKey)
         .def("_getType", &IptcTag::getType)
@@ -135,7 +136,6 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
         .def("_iptcKeys", &Image::iptcKeys)
         .def("_getIptcTag", &Image::getIptcTag)
-        .def("_setIptcTagValues", &Image::setIptcTagValues)
         .def("_deleteIptcTag", &Image::deleteIptcTag)
 
         .def("_xmpKeys", &Image::xmpKeys)

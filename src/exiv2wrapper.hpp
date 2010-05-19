@@ -81,6 +81,7 @@ public:
     ~IptcTag();
 
     void setRawValues(const boost::python::list& values);
+    void setParentImage(Image& image);
 
     const std::string getKey();
     const std::string getType();
@@ -206,10 +207,6 @@ public:
     // Throw an exception if the tag is not set.
     const IptcTag getIptcTag(std::string key);
 
-    // Set the IPTC tag's values. If the tag was not previously set, it is
-    // created.
-    void setIptcTagValues(std::string key, boost::python::list values);
-
     // Delete (all the repetitions of) the required IPTC tag.
     // Throw an exception if the tag was not set.
     void deleteIptcTag(std::string key);
@@ -239,6 +236,7 @@ public:
 
     // Accessors
     Exiv2::ExifData* getExifData() { return &_exifData; };
+    Exiv2::IptcData* getIptcData() { return &_iptcData; };
     // ...
 
 private:

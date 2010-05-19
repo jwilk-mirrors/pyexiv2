@@ -149,7 +149,6 @@ class ImageMetadata(object):
         except KeyError:
             _tag = self._image._getIptcTag(key)
             tag = IptcTag._from_existing_tag(_tag)
-            tag.metadata = self
             self._tags['iptc'][key] = tag
             return tag
 
@@ -202,27 +201,11 @@ class ImageMetadata(object):
         else:
             # As a handy shortcut, accept direct value assignment.
             tag = IptcTag(key, tag_or_values)
-        self._image._setIptcTagValues(tag.key, tag.raw_values)
+        tag._set_owner(self)
         self._tags['iptc'][tag.key] = tag
         if tag.key not in self.iptc_keys:
             self._keys['iptc'].append(tag.key)
         tag.metadata = self
-
-    def _set_iptc_tag_values(self, key, values):
-        # Overwrite the tag values for an already existing tag.
-        # The tag is already in cache.
-        # Warning: this is not meant to be called directly as it doesn't update
-        # the internal cache (which would leave the object in an inconsistent
-        # state).
-        # FIXME: this is sub-optimal as it sets all the values regardless of how
-        # many of them really changed. Need to implement the same method with an
-        # index/range parameter (here and in the C++ wrapper).
-        if key not in self.iptc_keys:
-            raise KeyError('Cannot set the value of an inexistent tag')
-        if type(values) is not list or not \
-            reduce(lambda x, y: x and type(y) is str, values, True):
-            raise TypeError('Expecting a list of strings')
-        self._image._setIptcTagValues(key, values)
 
     def _set_xmp_tag(self, key, tag_or_value):
         # Set an XMP tag. If the tag already exists, its value is overwritten.

@@ -328,13 +328,6 @@ const IptcTag Image::getIptcTag(std::string key)
     return IptcTag(key, &_iptcData);
 }
 
-void Image::setIptcTagValues(std::string key, boost::python::list values)
-{
-    CHECK_METADATA_READ
-
-    set_iptc_tag_values(key, &_iptcData, values);
-}
-
 void Image::deleteIptcTag(std::string key)
 {
     CHECK_METADATA_READ
@@ -684,6 +677,15 @@ void IptcTag::setRawValues(const boost::python::list& values)
     }
 
     set_iptc_tag_values(_key.key(), _data, values);
+}
+
+void IptcTag::setParentImage(Image& image)
+{
+    const boost::python::list values = getRawValues();
+    delete _data;
+    _from_data = true;
+    _data = image.getIptcData();
+    setRawValues(values);
 }
 
 const std::string IptcTag::getKey()
