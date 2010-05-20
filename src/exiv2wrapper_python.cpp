@@ -96,28 +96,15 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_getLangAltValue", &XmpTag::getLangAltValue)
     ;
 
-    class_<Preview>("Preview",
-                    "A preview image (properties and data buffer) embedded in "
-                    "image metadata.",
-                    init<Exiv2::PreviewImage>())
+    class_<Preview>("_Preview", init<Exiv2::PreviewImage>())
 
-        .def_readonly("mime_type", &Preview::_mimeType,
-                      "The mime type of the preview image (e.g. 'image/jpeg')")
-        .def_readonly("extension", &Preview::_extension,
-                      "The file extension of the preview image with a leading "
-                      "dot (e.g. '.jpg')")
-        .def_readonly("size", &Preview::_size,
-                      "The size of the preview image in bytes")
-        .def_readonly("dimensions", &Preview::_dimensions,
-                      "A tuple containing the width and height of the preview "
-                      "image in pixels")
-        .def_readonly("data", &Preview::_data,
-                      "The preview image data buffer")
+        .def_readonly("mime_type", &Preview::_mimeType)
+        .def_readonly("extension", &Preview::_extension)
+        .def_readonly("size", &Preview::_size)
+        .def_readonly("dimensions", &Preview::_dimensions)
+        .def_readonly("data", &Preview::_data)
 
-        .def("write_to_file", &Preview::writeToFile,
-             "Write the preview image to a file on disk.\n"
-             "The file extension will be automatically appended to the path\n"
-             "passed in parameter.")
+        .def("write_to_file", &Preview::writeToFile)
     ;
 
     class_<Image>("_Image", init<std::string>())
