@@ -45,6 +45,13 @@ pyexiv2.xmp
 .. autoclass:: XmpTag
    :members: key, type, name, title, description, raw_value, value
 
+pyexiv2.preview
+###############
+
+.. module:: pyexiv2.preview
+.. autoclass:: Preview
+   :members: mime_type, extension, size, dimensions, data, write_to_file
+
 pyexiv2.utils
 #############
 

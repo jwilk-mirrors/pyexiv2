@@ -37,6 +37,7 @@ import libexiv2python
 from pyexiv2.exif import ExifTag
 from pyexiv2.iptc import IptcTag
 from pyexiv2.xmp import XmpTag
+from pyexiv2.preview import Preview
 
 
 class ImageMetadata(object):
@@ -299,7 +300,7 @@ class ImageMetadata(object):
     def previews(self):
         """List of the previews available in the image, sorted by increasing
         size."""
-        return self._image._previews()
+        return [Preview(preview) for preview in self._image._previews()]
 
     def copy(self, other, exif=True, iptc=True, xmp=True):
         """
