@@ -329,47 +329,6 @@ const XmpTag Image::getXmpTag(std::string key)
     return XmpTag(key, &_xmpData[key]);
 }
 
-void Image::setXmpTagTextValue(const std::string& key, const std::string& value)
-{
-    CHECK_METADATA_READ
-
-    _xmpData[key].setValue(value);
-}
-
-void Image::setXmpTagArrayValue(const std::string& key, const boost::python::list& values)
-{
-    CHECK_METADATA_READ
-
-    Exiv2::Xmpdatum& datum = _xmpData[key];
-    // Reset the value
-    datum.setValue(0);
-
-    for(boost::python::stl_input_iterator<std::string> iterator(values);
-        iterator != boost::python::stl_input_iterator<std::string>();
-        ++iterator)
-    {
-        datum.setValue(*iterator);
-    }
-}
-
-void Image::setXmpTagLangAltValue(const std::string& key, const boost::python::dict& values)
-{
-    CHECK_METADATA_READ
-
-    Exiv2::Xmpdatum& datum = _xmpData[key];
-    // Reset the value
-    datum.setValue(0);
-
-    for(boost::python::stl_input_iterator<std::string> iterator(values);
-        iterator != boost::python::stl_input_iterator<std::string>();
-        ++iterator)
-    {
-        std::string key = *iterator;
-        std::string value = boost::python::extract<std::string>(values.get(key));
-        datum.setValue("lang=\"" + key + "\" " + value);
-    }
-}
-
 void Image::deleteXmpTag(std::string key)
 {
     CHECK_METADATA_READ
@@ -811,6 +770,42 @@ void XmpTag::setLangAltValue(const boost::python::dict& values)
         std::string key = *iterator;
         std::string value = boost::python::extract<std::string>(values.get(key));
         _datum->setValue("lang=\"" + key + "\" " + value);
+    }
+}
+
+void XmpTag::setParentImage(Image& image)
+{
+    switch (Exiv2::XmpProperties::propertyType(_key))
+    {
+        case Exiv2::xmpText:
+        {
+            const std::string value = getTextValue();
+            delete _datum;
+            _from_datum = true;
+            _datum = &(*image.getXmpData())[_key.key()];
+            setTextValue(value);
+            break;
+        }
+        case Exiv2::xmpAlt:
+        case Exiv2::xmpBag:
+        case Exiv2::xmpSeq:
+        {
+            const boost::python::list value = getArrayValue();
+            delete _datum;
+            _from_datum = true;
+            _datum = &(*image.getXmpData())[_key.key()];
+            setArrayValue(value);
+            break;
+        }
+        case Exiv2::langAlt:
+        {
+            const boost::python::dict value = getLangAltValue();
+            delete _datum;
+            _from_datum = true;
+            _datum = &(*image.getXmpData())[_key.key()];
+            setLangAltValue(value);
+            break;
+        }
     }
 }
 

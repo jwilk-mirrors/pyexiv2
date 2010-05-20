@@ -311,7 +311,6 @@ class TestImageMetadata(unittest.TestCase):
         key = 'Xmp.dc.subject'
         tag = self.metadata._get_xmp_tag(key)
         self.assertEqual(type(tag), XmpTag)
-        self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['xmp'][key], tag)
         # Try to get an nonexistent tag
         key = 'Xmp.xmp.Label'
@@ -331,10 +330,8 @@ class TestImageMetadata(unittest.TestCase):
         # Create a new tag
         tag = XmpTag('Xmp.dc.title', {'x-default': 'This is not a title',
                                       'fr-FR': "Ceci n'est pas un titre"})
-        self.assertEqual(tag.metadata, None)
         self.assert_(tag.key not in self.metadata.xmp_keys)
         self.metadata._set_xmp_tag(tag.key, tag)
-        self.assertEqual(tag.metadata, self.metadata)
         self.assert_(tag.key in self.metadata.xmp_keys)
         self.assertEqual(self.metadata._tags['xmp'], {tag.key: tag})
         self.assert_(tag.key in self.metadata._image._xmpKeys())
@@ -346,9 +343,7 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._tags['xmp'], {})
         # Overwrite an existing tag
         tag = XmpTag('Xmp.dc.format', ('image', 'png'))
-        self.assertEqual(tag.metadata, None)
         self.metadata._set_xmp_tag(tag.key, tag)
-        self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['xmp'], {tag.key: tag})
         self.assert_(tag.key in self.metadata._image._xmpKeys())
         self.assertEqual(self.metadata._image._getXmpTag(tag.key)._getTextValue(),
@@ -362,9 +357,7 @@ class TestImageMetadata(unittest.TestCase):
         tag = self.metadata._get_xmp_tag(key)
         self.assertEqual(self.metadata._tags['xmp'][key], tag)
         new_tag = XmpTag(key, ['hello', 'world'])
-        self.assertEqual(new_tag.metadata, None)
         self.metadata._set_xmp_tag(key, new_tag)
-        self.assertEqual(new_tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['xmp'], {key: new_tag})
         self.assert_(key in self.metadata._image._xmpKeys())
         self.assertEqual(self.metadata._image._getXmpTag(key)._getArrayValue(),
@@ -382,33 +375,8 @@ class TestImageMetadata(unittest.TestCase):
         self.assert_(key in self.metadata._image._xmpKeys())
         tag = self.metadata._get_xmp_tag(key)
         self.assertEqual(tag.value, value)
-        self.assertEqual(tag.metadata, self.metadata)
         self.assertEqual(self.metadata._tags['xmp'], {key: tag})
         self.assertEqual(self.metadata._image._getXmpTag(key)._getLangAltValue(), tag.raw_value)
-
-    def test_set_xmp_tag_value_inexistent(self):
-        self.metadata.read()
-        key = 'Xmp.xmp.Nickname'
-        value = 'oSoMoN'
-        self.failUnlessRaises(KeyError, self.metadata._set_xmp_tag_value,
-                              key, value)
-
-    def test_set_xmp_tag_value_wrong_type(self):
-        self.metadata.read()
-        key = 'Xmp.dc.subject'
-        tag = self.metadata[key]
-        value = datetime.datetime(2009, 4, 21, 20, 11, 0)
-        self.failUnlessRaises(TypeError, self.metadata._set_xmp_tag_value,
-                              key, value)
-
-    def test_set_xmp_tag_value(self):
-        self.metadata.read()
-        key = 'Xmp.dc.subject'
-        tag = self.metadata._get_xmp_tag(key)
-        value = ['Hello', 'World']
-        self.failIfEqual(self.metadata._image._getXmpTag(key)._getArrayValue(), value)
-        self.metadata._set_xmp_tag_value(key, value)
-        self.assertEqual(self.metadata._image._getXmpTag(key)._getArrayValue(), value)
 
     def test_delete_xmp_tag_inexistent(self):
         self.metadata.read()

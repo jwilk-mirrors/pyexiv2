@@ -83,6 +83,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_setTextValue", &XmpTag::setTextValue)
         .def("_setArrayValue", &XmpTag::setArrayValue)
         .def("_setLangAltValue", &XmpTag::setLangAltValue)
+        .def("_setParentImage", &XmpTag::setParentImage)
 
         .def("_getKey", &XmpTag::getKey)
         .def("_getExiv2Type", &XmpTag::getExiv2Type)
@@ -140,9 +141,6 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
         .def("_xmpKeys", &Image::xmpKeys)
         .def("_getXmpTag", &Image::getXmpTag)
-        .def("_setXmpTagTextValue", &Image::setXmpTagTextValue)
-        .def("_setXmpTagArrayValue", &Image::setXmpTagArrayValue)
-        .def("_setXmpTagLangAltValue", &Image::setXmpTagLangAltValue)
         .def("_deleteXmpTag", &Image::deleteXmpTag)
 
         .def("_previews", &Image::previews)

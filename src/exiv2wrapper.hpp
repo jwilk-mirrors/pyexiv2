@@ -120,6 +120,7 @@ public:
     void setTextValue(const std::string& value);
     void setArrayValue(const boost::python::list& values);
     void setLangAltValue(const boost::python::dict& values);
+    void setParentImage(Image& image);
 
     const std::string getKey();
     const std::string getExiv2Type();
@@ -217,10 +218,6 @@ public:
     // Throw an exception if the tag is not set.
     const XmpTag getXmpTag(std::string key);
 
-    void setXmpTagTextValue(const std::string& key, const std::string& value);
-    void setXmpTagArrayValue(const std::string& key, const boost::python::list& values);
-    void setXmpTagLangAltValue(const std::string& key, const boost::python::dict& values);
-
     // Delete the required XMP tag.
     // Throw an exception if the tag was not set.
     void deleteXmpTag(std::string key);
@@ -237,7 +234,7 @@ public:
     // Accessors
     Exiv2::ExifData* getExifData() { return &_exifData; };
     Exiv2::IptcData* getIptcData() { return &_iptcData; };
-    // ...
+    Exiv2::XmpData* getXmpData() { return &_xmpData; };
 
 private:
     std::string _filename;

@@ -80,9 +80,6 @@ class XmpTag(object):
     - Thumbnail: *[not implemented yet]*
     - URI, URL: string
     - XPath: *[not implemented yet]*
-
-    :attribute metadata: the parent metadata if any, or None
-    :type metadata: :class:`pyexiv2.metadata.ImageMetadata`
     """
 
     # FIXME: should inherit from ListenerInterface and implement observation of
@@ -108,12 +105,14 @@ class XmpTag(object):
             self._tag = _tag
         else:
             self._tag = libexiv2python._XmpTag(key)
-        self.metadata = None
         self._raw_value = None
         self._value = None
         self._value_cookie = False
         if value is not None:
             self._set_value(value)
+
+    def _set_owner(self, metadata):
+        self._tag._setParentImage(metadata._image)
 
     @staticmethod
     def _from_existing_tag(_tag):
@@ -174,8 +173,6 @@ class XmpTag(object):
                 raise ValueError('Empty LangAlt')
             self._tag._setLangAltValue(value)
 
-        if self.metadata is not None:
-            self.metadata._set_xmp_tag_value(self.key, value)
         self._raw_value = value
         self._value_cookie = True
 
