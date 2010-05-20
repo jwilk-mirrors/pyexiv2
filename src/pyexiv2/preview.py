@@ -44,7 +44,7 @@ class Preview(object):
 
     @property
     def extension(self):
-        """"The file extension of the preview image with a leading dot
+        """The file extension of the preview image with a leading dot
         (e.g. ``.jpg``)."""
         return self.__preview.extension
 
