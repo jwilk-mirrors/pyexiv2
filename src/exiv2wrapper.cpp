@@ -41,58 +41,6 @@
 namespace exiv2wrapper
 {
 
-// Static helper function to set the values of an IptcData for a given key
-static void set_iptc_tag_values(const std::string& key,
-                                Exiv2::IptcData* metadata,
-                                const boost::python::list& values)
-{
-    Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-    unsigned int index = 0;
-    unsigned int max = boost::python::len(values);
-    Exiv2::IptcMetadata::iterator iterator = metadata->findKey(iptcKey);
-    while (index < max)
-    {
-        std::string value = boost::python::extract<std::string>(values[index++]);
-        if (iterator != metadata->end())
-        {
-            // Override an existing value
-            iterator->setValue(value);
-            // Jump to the next datum matching the key
-            ++iterator;
-            while ((iterator != metadata->end()) && (iterator->key() != key))
-            {
-                ++iterator;
-            }
-        }
-        else
-        {
-            // Append a new value
-            Exiv2::Iptcdatum datum(iptcKey);
-            datum.setValue(value);
-            int state = metadata->add(datum);
-            if (state == 6)
-            {
-                throw Exiv2::Error(NON_REPEATABLE);
-            }
-            // Reset iterator that has been invalidated by appending a datum
-            iterator = metadata->end();
-        }
-    }
-    // Erase the remaining values if any
-    while (iterator != metadata->end())
-    {
-        if (iterator->key() == key)
-        {
-            iterator = metadata->erase(iterator);
-        }
-        else
-        {
-            ++iterator;
-        }
-    }
-}
-
-
 void Image::_instantiate_image()
 {
     // If an exception is thrown, it has to be done outside of the
@@ -676,7 +624,49 @@ void IptcTag::setRawValues(const boost::python::list& values)
         throw Exiv2::Error(NON_REPEATABLE);
     }
 
-    set_iptc_tag_values(_key.key(), _data, values);
+    unsigned int index = 0;
+    unsigned int max = boost::python::len(values);
+    Exiv2::IptcMetadata::iterator iterator = _data->findKey(_key);
+    while (index < max)
+    {
+        std::string value = boost::python::extract<std::string>(values[index++]);
+        if (iterator != _data->end())
+        {
+            // Override an existing value
+            iterator->setValue(value);
+            // Jump to the next datum matching the key
+            ++iterator;
+            while ((iterator != _data->end()) && (iterator->key() != _key.key()))
+            {
+                ++iterator;
+            }
+        }
+        else
+        {
+            // Append a new value
+            Exiv2::Iptcdatum datum(_key);
+            datum.setValue(value);
+            int state = _data->add(datum);
+            if (state == 6)
+            {
+                throw Exiv2::Error(NON_REPEATABLE);
+            }
+            // Reset iterator that has been invalidated by appending a datum
+            iterator = _data->end();
+        }
+    }
+    // Erase the remaining values if any
+    while (iterator != _data->end())
+    {
+        if (iterator->key() == _key.key())
+        {
+            iterator = _data->erase(iterator);
+        }
+        else
+        {
+            ++iterator;
+        }
+    }
 }
 
 void IptcTag::setParentImage(Image& image)
