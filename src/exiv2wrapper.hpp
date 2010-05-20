@@ -36,6 +36,8 @@
 namespace exiv2wrapper
 {
 
+class Image;
+
 class ExifTag
 {
 public:
@@ -45,6 +47,7 @@ public:
     ~ExifTag();
 
     void setRawValue(const std::string& value);
+    void setParentImage(Image& image);
 
     const std::string getKey();
     const std::string getType();
@@ -78,6 +81,7 @@ public:
     ~IptcTag();
 
     void setRawValues(const boost::python::list& values);
+    void setParentImage(Image& image);
 
     const std::string getKey();
     const std::string getType();
@@ -116,6 +120,7 @@ public:
     void setTextValue(const std::string& value);
     void setArrayValue(const boost::python::list& values);
     void setLangAltValue(const boost::python::dict& values);
+    void setParentImage(Image& image);
 
     const std::string getKey();
     const std::string getExiv2Type();
@@ -186,10 +191,6 @@ public:
     // Throw an exception if the tag is not set.
     const ExifTag getExifTag(std::string key);
 
-    // Set the EXIF tag's value.
-    // If the tag was not previously set, it is created.
-    void setExifTagValue(std::string key, std::string value);
-
     // Delete the required EXIF tag.
     // Throw an exception if the tag was not set.
     void deleteExifTag(std::string key);
@@ -207,10 +208,6 @@ public:
     // Throw an exception if the tag is not set.
     const IptcTag getIptcTag(std::string key);
 
-    // Set the IPTC tag's values. If the tag was not previously set, it is
-    // created.
-    void setIptcTagValues(std::string key, boost::python::list values);
-
     // Delete (all the repetitions of) the required IPTC tag.
     // Throw an exception if the tag was not set.
     void deleteIptcTag(std::string key);
@@ -220,10 +217,6 @@ public:
     // Return the required XMP tag.
     // Throw an exception if the tag is not set.
     const XmpTag getXmpTag(std::string key);
-
-    void setXmpTagTextValue(const std::string& key, const std::string& value);
-    void setXmpTagArrayValue(const std::string& key, const boost::python::list& values);
-    void setXmpTagLangAltValue(const std::string& key, const boost::python::dict& values);
 
     // Delete the required XMP tag.
     // Throw an exception if the tag was not set.
@@ -237,6 +230,11 @@ public:
 
     // Return the image data buffer.
     std::string getDataBuffer() const;
+
+    // Accessors
+    Exiv2::ExifData* getExifData() { return &_exifData; };
+    Exiv2::IptcData* getIptcData() { return &_iptcData; };
+    Exiv2::XmpData* getXmpData() { return &_xmpData; };
 
 private:
     std::string _filename;

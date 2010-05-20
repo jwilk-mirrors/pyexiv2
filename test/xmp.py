@@ -32,14 +32,6 @@ from pyexiv2.utils import FixedOffset
 import datetime
 
 
-class ImageMetadataMock(object):
-
-    tags = {}
-
-    def _set_xmp_tag_value(self, key, value):
-        self.tags[key] = value
-
-
 class TestXmpTag(unittest.TestCase):
 
     def test_convert_to_python_bag(self):
@@ -292,19 +284,11 @@ class TestXmpTag(unittest.TestCase):
     # TODO: other types
 
 
-    def test_set_value_no_metadata(self):
+    def test_set_value(self):
         tag = XmpTag('Xmp.xmp.ModifyDate', datetime.datetime(2005, 9, 7, 15, 9, 51, tzinfo=FixedOffset('-', 7, 0)))
         old_value = tag.value
         tag.value = datetime.datetime(2009, 4, 22, 8, 30, 27, tzinfo=FixedOffset())
         self.failIfEqual(tag.value, old_value)
-
-    def test_set_value_with_metadata(self):
-        tag = XmpTag('Xmp.xmp.ModifyDate', datetime.datetime(2005, 9, 7, 15, 9, 51, tzinfo=FixedOffset('-', 7, 0)))
-        tag.metadata = ImageMetadataMock()
-        old_value = tag.value
-        tag.value = datetime.datetime(2009, 4, 22, 8, 30, 27, tzinfo=FixedOffset())
-        self.failIfEqual(tag.value, old_value)
-        self.assertEqual(tag.metadata.tags[tag.key], '2009-04-22T08:30:27Z')
 
     def test_set_value_empty(self):
         tag = XmpTag('Xmp.dc.creator')

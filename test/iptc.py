@@ -32,14 +32,6 @@ from pyexiv2.utils import FixedOffset
 import datetime
 
 
-class ImageMetadataMock(object):
-
-    tags = {}
-
-    def _set_iptc_tag_values(self, key, values):
-        self.tags[key] = values
-
-
 class TestIptcTag(unittest.TestCase):
 
     def test_convert_to_python_short(self):
@@ -192,17 +184,9 @@ class TestIptcTag(unittest.TestCase):
         tag = IptcTag('Iptc.Application2.City', ['Seattle'])
         self.failUnlessRaises(TypeError, tag._set_values, 'Barcelona')
 
-    def test_set_values_no_metadata(self):
+    def test_set_values(self):
         tag = IptcTag('Iptc.Application2.City', ['Seattle'])
         old_values = tag.values
         tag.values = ['Barcelona']
         self.failIfEqual(tag.values, old_values)
-
-    def test_set_values_with_metadata(self):
-        tag = IptcTag('Iptc.Application2.City', ['Seattle'])
-        tag.metadata = ImageMetadataMock()
-        old_values = tag.values
-        tag.values = ['Barcelona']
-        self.failIfEqual(tag.values, old_values)
-        self.assertEqual(tag.metadata.tags[tag.key], ['Barcelona'])
 

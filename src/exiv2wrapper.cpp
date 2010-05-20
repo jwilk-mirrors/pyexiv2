@@ -41,58 +41,6 @@
 namespace exiv2wrapper
 {
 
-// Static helper function to set the values of an IptcData for a given key
-static void set_iptc_tag_values(const std::string& key,
-                                Exiv2::IptcData* metadata,
-                                const boost::python::list& values)
-{
-    Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-    unsigned int index = 0;
-    unsigned int max = boost::python::len(values);
-    Exiv2::IptcMetadata::iterator iterator = metadata->findKey(iptcKey);
-    while (index < max)
-    {
-        std::string value = boost::python::extract<std::string>(values[index++]);
-        if (iterator != metadata->end())
-        {
-            // Override an existing value
-            iterator->setValue(value);
-            // Jump to the next datum matching the key
-            ++iterator;
-            while ((iterator != metadata->end()) && (iterator->key() != key))
-            {
-                ++iterator;
-            }
-        }
-        else
-        {
-            // Append a new value
-            Exiv2::Iptcdatum datum(iptcKey);
-            datum.setValue(value);
-            int state = metadata->add(datum);
-            if (state == 6)
-            {
-                throw Exiv2::Error(NON_REPEATABLE);
-            }
-            // Reset iterator that has been invalidated by appending a datum
-            iterator = metadata->end();
-        }
-    }
-    // Erase the remaining values if any
-    while (iterator != metadata->end())
-    {
-        if (iterator->key() == key)
-        {
-            iterator = metadata->erase(iterator);
-        }
-        else
-        {
-            ++iterator;
-        }
-    }
-}
-
-
 void Image::_instantiate_image()
 {
     // If an exception is thrown, it has to be done outside of the
@@ -281,13 +229,6 @@ const ExifTag Image::getExifTag(std::string key)
     return ExifTag(key, &_exifData[key], &_exifData);
 }
 
-void Image::setExifTagValue(std::string key, std::string value)
-{
-    CHECK_METADATA_READ
-
-    _exifData[key] = value;
-}
-
 void Image::deleteExifTag(std::string key)
 {
     CHECK_METADATA_READ
@@ -333,13 +274,6 @@ const IptcTag Image::getIptcTag(std::string key)
     }
 
     return IptcTag(key, &_iptcData);
-}
-
-void Image::setIptcTagValues(std::string key, boost::python::list values)
-{
-    CHECK_METADATA_READ
-
-    set_iptc_tag_values(key, &_iptcData, values);
 }
 
 void Image::deleteIptcTag(std::string key)
@@ -393,47 +327,6 @@ const XmpTag Image::getXmpTag(std::string key)
     }
 
     return XmpTag(key, &_xmpData[key]);
-}
-
-void Image::setXmpTagTextValue(const std::string& key, const std::string& value)
-{
-    CHECK_METADATA_READ
-
-    _xmpData[key].setValue(value);
-}
-
-void Image::setXmpTagArrayValue(const std::string& key, const boost::python::list& values)
-{
-    CHECK_METADATA_READ
-
-    Exiv2::Xmpdatum& datum = _xmpData[key];
-    // Reset the value
-    datum.setValue(0);
-
-    for(boost::python::stl_input_iterator<std::string> iterator(values);
-        iterator != boost::python::stl_input_iterator<std::string>();
-        ++iterator)
-    {
-        datum.setValue(*iterator);
-    }
-}
-
-void Image::setXmpTagLangAltValue(const std::string& key, const boost::python::dict& values)
-{
-    CHECK_METADATA_READ
-
-    Exiv2::Xmpdatum& datum = _xmpData[key];
-    // Reset the value
-    datum.setValue(0);
-
-    for(boost::python::stl_input_iterator<std::string> iterator(values);
-        iterator != boost::python::stl_input_iterator<std::string>();
-        ++iterator)
-    {
-        std::string key = *iterator;
-        std::string value = boost::python::extract<std::string>(values.get(key));
-        datum.setValue("lang=\"" + key + "\" " + value);
-    }
 }
 
 void Image::deleteXmpTag(std::string key)
@@ -571,6 +464,15 @@ void ExifTag::setRawValue(const std::string& value)
     _datum->setValue(value);
 }
 
+void ExifTag::setParentImage(Image& image)
+{
+    _data = image.getExifData();
+    std::string value = _datum->toString();
+    delete _datum;
+    _datum = &(*_data)[_key.key()];
+    _datum->setValue(value);
+}
+
 const std::string ExifTag::getKey()
 {
     return _key.key();
@@ -681,7 +583,58 @@ void IptcTag::setRawValues(const boost::python::list& values)
         throw Exiv2::Error(NON_REPEATABLE);
     }
 
-    set_iptc_tag_values(_key.key(), _data, values);
+    unsigned int index = 0;
+    unsigned int max = boost::python::len(values);
+    Exiv2::IptcMetadata::iterator iterator = _data->findKey(_key);
+    while (index < max)
+    {
+        std::string value = boost::python::extract<std::string>(values[index++]);
+        if (iterator != _data->end())
+        {
+            // Override an existing value
+            iterator->setValue(value);
+            // Jump to the next datum matching the key
+            ++iterator;
+            while ((iterator != _data->end()) && (iterator->key() != _key.key()))
+            {
+                ++iterator;
+            }
+        }
+        else
+        {
+            // Append a new value
+            Exiv2::Iptcdatum datum(_key);
+            datum.setValue(value);
+            int state = _data->add(datum);
+            if (state == 6)
+            {
+                throw Exiv2::Error(NON_REPEATABLE);
+            }
+            // Reset iterator that has been invalidated by appending a datum
+            iterator = _data->end();
+        }
+    }
+    // Erase the remaining values if any
+    while (iterator != _data->end())
+    {
+        if (iterator->key() == _key.key())
+        {
+            iterator = _data->erase(iterator);
+        }
+        else
+        {
+            ++iterator;
+        }
+    }
+}
+
+void IptcTag::setParentImage(Image& image)
+{
+    const boost::python::list values = getRawValues();
+    delete _data;
+    _from_data = true;
+    _data = image.getIptcData();
+    setRawValues(values);
 }
 
 const std::string IptcTag::getKey()
@@ -817,6 +770,42 @@ void XmpTag::setLangAltValue(const boost::python::dict& values)
         std::string key = *iterator;
         std::string value = boost::python::extract<std::string>(values.get(key));
         _datum->setValue("lang=\"" + key + "\" " + value);
+    }
+}
+
+void XmpTag::setParentImage(Image& image)
+{
+    switch (Exiv2::XmpProperties::propertyType(_key))
+    {
+        case Exiv2::xmpText:
+        {
+            const std::string value = getTextValue();
+            delete _datum;
+            _from_datum = true;
+            _datum = &(*image.getXmpData())[_key.key()];
+            setTextValue(value);
+            break;
+        }
+        case Exiv2::xmpAlt:
+        case Exiv2::xmpBag:
+        case Exiv2::xmpSeq:
+        {
+            const boost::python::list value = getArrayValue();
+            delete _datum;
+            _from_datum = true;
+            _datum = &(*image.getXmpData())[_key.key()];
+            setArrayValue(value);
+            break;
+        }
+        case Exiv2::langAlt:
+        {
+            const boost::python::dict value = getLangAltValue();
+            delete _datum;
+            _from_datum = true;
+            _datum = &(*image.getXmpData())[_key.key()];
+            setLangAltValue(value);
+            break;
+        }
     }
 }
 

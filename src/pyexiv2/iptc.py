@@ -72,9 +72,6 @@ class IptcTag(ListenerInterface):
     - Date: :class:`datetime.date`
     - Time: :class:`datetime.time`
     - Undefined: string
-
-    :attribute metadata: the parent metadata if any, or None
-    :type metadata: :class:`pyexiv2.metadata.ImageMetadata`
     """
 
     # strptime is not flexible enough to handle all valid Time formats, we use a
@@ -96,12 +93,14 @@ class IptcTag(ListenerInterface):
             self._tag = _tag
         else:
             self._tag = libexiv2python._IptcTag(key)
-        self.metadata = None
         self._raw_values = None
         self._values = None
         self._values_cookie = False
         if values is not None:
             self._set_values(values)
+
+    def _set_owner(self, metadata):
+        self._tag._setParentImage(metadata._image)
 
     @staticmethod
     def _from_existing_tag(_tag):
@@ -168,8 +167,6 @@ class IptcTag(ListenerInterface):
         if not isinstance(values, (list, tuple)):
             raise TypeError('Expecting a list of values')
         self._tag._setRawValues(values)
-        if self.metadata is not None:
-            self.metadata._set_iptc_tag_values(self.key, values)
         self._raw_values = values
         self._values_cookie = True
 

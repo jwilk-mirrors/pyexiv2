@@ -72,9 +72,6 @@ class ExifTag(ListenerInterface):
     - Short, SShort: [list of] int
     - Rational, SRational: [list of] :class:`pyexiv2.utils.Rational`
     - Undefined: string
-
-    :attribute metadata: the parent metadata if any, or None
-    :type metadata: :class:`pyexiv2.metadata.ImageMetadata`
     """
 
     # According to the EXIF specification, the only accepted format for an Ascii
@@ -100,12 +97,14 @@ class ExifTag(ListenerInterface):
             self._tag = _tag
         else:
             self._tag = libexiv2python._ExifTag(key)
-        self.metadata = None
         self._raw_value = None
         self._value = None
         self._value_cookie = False
         if value is not None:
             self._set_value(value)
+
+    def _set_owner(self, metadata):
+        self._tag._setParentImage(metadata._image)
 
     @staticmethod
     def _from_existing_tag(_tag):
@@ -159,8 +158,6 @@ class ExifTag(ListenerInterface):
 
     def _set_raw_value(self, value):
         self._tag._setRawValue(value)
-        if self.metadata is not None:
-            self.metadata._set_exif_tag_value(self.key, value)
         self._raw_value = value
         self._value_cookie = True
 

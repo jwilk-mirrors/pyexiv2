@@ -48,6 +48,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
     class_<ExifTag>("_ExifTag", init<std::string>())
 
         .def("_setRawValue", &ExifTag::setRawValue)
+        .def("_setParentImage", &ExifTag::setParentImage)
 
         .def("_getKey", &ExifTag::getKey)
         .def("_getType", &ExifTag::getType)
@@ -63,6 +64,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
     class_<IptcTag>("_IptcTag", init<std::string>())
 
         .def("_setRawValues", &IptcTag::setRawValues)
+        .def("_setParentImage", &IptcTag::setParentImage)
 
         .def("_getKey", &IptcTag::getKey)
         .def("_getType", &IptcTag::getType)
@@ -81,6 +83,7 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_setTextValue", &XmpTag::setTextValue)
         .def("_setArrayValue", &XmpTag::setArrayValue)
         .def("_setLangAltValue", &XmpTag::setLangAltValue)
+        .def("_setParentImage", &XmpTag::setParentImage)
 
         .def("_getKey", &XmpTag::getKey)
         .def("_getExiv2Type", &XmpTag::getExiv2Type)
@@ -130,19 +133,14 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
         .def("_exifKeys", &Image::exifKeys)
         .def("_getExifTag", &Image::getExifTag)
-        .def("_setExifTagValue", &Image::setExifTagValue)
         .def("_deleteExifTag", &Image::deleteExifTag)
 
         .def("_iptcKeys", &Image::iptcKeys)
         .def("_getIptcTag", &Image::getIptcTag)
-        .def("_setIptcTagValues", &Image::setIptcTagValues)
         .def("_deleteIptcTag", &Image::deleteIptcTag)
 
         .def("_xmpKeys", &Image::xmpKeys)
         .def("_getXmpTag", &Image::getXmpTag)
-        .def("_setXmpTagTextValue", &Image::setXmpTagTextValue)
-        .def("_setXmpTagArrayValue", &Image::setXmpTagArrayValue)
-        .def("_setXmpTagLangAltValue", &Image::setXmpTagLangAltValue)
         .def("_deleteXmpTag", &Image::deleteXmpTag)
 
         .def("_previews", &Image::previews)
