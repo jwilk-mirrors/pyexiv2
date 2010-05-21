@@ -317,7 +317,7 @@ class ImageMetadata(object):
         size."""
         return [Preview(preview) for preview in self._image._previews()]
 
-    def copy(self, other, exif=True, iptc=True, xmp=True):
+    def copy(self, other, exif=True, iptc=True, xmp=True, comment=True):
         """
         Copy the metadata to another image.
         The metadata in the destination is overridden. In particular, if the
@@ -333,6 +333,8 @@ class ImageMetadata(object):
         :type iptc: boolean
         :param xmp: whether to copy the XMP metadata
         :type xmp: boolean
+        :param comment: whether to copy the image comment
+        :type comment: boolean
         """
         self._image._copyMetadata(other._image, exif, iptc, xmp)
         # Empty the cache where needed
@@ -345,6 +347,8 @@ class ImageMetadata(object):
         if xmp:
             other._keys['xmp'] = None
             other._tags['xmp'] = {}
+        if comment:
+            other.comment = self.comment
 
     @property
     def buffer(self):
