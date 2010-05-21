@@ -71,6 +71,7 @@ class TestImageMetadata(unittest.TestCase):
         m['Iptc.Application2.DateCreated'] = [datetime.date(2004, 7, 13)]
         m['Xmp.dc.format'] = ('image', 'jpeg')
         m['Xmp.dc.subject'] = ['image', 'test', 'pyexiv2']
+        m.comment = 'Hello World!'
         m.write()
         self.metadata = ImageMetadata(self.pathname)
 
@@ -490,6 +491,27 @@ class TestImageMetadata(unittest.TestCase):
         for key in keys:
             self.failUnlessRaises(KeyError, self.metadata.__delitem__, key)
 
+    ##########################
+    # Test the image comment #
+    ##########################
+    
+    def test_get_comment(self):
+        self.metadata.read()
+        self.failUnlessEqual(self.metadata.comment, 'Hello World!')
+
+    def test_set_comment(self):
+        self.metadata.read()
+        comment = 'Welcome to the real world.'
+        self.metadata.comment = comment
+        self.failUnlessEqual(self.metadata.comment, comment)
+        self.metadata.comment = None
+        self.failUnlessEqual(self.metadata.comment, '')
+
+    def test_delete_comment(self):
+        self.metadata.read()
+        del self.metadata.comment
+        self.failUnlessEqual(self.metadata.comment, '')
+
     ####################
     # Test metadata copy
     ####################
@@ -523,4 +545,6 @@ class TestImageMetadata(unittest.TestCase):
 
         for key in self.metadata.xmp_keys:
             self.failUnlessEqual(self.metadata[key].value, self.other[key].value)
+
+        self.failUnlessEqual(self.metadata.comment, self.other.comment)
 
