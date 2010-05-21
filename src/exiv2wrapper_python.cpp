@@ -130,6 +130,10 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_getXmpTag", &Image::getXmpTag)
         .def("_deleteXmpTag", &Image::deleteXmpTag)
 
+        .def("_getComment", &Image::getComment)
+        .def("_setComment", &Image::setComment)
+        .def("_clearComment", &Image::clearComment)
+
         .def("_previews", &Image::previews)
 
         .def("_copyMetadata", &Image::copyMetadata)

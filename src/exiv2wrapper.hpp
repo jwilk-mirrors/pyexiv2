@@ -222,6 +222,11 @@ public:
     // Throw an exception if the tag was not set.
     void deleteXmpTag(std::string key);
 
+    // Comment
+    const std::string getComment() const;
+    void setComment(const std::string& comment);
+    void clearComment();
+
     // Read access to the thumbnail embedded in the image.
     boost::python::list previews();
 

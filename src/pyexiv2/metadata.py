@@ -296,6 +296,21 @@ class ImageMetadata(object):
         except AttributeError:
             raise KeyError(key)
 
+    def _get_comment(self):
+        return self._image._getComment()
+
+    def _set_comment(self, comment):
+        if comment is not None:
+            self._image._setComment(comment)
+        else:
+            self._del_comment()
+
+    def _del_comment(self):
+        self._image._clearComment()
+
+    comment = property(fget=_get_comment, fset=_set_comment, fdel=_del_comment,
+                       doc='The image comment.')
+
     @property
     def previews(self):
         """List of the previews available in the image, sorted by increasing
