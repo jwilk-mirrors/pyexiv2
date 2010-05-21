@@ -343,6 +343,25 @@ void Image::deleteXmpTag(std::string key)
         throw Exiv2::Error(KEY_NOT_FOUND, key);
 }
 
+const std::string Image::getComment() const
+{
+    CHECK_METADATA_READ
+    return _image->comment();
+}
+
+void Image::setComment(const std::string& comment)
+{
+    CHECK_METADATA_READ
+    _image->setComment(comment);
+}
+
+void Image::clearComment()
+{
+    CHECK_METADATA_READ
+    _image->clearComment();
+}
+
+
 boost::python::list Image::previews()
 {
     CHECK_METADATA_READ
