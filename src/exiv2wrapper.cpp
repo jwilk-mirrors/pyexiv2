@@ -131,9 +131,9 @@ void Image::readMetadata()
     try
     {
         _image->readMetadata();
-        _exifData = _image->exifData();
-        _iptcData = _image->iptcData();
-        _xmpData = _image->xmpData();
+        _exifData = &_image->exifData();
+        _iptcData = &_image->iptcData();
+        _xmpData = &_image->xmpData();
         _dataRead = true;
     }
     catch (Exiv2::Error& err)
@@ -164,9 +164,6 @@ void Image::writeMetadata()
 
     try
     {
-        _image->setExifData(_exifData);
-        _image->setIptcData(_iptcData);
-        _image->setXmpData(_xmpData);
         _image->writeMetadata();
     }
     catch (Exiv2::Error& err)
@@ -206,8 +203,8 @@ boost::python::list Image::exifKeys()
     CHECK_METADATA_READ
 
     boost::python::list keys;
-    for(Exiv2::ExifMetadata::iterator i = _exifData.begin();
-        i != _exifData.end();
+    for(Exiv2::ExifMetadata::iterator i = _exifData->begin();
+        i != _exifData->end();
         ++i)
     {
         keys.append(i->key());
@@ -221,12 +218,12 @@ const ExifTag Image::getExifTag(std::string key)
 
     Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
 
-    if(_exifData.findKey(exifKey) == _exifData.end())
+    if(_exifData->findKey(exifKey) == _exifData->end())
     {
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    return ExifTag(key, &_exifData[key], &_exifData);
+    return ExifTag(key, &(*_exifData)[key], _exifData);
 }
 
 void Image::deleteExifTag(std::string key)
@@ -234,13 +231,13 @@ void Image::deleteExifTag(std::string key)
     CHECK_METADATA_READ
 
     Exiv2::ExifKey exifKey = Exiv2::ExifKey(key);
-    Exiv2::ExifMetadata::iterator datum = _exifData.findKey(exifKey);
-    if(datum == _exifData.end())
+    Exiv2::ExifMetadata::iterator datum = _exifData->findKey(exifKey);
+    if(datum == _exifData->end())
     {
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    _exifData.erase(datum);
+    _exifData->erase(datum);
 }
 
 boost::python::list Image::iptcKeys()
@@ -248,8 +245,8 @@ boost::python::list Image::iptcKeys()
     CHECK_METADATA_READ
 
     boost::python::list keys;
-    for(Exiv2::IptcMetadata::iterator i = _iptcData.begin();
-        i != _iptcData.end();
+    for(Exiv2::IptcMetadata::iterator i = _iptcData->begin();
+        i != _iptcData->end();
         ++i)
     {
         // The key is appended to the list if and only if it is not already
@@ -268,12 +265,12 @@ const IptcTag Image::getIptcTag(std::string key)
 
     Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
 
-    if(_iptcData.findKey(iptcKey) == _iptcData.end())
+    if(_iptcData->findKey(iptcKey) == _iptcData->end())
     {
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    return IptcTag(key, &_iptcData);
+    return IptcTag(key, _iptcData);
 }
 
 void Image::deleteIptcTag(std::string key)
@@ -281,18 +278,18 @@ void Image::deleteIptcTag(std::string key)
     CHECK_METADATA_READ
 
     Exiv2::IptcKey iptcKey = Exiv2::IptcKey(key);
-    Exiv2::IptcMetadata::iterator dataIterator = _iptcData.findKey(iptcKey);
+    Exiv2::IptcMetadata::iterator dataIterator = _iptcData->findKey(iptcKey);
 
-    if (dataIterator == _iptcData.end())
+    if (dataIterator == _iptcData->end())
     {
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    while (dataIterator != _iptcData.end())
+    while (dataIterator != _iptcData->end())
     {
         if (dataIterator->key() == key)
         {
-            dataIterator = _iptcData.erase(dataIterator);
+            dataIterator = _iptcData->erase(dataIterator);
         }
         else
         {
@@ -306,8 +303,8 @@ boost::python::list Image::xmpKeys()
     CHECK_METADATA_READ
 
     boost::python::list keys;
-    for(Exiv2::XmpMetadata::iterator i = _xmpData.begin();
-        i != _xmpData.end();
+    for(Exiv2::XmpMetadata::iterator i = _xmpData->begin();
+        i != _xmpData->end();
         ++i)
     {
         keys.append(i->key());
@@ -321,12 +318,12 @@ const XmpTag Image::getXmpTag(std::string key)
 
     Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
 
-    if(_xmpData.findKey(xmpKey) == _xmpData.end())
+    if(_xmpData->findKey(xmpKey) == _xmpData->end())
     {
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    return XmpTag(key, &_xmpData[key]);
+    return XmpTag(key, &(*_xmpData)[key]);
 }
 
 void Image::deleteXmpTag(std::string key)
@@ -334,10 +331,10 @@ void Image::deleteXmpTag(std::string key)
     CHECK_METADATA_READ
 
     Exiv2::XmpKey xmpKey = Exiv2::XmpKey(key);
-    Exiv2::XmpMetadata::iterator i = _xmpData.findKey(xmpKey);
-    if(i != _xmpData.end())
+    Exiv2::XmpMetadata::iterator i = _xmpData->findKey(xmpKey);
+    if(i != _xmpData->end())
     {
-        _xmpData.erase(i);
+        _xmpData->erase(i);
     }
     else
         throw Exiv2::Error(KEY_NOT_FOUND, key);
@@ -385,11 +382,11 @@ void Image::copyMetadata(Image& other, bool exif, bool iptc, bool xmp) const
     if (!other._dataRead) throw Exiv2::Error(METADATA_NOT_READ);
 
     if (exif)
-        other._exifData = _exifData;
+        other._image->setExifData(*_exifData);
     if (iptc)
-        other._iptcData = _iptcData;
+        other._image->setIptcData(*_iptcData);
     if (xmp)
-        other._xmpData = _xmpData;
+        other._image->setXmpData(*_xmpData);
 }
 
 std::string Image::getDataBuffer() const
