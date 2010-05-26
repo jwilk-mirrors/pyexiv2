@@ -77,9 +77,9 @@ wget http://www.python.org/ftp/python/2.6.5/python-2.6.5.msi
 7z x python/python -opython
 
 # boost-python
-wget http://sourceforge.net/projects/boost/files/boost/1.42.0/boost_1_42_0.tar.bz2/download
-tar xf boost_1_42_0.tar.bz2
-cd boost_1_42_0
+wget http://sourceforge.net/projects/boost/files/boost/1.43.0/boost_1_43_0.tar.bz2/download
+tar xf boost_1_43_0.tar.bz2
+cd boost_1_43_0
 echo "using gcc : : $COMPILER : <compileflags>-I$BASE/python <archiver>$ARCHIVER ;" >> tools/build/v2/user-config.jam
 bjam install -j 3 --prefix=$BASE/boost --with-python toolset=gcc link=static
 cd ..
