@@ -72,8 +72,8 @@ make -j3 install
 cd ..
 
 # python
-wget http://www.python.org/ftp/python/2.6.4/python-2.6.4.msi
-7z x python-2.6.4.msi -opython
+wget http://www.python.org/ftp/python/2.6.5/python-2.6.5.msi
+7z x python-2.6.5.msi -opython
 7z x python/python -opython
 
 # boost-python
