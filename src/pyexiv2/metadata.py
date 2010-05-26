@@ -68,6 +68,10 @@ class ImageMetadata(object):
         # the internal image reference by a mock.
         if not os.path.exists(filename) or not os.path.isfile(filename):
             raise IOError(ENOENT, "%s: '%s'" % (os.strerror(ENOENT), filename))
+        # Remember the reference timestamps before doing any access to the file
+        stat = os.stat(filename)
+        self._atime = stat.st_atime
+        self._mtime = stat.st_mtime
         return libexiv2python._Image(filename)
 
     @classmethod
@@ -93,11 +97,26 @@ class ImageMetadata(object):
             self._image = self._instantiate_image(self.filename)
         self._image._readMetadata()
 
-    def write(self):
+    def write(self, preserve_timestamps=False):
         """
         Write the metadata back to the image.
+
+        :param preserve_timestamps: whether to preserve the file's original
+                                    timestamps (access time and modification
+                                    time)
+        :type preserve_timestamps: boolean
         """
         self._image._writeMetadata()
+        if self.filename is None:
+            return
+        if preserve_timestamps:
+            # Revert to the original timestamps
+            os.utime(self.filename, (self._atime, self._mtime))
+        else:
+            # Reset the reference timestamps
+            stat = os.stat(self.filename)
+            self._atime = stat.st_atime
+            self._mtime = stat.st_mtime
 
     @property
     def dimensions(self):

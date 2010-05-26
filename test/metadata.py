@@ -33,6 +33,7 @@ from pyexiv2.utils import FixedOffset, Rational
 import datetime
 import os
 import tempfile
+import time
 import unittest
 
 
@@ -90,6 +91,44 @@ class TestImageMetadata(unittest.TestCase):
     def test_read_nonexistent_file(self):
         metadata = ImageMetadata('idontexist')
         self.failUnlessRaises(IOError, metadata.read)
+
+    def test_write_preserve_timestamps(self):
+        stat = os.stat(self.pathname)
+        atime = stat.st_atime
+        mtime = stat.st_mtime
+        metadata = ImageMetadata(self.pathname)
+        metadata.read()
+        metadata.comment = 'Yellow Submarine'
+        time.sleep(1.1)
+        metadata.write(preserve_timestamps=True)
+        stat2 = os.stat(self.pathname)
+        atime2 = stat2.st_atime
+        mtime2 = stat2.st_atime
+        self.failUnlessEqual(atime2, atime)
+        self.failUnlessEqual(mtime2, mtime)
+
+    def test_write_dont_preserve_timestamps(self):
+        stat = os.stat(self.pathname)
+        atime = stat.st_atime
+        mtime = stat.st_mtime
+        metadata = ImageMetadata(self.pathname)
+        metadata.read()
+        metadata.comment = 'Yellow Submarine'
+        time.sleep(1.1)
+        metadata.write()
+        stat2 = os.stat(self.pathname)
+        atime2 = stat2.st_atime
+        mtime2 = stat2.st_atime
+        self.failIfEqual(atime2, atime)
+        self.failIfEqual(mtime2, mtime)
+        metadata.comment = 'Yesterday'
+        time.sleep(1.1)
+        metadata.write(preserve_timestamps=True)
+        stat3 = os.stat(self.pathname)
+        atime3 = stat3.st_atime
+        mtime3 = stat3.st_atime
+        self.failUnlessEqual(atime3, atime2)
+        self.failUnlessEqual(mtime3, mtime2)
 
     ###########################
     # Test EXIF-related methods
