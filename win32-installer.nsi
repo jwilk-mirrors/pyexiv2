@@ -152,6 +152,7 @@ Section "pyexiv2"
   File src\pyexiv2\exif.py
   File src\pyexiv2\iptc.py
   File src\pyexiv2\xmp.py
+  File src\pyexiv2\preview.py
   File src\pyexiv2\utils.py
 
   ; Create the uninstaller and publish it in the registry

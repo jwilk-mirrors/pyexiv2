@@ -54,7 +54,7 @@ else:
         install_dir = os.path.join(dest_dir, python_lib_path[1:])
 
 env.Install(install_dir, [libpyexiv2])
-modules = ['__init__', 'metadata', 'exif', 'iptc', 'xmp', 'utils']
+modules = ['__init__', 'metadata', 'exif', 'iptc', 'xmp', 'preview', 'utils']
 env.Install(os.path.join(install_dir, 'pyexiv2'),
             ['pyexiv2/%s.py' % module for module in modules])
 env.Alias('install', install_dir)
