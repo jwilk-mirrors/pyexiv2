@@ -1,3 +1,35 @@
+pyexiv2 0.2.2 "Holiday" - 2010-05-27
+------------------------------------
+
+Dependencies:
+
+- Python ≥ 2.5
+- libexiv2 ≥ 0.19
+- boost.python ≥ 1.38
+
+Changes:
+
+- Fixed two memory leaks
+- Optimized the use of the underlying libexiv2, expect improved performances
+- Restored access to the image comment (was a regression from the 0.1 series)
+- Added an optional parameter to preserve timestamps when writing metadata
+- Improved API documentation
+
+Bugs fixed:
+
+- 581787: Metadata tags leak memory
+- 582194: Reading an IPTC tag leaks memory
+- 582445: Reading a tag off an image unnecessarily re-writes its value(s)
+- 582733: Tag values are written twice
+- 559931: Please restore ability to retrieve JPEG comment
+- 564770: Document pyexiv2.metadata preview method and properties
+- 461840: feature request : optionally preserve file timestamps
+
+Contributors:
+
+- Olivier Tilloy
+
+
 pyexiv2 0.2.1 "Employment" - 2010-04-26
 ---------------------------------------
 
@@ -17,6 +49,10 @@ Bugs fixed:
 - 562525: memory leak in ImageMetadata.from_buffer
 - 549398: Building the doc requires fiddling with the PYTHONPATH
 - 549399: Add a "test" target to scons to run the unit tests
+
+Contributors:
+
+- Olivier Tilloy
 
 
 pyexiv2 0.2.0 "Commuting" - 2010-03-25
