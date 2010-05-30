@@ -90,7 +90,7 @@ Image::Image(const std::string& filename)
 }
 
 // From buffer constructor
-Image::Image(const std::string& buffer, long size)
+Image::Image(const std::string& buffer, unsigned long size)
 {
     // Deep copy of the data buffer
     _data = new Exiv2::byte[size];
@@ -398,7 +398,7 @@ std::string Image::getDataBuffer() const
     Py_BEGIN_ALLOW_THREADS
 
     Exiv2::BasicIo& io = _image->io();
-    long size = io.size();
+    unsigned long size = io.size();
     long pos = -1;
 
     if (io.isopen())
@@ -822,6 +822,10 @@ void XmpTag::setParentImage(Image& image)
             setLangAltValue(value);
             break;
         }
+        default:
+            // Should not happen, this case is here for the sake
+            // of completeness and to avoid compiler warnings.
+            assert(0);
     }
 }
 

@@ -164,7 +164,7 @@ class Image
 public:
     // Constructors
     Image(const std::string& filename);
-    Image(const std::string& buffer, long size);
+    Image(const std::string& buffer, unsigned long size);
     Image(const Image& image);
 
     ~Image();
