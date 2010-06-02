@@ -67,7 +67,7 @@ class ImageMetadata(object):
         # This method is meant to be overridden in unit tests to easily replace
         # the internal image reference by a mock.
         if not os.path.exists(filename) or not os.path.isfile(filename):
-            raise IOError(ENOENT, "%s: '%s'" % (os.strerror(ENOENT), filename))
+            raise IOError(ENOENT, os.strerror(ENOENT), filename)
         # Remember the reference timestamps before doing any access to the file
         stat = os.stat(filename)
         self._atime = stat.st_atime
