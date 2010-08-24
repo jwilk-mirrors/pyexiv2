@@ -482,7 +482,15 @@ void ExifTag::setRawValue(const std::string& value)
 
 void ExifTag::setParentImage(Image& image)
 {
-    _data = image.getExifData();
+    Exiv2::ExifData* data = image.getExifData();
+    if (data == _data)
+    {
+        // The parent image is already the one passed as a parameter.
+        // This happens when replacing a tag by itself. In this case, don’t do
+        // anything (see https://bugs.launchpad.net/pyexiv2/+bug/622739).
+        return;
+    }
+    _data = data;
     std::string value = _datum->toString();
     delete _datum;
     _datum = &(*_data)[_key.key()];
@@ -646,10 +654,18 @@ void IptcTag::setRawValues(const boost::python::list& values)
 
 void IptcTag::setParentImage(Image& image)
 {
+    Exiv2::IptcData* data = image.getIptcData();
+    if (data == _data)
+    {
+        // The parent image is already the one passed as a parameter.
+        // This happens when replacing a tag by itself. In this case, don’t do
+        // anything (see https://bugs.launchpad.net/pyexiv2/+bug/622739).
+        return;
+    }
     const boost::python::list values = getRawValues();
     delete _data;
     _from_data = true;
-    _data = image.getIptcData();
+    _data = data;
     setRawValues(values);
 }
 
@@ -791,6 +807,14 @@ void XmpTag::setLangAltValue(const boost::python::dict& values)
 
 void XmpTag::setParentImage(Image& image)
 {
+    Exiv2::Xmpdatum* datum = &(*image.getXmpData())[_key.key()];
+    if (datum == _datum)
+    {
+        // The parent image is already the one passed as a parameter.
+        // This happens when replacing a tag by itself. In this case, don’t do
+        // anything (see https://bugs.launchpad.net/pyexiv2/+bug/622739).
+        return;
+    }
     switch (Exiv2::XmpProperties::propertyType(_key))
     {
         case Exiv2::xmpText:

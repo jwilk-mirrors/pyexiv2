@@ -530,6 +530,17 @@ class TestImageMetadata(unittest.TestCase):
         for key in keys:
             self.failUnlessRaises(KeyError, self.metadata.__delitem__, key)
 
+    def test_replace_tag_by_itself(self):
+        # Test that replacing an existing tag by itself
+        # doesn’t result in an ugly segmentation fault
+        # (see https://bugs.launchpad.net/pyexiv2/+bug/622739).
+        self.metadata.read()
+        keys = self.metadata.exif_keys + \
+               self.metadata.iptc_keys + \
+               self.metadata.xmp_keys
+        for key in keys:
+            self.metadata[key] = self.metadata[key]        
+
     ##########################
     # Test the image comment #
     ##########################
