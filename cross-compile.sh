@@ -86,6 +86,6 @@ cd ..
 
 # pyexiv2
 cd $BRANCH
-mkdir build
+mkdir -p build
 $COMPILER -o build/libexiv2python.pyd -DBOOST_PYTHON_STATIC_LIB -shared src/exiv2wrapper.cpp src/exiv2wrapper_python.cpp $BASE/exiv2/lib/libexiv2.a $BASE/zlib/lib/libz.a $BASE/libiconv/lib/libiconv.a $BASE/expat/lib/libexpat.a $BASE/boost/lib/libboost_python.a -I$BASE/exiv2/include -I$BASE/python -I$BASE/boost/include -L$BASE/python -lpython27
 
