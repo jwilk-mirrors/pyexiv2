@@ -40,7 +40,7 @@ Page custom InstallationOptions InstallationOptionsLeave
 !insertmacro MUI_LANGUAGE "English"
 
 !define PYTHON_MAJOR "2"
-!define PYTHON_MINOR "6"
+!define PYTHON_MINOR "7"
 !define PYTHON_KEY "Software\Python\PythonCore\${PYTHON_MAJOR}.${PYTHON_MINOR}\InstallPath"
 !define PYEXIV2_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\pyexiv2-${PYEXIV2_VERSION}"
 
