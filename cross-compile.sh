@@ -64,28 +64,28 @@ make -j3 install
 cd ..
 
 # exiv2
-wget http://exiv2.org/exiv2-0.19.tar.gz
-tar xf exiv2-0.19.tar.gz
-cd exiv2-0.19
+wget http://exiv2.org/exiv2-0.20.tar.gz
+tar xf exiv2-0.20.tar.gz
+cd exiv2-0.20
 ./configure --disable-shared --disable-visibility --target=$PLATFORM --host=$PLATFORM --build=$BUILD --disable-nls --with-zlib=$BASE/zlib --with-libiconv-prefix=$BASE/libiconv --with-expat=$BASE/expat --prefix=$BASE/exiv2
 make -j3 install
 cd ..
 
 # python
-wget http://www.python.org/ftp/python/2.6.5/python-2.6.5.msi
-7z x python-2.6.5.msi -opython
+wget http://python.org/ftp/python/2.7/python-2.7.msi
+7z x python-2.7.msi -opython
 7z x python/python -opython
 
 # boost-python
-wget http://sourceforge.net/projects/boost/files/boost/1.43.0/boost_1_43_0.tar.bz2/download
-tar xf boost_1_43_0.tar.bz2
-cd boost_1_43_0
+wget http://sourceforge.net/projects/boost/files/boost/1.44.0/boost_1_44_0.tar.bz2/download
+tar xf boost_1_44_0.tar.bz2
+cd boost_1_44_0
 echo "using gcc : : $COMPILER : <compileflags>-I$BASE/python <archiver>$ARCHIVER ;" >> tools/build/v2/user-config.jam
 bjam install -j 3 --prefix=$BASE/boost --with-python toolset=gcc link=static
 cd ..
 
 # pyexiv2
 cd $BRANCH
-mkdir build
-$COMPILER -o build/libexiv2python.pyd -DBOOST_PYTHON_STATIC_LIB -shared src/exiv2wrapper.cpp src/exiv2wrapper_python.cpp $BASE/exiv2/lib/libexiv2.a $BASE/zlib/lib/libz.a $BASE/libiconv/lib/libiconv.a $BASE/expat/lib/libexpat.a $BASE/boost/lib/libboost_python.a -I$BASE/exiv2/include -I$BASE/python -I$BASE/boost/include -L$BASE/python -lpython26
+mkdir -p build
+$COMPILER -o build/libexiv2python.pyd -DBOOST_PYTHON_STATIC_LIB -shared src/exiv2wrapper.cpp src/exiv2wrapper_python.cpp $BASE/exiv2/lib/libexiv2.a $BASE/zlib/lib/libz.a $BASE/libiconv/lib/libiconv.a $BASE/expat/lib/libexpat.a $BASE/boost/lib/libboost_python.a -I$BASE/exiv2/include -I$BASE/python -I$BASE/boost/include -L$BASE/python -lpython27
 
