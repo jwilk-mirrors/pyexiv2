@@ -28,6 +28,7 @@ import unittest
 import os
 import sys
 import binascii
+import locale
 from tempfile import gettempdir
 
 from pyexiv2.metadata import ImageMetadata
@@ -65,6 +66,12 @@ class TestEncodings(unittest.TestCase):
     def setUp(self):
         self._cwd = os.getcwd()
         os.chdir(gettempdir())
+        try:
+            locale.setlocale(locale.LC_ALL, '')
+        except locale.Error:
+            self.encoding = None
+        else:
+            lc, self.encoding = locale.getlocale()
 
     def tearDown(self):
         os.chdir(self._cwd)
@@ -88,11 +95,14 @@ class TestEncodings(unittest.TestCase):
         self._test_filename('test.jpg')
 
     def test_ascii_unicode(self):
-        self._test_filename(u'test.jpg')
+        if self.encoding is not None:
+            self._test_filename(u'test.jpg')
 
     def test_nonascii_unicode(self):
-        self._test_filename(u'tést.jpg')
+        if self.encoding is not None:
+            self._test_filename(u'tést.jpg')
 
     def test_nonascii_unicode_escaped(self):
-        self._test_filename(u't\xe9st.jpg')
+        if self.encoding is not None:
+            self._test_filename(u't\xe9st.jpg')
 
