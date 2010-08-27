@@ -45,6 +45,11 @@ BOOST_PYTHON_MODULE(libexiv2python)
 
     register_exception_translator<Exiv2::Error>(&translateExiv2Error);
 
+    // Swallow all warnings and error messages written by libexiv2 to stderr
+    // (if it was compiled with DEBUG or without SUPPRESS_WARNINGS).
+    // See https://bugs.launchpad.net/pyexiv2/+bug/507620.
+    std::cerr.rdbuf(NULL);
+
     class_<ExifTag>("_ExifTag", init<std::string>())
 
         .def("_setRawValue", &ExifTag::setRawValue)
