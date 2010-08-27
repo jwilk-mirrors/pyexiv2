@@ -103,7 +103,7 @@ class TestImageMetadata(unittest.TestCase):
         metadata.write(preserve_timestamps=True)
         stat2 = os.stat(self.pathname)
         atime2 = round(stat2.st_atime)
-        mtime2 = round(stat2.st_atime)
+        mtime2 = round(stat2.st_mtime)
         self.failUnlessEqual(atime2, atime)
         self.failUnlessEqual(mtime2, mtime)
 
@@ -118,7 +118,7 @@ class TestImageMetadata(unittest.TestCase):
         metadata.write()
         stat2 = os.stat(self.pathname)
         atime2 = round(stat2.st_atime)
-        mtime2 = round(stat2.st_atime)
+        mtime2 = round(stat2.st_mtime)
         self.failIfEqual(atime2, atime)
         self.failIfEqual(mtime2, mtime)
         metadata.comment = 'Yesterday'
@@ -126,7 +126,7 @@ class TestImageMetadata(unittest.TestCase):
         metadata.write(preserve_timestamps=True)
         stat3 = os.stat(self.pathname)
         atime3 = round(stat3.st_atime)
-        mtime3 = round(stat3.st_atime)
+        mtime3 = round(stat3.st_mtime)
         self.failUnlessEqual(atime3, atime2)
         self.failUnlessEqual(mtime3, mtime2)
 
