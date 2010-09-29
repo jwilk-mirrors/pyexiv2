@@ -273,6 +273,8 @@ class ImageMetadata(object):
         except KeyError:
             # The tag was not cached.
             pass
+        if self._keys['exif'] is not None:
+            self._keys['exif'].remove(key)
 
     def _delete_iptc_tag(self, key):
         # Delete an IPTC tag.
@@ -285,6 +287,8 @@ class ImageMetadata(object):
         except KeyError:
             # The tag was not cached.
             pass
+        if self._keys['iptc'] is not None:
+            self._keys['iptc'].remove(key)
 
     def _delete_xmp_tag(self, key):
         # Delete an XMP tag.
@@ -297,6 +301,8 @@ class ImageMetadata(object):
         except KeyError:
             # The tag was not cached.
             pass
+        if self._keys['xmp'] is not None:
+            self._keys['xmp'].remove(key)
 
     def __delitem__(self, key):
         """

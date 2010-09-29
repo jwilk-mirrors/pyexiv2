@@ -223,20 +223,20 @@ class TestImageMetadata(unittest.TestCase):
         self.metadata.read()
         key = 'Exif.Image.DateTime'
         self.assertEqual(self.metadata._tags['exif'], {})
-        self.assert_(key in self.metadata._image._exifKeys())
+        self.assert_(key in self.metadata.exif_keys)
         self.metadata._delete_exif_tag(key)
         self.assertEqual(self.metadata._tags['exif'], {})
-        self.failIf(key in self.metadata._image._exifKeys())
+        self.failIf(key in self.metadata.exif_keys)
 
     def test_delete_exif_tag_cached(self):
         self.metadata.read()
         key = 'Exif.Image.DateTime'
-        self.assert_(key in self.metadata._image._exifKeys())
+        self.assert_(key in self.metadata.exif_keys)
         tag = self.metadata._get_exif_tag(key)
         self.assertEqual(self.metadata._tags['exif'][key], tag)
         self.metadata._delete_exif_tag(key)
         self.assertEqual(self.metadata._tags['exif'], {})
-        self.failIf(key in self.metadata._image._exifKeys())
+        self.failIf(key in self.metadata.exif_keys)
 
     ###########################
     # Test IPTC-related methods
@@ -331,20 +331,20 @@ class TestImageMetadata(unittest.TestCase):
         self.metadata.read()
         key = 'Iptc.Application2.Caption'
         self.assertEqual(self.metadata._tags['iptc'], {})
-        self.assert_(key in self.metadata._image._iptcKeys())
+        self.assert_(key in self.metadata.iptc_keys)
         self.metadata._delete_iptc_tag(key)
         self.assertEqual(self.metadata._tags['iptc'], {})
-        self.failIf(key in self.metadata._image._iptcKeys())
+        self.failIf(key in self.metadata.iptc_keys)
 
     def test_delete_iptc_tag_cached(self):
         self.metadata.read()
         key = 'Iptc.Application2.Caption'
-        self.assert_(key in self.metadata._image._iptcKeys())
+        self.assert_(key in self.metadata.iptc_keys)
         tag = self.metadata._get_iptc_tag(key)
         self.assertEqual(self.metadata._tags['iptc'][key], tag)
         self.metadata._delete_iptc_tag(key)
         self.assertEqual(self.metadata._tags['iptc'], {})
-        self.failIf(key in self.metadata._image._iptcKeys())
+        self.failIf(key in self.metadata.iptc_keys)
 
     ##########################
     # Test XMP-related methods
@@ -440,20 +440,20 @@ class TestImageMetadata(unittest.TestCase):
         self.metadata.read()
         key = 'Xmp.dc.subject'
         self.assertEqual(self.metadata._tags['xmp'], {})
-        self.assert_(key in self.metadata._image._xmpKeys())
+        self.assert_(key in self.metadata.xmp_keys)
         self.metadata._delete_xmp_tag(key)
         self.assertEqual(self.metadata._tags['xmp'], {})
-        self.failIf(key in self.metadata._image._xmpKeys())
+        self.failIf(key in self.metadata.xmp_keys)
 
     def test_delete_xmp_tag_cached(self):
         self.metadata.read()
         key = 'Xmp.dc.subject'
-        self.assert_(key in self.metadata._image._xmpKeys())
+        self.assert_(key in self.metadata.xmp_keys)
         tag = self.metadata._get_xmp_tag(key)
         self.assertEqual(self.metadata._tags['xmp'][key], tag)
         self.metadata._delete_xmp_tag(key)
         self.assertEqual(self.metadata._tags['xmp'], {})
-        self.failIf(key in self.metadata._image._xmpKeys())
+        self.failIf(key in self.metadata.xmp_keys)
 
     ###########################
     # Test dictionary interface
@@ -517,12 +517,15 @@ class TestImageMetadata(unittest.TestCase):
         # Delete existing tags
         key = 'Exif.Image.Make'
         del self.metadata[key]
+        self.failIf(key in self.metadata._keys['exif'])
         self.failIf(key in self.metadata._tags['exif'])
         key = 'Iptc.Application2.Caption'
         del self.metadata[key]
+        self.failIf(key in self.metadata._keys['iptc'])
         self.failIf(key in self.metadata._tags['iptc'])
         key = 'Xmp.dc.subject'
         del self.metadata[key]
+        self.failIf(key in self.metadata._keys['xmp'])
         self.failIf(key in self.metadata._tags['xmp'])
         # Try to delete nonexistent tags
         keys = ('Exif.Image.SamplesPerPixel', 'Iptc.Application2.FixtureId',
