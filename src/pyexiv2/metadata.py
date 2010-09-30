@@ -31,6 +31,8 @@ Provide the ImageMetadata class.
 import os
 import sys
 from errno import ENOENT
+from collections import MutableMapping
+from itertools import chain
 
 import libexiv2python
 
@@ -40,7 +42,7 @@ from pyexiv2.xmp import XmpTag
 from pyexiv2.preview import Preview
 
 
-class ImageMetadata(object):
+class ImageMetadata(MutableMapping):
 
     """
     A container for all the metadata embedded in an image.
@@ -320,6 +322,12 @@ class ImageMetadata(object):
             return getattr(self, '_delete_%s_tag' % family)(key)
         except AttributeError:
             raise KeyError(key)
+
+    def __iter__(self):
+        return chain(self.exif_keys, self.iptc_keys, self.xmp_keys)
+
+    def __len__(self):
+        return len( [ x for x in self ] )
 
     def _get_comment(self):
         return self._image._getComment()
