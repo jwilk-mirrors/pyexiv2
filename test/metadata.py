@@ -601,3 +601,49 @@ class TestImageMetadata(unittest.TestCase):
 
         self.failUnlessEqual(self.metadata.comment, self.other.comment)
 
+    #############################
+    # Test MutableMapping methods
+    #############################
+
+    def _set_up_clean(self):
+        self.clean = ImageMetadata.from_buffer(EMPTY_JPG_DATA)
+
+    def test_mutablemapping(self):
+        self._set_up_clean()
+        self.clean.read()
+
+        self.assertEqual(len(self.clean), 0)
+        self.assertTrue('Exif.Image.DateTimeOriginal' not in self.clean)
+
+        key = 'Exif.Image.DateTimeOriginal'
+        correctDate = datetime.datetime(2007,03,11)
+        incorrectDate = datetime.datetime(2009,03,25)
+        tag_date = ExifTag(key,correctDate)
+        false_tag_date = ExifTag(key,incorrectDate)
+        self.clean[key] = tag_date
+
+        self.assertEqual(len(self.clean), 1)
+        self.assertTrue('Exif.Image.DateTimeOriginal' in self.clean)
+        self.assertEqual(self.clean.get('Exif.Image.DateTimeOriginal', false_tag_date), tag_date)
+        self.assertEqual(self.clean.get('Exif.Image.DateTime', tag_date), tag_date)
+
+        key = 'Exif.Photo.UserComment'
+        tag = ExifTag(key,'UserComment')
+        self.clean[key] = tag        
+        key = 'Iptc.Application2.Caption'
+        tag = IptcTag(key,['Caption'])
+        self.clean[key] = tag 
+        key = 'Xmp.dc.subject'
+        tag = XmpTag(key, ['subject', 'values'])
+        self.clean[key] = tag
+
+        self.assertTrue('Exif.Photo.UserComment' in self.clean)
+        self.assertTrue('Iptc.Application2.Caption' in self.clean)
+        self.assertTrue('Xmp.dc.subject' in self.clean)
+
+        self.clean.clear()
+        self.assertEqual(len(self.clean), 0)
+
+        self.assertTrue('Exif.Photo.UserComment' not in self.clean)
+        self.assertTrue('Iptc.Application2.Caption' not in self.clean)
+        self.assertTrue('Xmp.dc.subject' not in self.clean)
