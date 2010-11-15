@@ -497,7 +497,7 @@ class TestImageMetadata(unittest.TestCase):
         self.failUnlessEqual(self.metadata._tags['xmp'][key], tag)
         # Replace existing tags
         key = 'Exif.Photo.ExifVersion'
-        tag = ExifTag(key, '48 50 50 48 ')
+        tag = ExifTag(key, '0220')
         self.metadata[key] = tag
         self.failUnless(key in self.metadata._tags['exif'])
         self.failUnlessEqual(self.metadata._tags['exif'][key], tag)
