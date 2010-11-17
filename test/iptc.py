@@ -190,3 +190,8 @@ class TestIptcTag(unittest.TestCase):
         tag.values = ['Barcelona']
         self.failIfEqual(tag.values, old_values)
 
+    def test_set_raw_values_invalid(self):
+        tag = IptcTag('Iptc.Envelope.DateSent')
+        values = ['foo']
+        self.failUnlessRaises(ValueError, tag._set_raw_values, values)
+

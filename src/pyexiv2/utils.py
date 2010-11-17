@@ -126,7 +126,7 @@ def undefined_to_string(undefined):
     """
     Convert an undefined string into its corresponding sequence of bytes.
     The undefined string must contain the ascii codes of a sequence of bytes,
-    each followed by a blank space (e.g. "48 50 50 49 " will be converted into
+    separated by white spaces (e.g. "48 50 50 49" will be converted into
     "0221").
     The Undefined type is part of the EXIF specification.
 
@@ -142,8 +142,8 @@ def undefined_to_string(undefined):
 def string_to_undefined(sequence):
     """
     Convert a string into its undefined form.
-    The undefined form contains a sequence of ascii codes, each followed by a
-    blank space (e.g. "0221" will be converted into "48 50 50 49 ").
+    The undefined form contains a sequence of ascii codes separated by white
+    spaces (e.g. "0221" will be converted into "48 50 50 49").
     The Undefined type is part of the EXIF specification.
 
     :param sequence: a sequence of bytes
@@ -152,7 +152,7 @@ def string_to_undefined(sequence):
     :return: the corresponding undefined string
     :rtype: string
     """
-    return ''.join(map(lambda x: '%d ' % ord(x), sequence))
+    return ''.join(map(lambda x: '%d ' % ord(x), sequence)).rstrip()
 
 
 class Rational(object):

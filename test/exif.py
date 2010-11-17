@@ -293,16 +293,16 @@ class TestExifTag(unittest.TestCase):
 
     def test_convert_to_python_undefined(self):
         # Valid values
-        tag = ExifTag('Exif.Photo.ExifVersion', '48 49 48 48 ')
+        tag = ExifTag('Exif.Photo.ExifVersion')
         self.assertEqual(tag.type, 'Undefined')
-        self.assertEqual(tag._convert_to_python('48 49 48 48 '), '0100')
+        self.assertEqual(tag._convert_to_python('48 49 48 48'), '0100')
 
     def test_convert_to_string_undefined(self):
         # Valid values
         tag = ExifTag('Exif.Photo.ExifVersion')
         self.assertEqual(tag.type, 'Undefined')
-        self.assertEqual(tag._convert_to_string('0100'), '48 49 48 48 ')
-        self.assertEqual(tag._convert_to_string(u'0100'), '48 49 48 48 ')
+        self.assertEqual(tag._convert_to_string('0100'), '48 49 48 48')
+        self.assertEqual(tag._convert_to_string(u'0100'), '48 49 48 48')
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 3)
@@ -312,4 +312,9 @@ class TestExifTag(unittest.TestCase):
         old_value = tag.value
         tag.value = 2
         self.failIfEqual(tag.value, old_value)
+
+    def test_set_raw_value_invalid(self):
+        tag = ExifTag('Exif.GPSInfo.GPSVersionID')
+        value = '2 0 0 foo'
+        self.failUnlessRaises(ValueError, tag._set_raw_value, value)
 
