@@ -195,3 +195,8 @@ class TestIptcTag(unittest.TestCase):
         values = ['foo']
         self.failUnlessRaises(ValueError, tag._set_raw_values, values)
 
+    def test_set_values_non_repeatable(self):
+        tag = IptcTag('Iptc.Application2.ReleaseDate')
+        values = [datetime.date.today(), datetime.date.today()]
+        self.failUnlessRaises(KeyError, tag._set_values, values)
+
