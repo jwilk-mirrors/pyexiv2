@@ -313,3 +313,8 @@ class TestExifTag(unittest.TestCase):
         tag.value = 2
         self.failIfEqual(tag.value, old_value)
 
+    def test_set_raw_value_invalid(self):
+        tag = ExifTag('Exif.GPSInfo.GPSVersionID')
+        value = '2 0 0 foo'
+        self.failUnlessRaises(ValueError, tag._set_raw_value, value)
+

@@ -33,6 +33,7 @@
 #define METADATA_NOT_READ 101
 #define NON_REPEATABLE 102
 #define KEY_NOT_FOUND 103
+#define INVALID_VALUE 104
 
 // Custom macros
 #define CHECK_METADATA_READ \
@@ -477,7 +478,11 @@ ExifTag::~ExifTag()
 
 void ExifTag::setRawValue(const std::string& value)
 {
-    _datum->setValue(value);
+    int result = _datum->setValue(value);
+    if (result != 0)
+    {
+        throw Exiv2::Error(INVALID_VALUE);
+    }
 }
 
 void ExifTag::setParentImage(Image& image)
@@ -616,7 +621,11 @@ void IptcTag::setRawValues(const boost::python::list& values)
         if (iterator != _data->end())
         {
             // Override an existing value
-            iterator->setValue(value);
+            int result = iterator->setValue(value);
+            if (result != 0)
+            {
+                throw Exiv2::Error(INVALID_VALUE);
+            }
             // Jump to the next datum matching the key
             ++iterator;
             while ((iterator != _data->end()) && (iterator->key() != _key.key()))
@@ -628,7 +637,11 @@ void IptcTag::setRawValues(const boost::python::list& values)
         {
             // Append a new value
             Exiv2::Iptcdatum datum(_key);
-            datum.setValue(value);
+            int result = datum.setValue(value);
+            if (result != 0)
+            {
+                throw Exiv2::Error(INVALID_VALUE);
+            }
             int state = _data->add(datum);
             if (state == 6)
             {
@@ -1197,6 +1210,9 @@ void translateExiv2Error(Exiv2::Error const& error)
             break;
         case KEY_NOT_FOUND:
             PyErr_SetString(PyExc_KeyError, "Tag not set");
+            break;
+        case INVALID_VALUE:
+            PyErr_SetString(PyExc_ValueError, "Invalid value");
             break;
 
         // Default handler
