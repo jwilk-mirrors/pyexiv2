@@ -749,13 +749,13 @@ XmpTag::XmpTag(const std::string& key, Exiv2::Xmpdatum* datum): _key(key)
     if (_from_datum)
     {
         _datum = datum;
+        _exiv2_type = datum->typeName();
     }
     else
     {
         _datum = new Exiv2::Xmpdatum(_key);
+        _exiv2_type = Exiv2::TypeInfo::typeName(Exiv2::XmpProperties::propertyType(_key));
     }
-
-    _exiv2_type = Exiv2::TypeInfo::typeName(Exiv2::XmpProperties::propertyType(_key));
 
     const char* title = Exiv2::XmpProperties::propertyTitle(_key);
     if (title != 0)
