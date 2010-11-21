@@ -106,7 +106,7 @@ class IptcTag(ListenerInterface):
     def _from_existing_tag(_tag):
         # Build a tag from an already existing libexiv2python._IptcTag
         tag = IptcTag(_tag._getKey(), _tag=_tag)
-        # Do not set the raw_values property, as it would call
+        # Do not set the raw_value property, as it would call
         # _tag._setRawValues
         # (see https://bugs.launchpad.net/pyexiv2/+bug/582445).
         tag._raw_values = _tag._getRawValues()
@@ -170,8 +170,8 @@ class IptcTag(ListenerInterface):
         self._raw_values = values
         self._values_cookie = True
 
-    raw_values = property(fget=_get_raw_values, fset=_set_raw_values,
-                          doc='The raw values of the tag as a list of strings.')
+    raw_value = property(fget=_get_raw_values, fset=_set_raw_values,
+                         doc='The raw values of the tag as a list of strings.')
 
     def _compute_values(self):
         # Lazy computation of the values from the raw values
@@ -188,7 +188,7 @@ class IptcTag(ListenerInterface):
     def _set_values(self, values):
         if not isinstance(values, (list, tuple)):
             raise TypeError('Expecting a list of values')
-        self.raw_values = map(self._convert_to_string, values)
+        self.raw_value = map(self._convert_to_string, values)
 
         if isinstance(self._values, NotifyingList):
             self._values.unregister_listener(self)
@@ -203,8 +203,8 @@ class IptcTag(ListenerInterface):
         self._values.register_listener(self)
         self._values_cookie = False
 
-    values = property(fget=_get_values, fset=_set_values,
-                      doc='The values of the tag as a list of python objects.')
+    value = property(fget=_get_values, fset=_set_values,
+                     doc='The values of the tag as a list of python objects.')
 
     def contents_changed(self):
         # Implementation of the ListenerInterface.
