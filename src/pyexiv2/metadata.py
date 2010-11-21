@@ -36,7 +36,7 @@ from itertools import chain
 
 import libexiv2python
 
-from pyexiv2.exif import ExifTag
+from pyexiv2.exif import ExifTag, ExifThumbnail
 from pyexiv2.iptc import IptcTag
 from pyexiv2.xmp import XmpTag
 from pyexiv2.preview import Preview
@@ -64,6 +64,7 @@ class ImageMetadata(MutableMapping):
         self._image = None
         self._keys = {'exif': None, 'iptc': None, 'xmp': None}
         self._tags = {'exif': {}, 'iptc': {}, 'xmp': {}}
+        self._exif_thumbnail = None
 
     def _instantiate_image(self, filename):
         # This method is meant to be overridden in unit tests to easily replace
@@ -391,4 +392,11 @@ class ImageMetadata(MutableMapping):
         :meth:`.write` has been called.
         """
         return self._image._getDataBuffer()
+
+    @property
+    def exif_thumbnail(self):
+        """DOCME."""
+        if self._exif_thumbnail is None:
+            self._exif_thumbnail = ExifThumbnail(self._image)
+        return self._exif_thumbnail
 

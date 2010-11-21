@@ -44,6 +44,8 @@ namespace exiv2wrapper
 
 void Image::_instantiate_image()
 {
+    _exifThumbnail = 0;
+
     // If an exception is thrown, it has to be done outside of the
     // Py_{BEGIN,END}_ALLOW_THREADS block.
     Exiv2::Error error(0);
@@ -116,6 +118,10 @@ Image::~Image()
     if (_data != 0)
     {
         delete[] _data;
+    }
+    if (_exifThumbnail != 0)
+    {
+        delete _exifThumbnail;
     }
 }
 
@@ -442,6 +448,49 @@ std::string Image::getDataBuffer() const
     Py_END_ALLOW_THREADS
 
     return buffer;
+}
+
+Exiv2::ExifThumb* Image::_getExifThumbnail()
+{
+    CHECK_METADATA_READ
+    if (_exifThumbnail == 0)
+    {
+        _exifThumbnail = new Exiv2::ExifThumb(*_exifData);
+    }
+    return _exifThumbnail;
+}
+
+const std::string Image::getExifThumbnailMimeType()
+{
+    return std::string(_getExifThumbnail()->mimeType());
+}
+
+const std::string Image::getExifThumbnailExtension()
+{
+    return std::string(_getExifThumbnail()->extension());
+}
+
+void Image::writeExifThumbnailToFile(const std::string& path)
+{
+    _getExifThumbnail()->writeFile(path);
+}
+
+const std::string Image::getExifThumbnailData()
+{
+    Exiv2::DataBuf buffer = _getExifThumbnail()->copy();
+    // Copy the data buffer in a string. Since the data buffer can contain null
+    // characters ('\x00'), the string cannot be simply constructed like that:
+    //     data = std::string((char*) buffer.pData_);
+    // because it would be truncated after the first occurence of a null
+    // character. Therefore, it has to be copied character by character.
+    // First allocate the memory for the whole string...
+    std::string data = std::string(buffer.size_, ' ');
+    // ... then fill it with the raw data.
+    for(unsigned int i = 0; i < buffer.size_; ++i)
+    {
+        data[i] = buffer.pData_[i];
+    }
+    return data;
 }
 
 

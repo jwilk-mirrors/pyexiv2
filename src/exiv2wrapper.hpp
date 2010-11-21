@@ -230,6 +230,13 @@ public:
     // Read access to the thumbnail embedded in the image.
     boost::python::list previews();
 
+    // Manipulate the JPEG/TIFF thumbnail embedded in the EXIF data.
+    const std::string getExifThumbnailMimeType();
+    const std::string getExifThumbnailExtension();
+    void writeExifThumbnailToFile(const std::string& path);
+    const std::string getExifThumbnailData();
+    // TODO: other accessors (getters and setters)
+
     // Copy the metadata to another image.
     void copyMetadata(Image& other, bool exif=true, bool iptc=true, bool xmp=true) const;
 
@@ -249,6 +256,8 @@ private:
     Exiv2::ExifData* _exifData;
     Exiv2::IptcData* _iptcData;
     Exiv2::XmpData* _xmpData;
+    Exiv2::ExifThumb* _exifThumbnail;
+    Exiv2::ExifThumb* _getExifThumbnail();
 
     // true if the image's internal metadata has already been read,
     // false otherwise

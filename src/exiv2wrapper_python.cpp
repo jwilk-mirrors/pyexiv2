@@ -144,6 +144,11 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_copyMetadata", &Image::copyMetadata)
 
         .def("_getDataBuffer", &Image::getDataBuffer)
+
+        .def("_getExifThumbnailMimeType", &Image::getExifThumbnailMimeType)
+        .def("_getExifThumbnailExtension", &Image::getExifThumbnailExtension)
+        .def("_writeExifThumbnailToFile", &Image::writeExifThumbnailToFile)
+        .def("_getExifThumbnailData", &Image::getExifThumbnailData)
     ;
 }
 

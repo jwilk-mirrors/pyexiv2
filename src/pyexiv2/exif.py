@@ -414,3 +414,39 @@ class ExifTag(ListenerInterface):
              right = self._raw_value
         return '<%s = %s>' % (left, right)
 
+
+class ExifThumbnail(object):
+
+    """
+    DOCME
+    """
+
+    def __init__(self, _image):
+        self._image = _image
+
+    @property
+    def mime_type(self):
+        """The mime type of the preview image (e.g. ``image/jpeg``)."""
+        return self._image._getExifThumbnailMimeType()
+
+    @property
+    def extension(self):
+        """The file extension of the preview image with a leading dot
+        (e.g. ``.jpg``)."""
+        return self._image._getExifThumbnailExtension()
+
+    def write_to_file(self, path):
+        """
+        Write the thumbnail image to a file on disk.
+        The file extension will be automatically appended to the path.
+
+        :param path: path to write the thumbnail to (without an extension)
+        :type path: string
+        """
+        return self._image._writeExifThumbnailToFile(path)
+
+    @property
+    def data(self):
+        """The thumbnail image data buffer."""
+        return self._image._getExifThumbnailData()
+
