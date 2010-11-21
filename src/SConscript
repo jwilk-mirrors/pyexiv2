@@ -19,7 +19,7 @@ if os.environ.has_key('LDFLAGS'):
 # Include directories to look for 'Python.h' in
 env.Append(CPPPATH=[get_python_inc(plat_specific=True)])
 
-# Libraries to link against
+# Libraries to link against
 # On some systems, boost_python is actually called boost_python-mt.
 # Use the BOOSTLIB argument to override the default value.
 # See https://bugs.launchpad.net/pyexiv2/+bug/523858.

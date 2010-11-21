@@ -74,9 +74,9 @@ class ExifTag(ListenerInterface):
     - Undefined: string
     """
 
-    # According to the EXIF specification, the only accepted format for an Ascii
+    # According to the EXIF specification, the only accepted format for an Ascii
     # value representing a datetime is '%Y:%m:%d %H:%M:%S', but it seems that
-    # others formats can be found in the wild.
+    # others formats can be found in the wild.
     _datetime_formats = ('%Y:%m:%d %H:%M:%S',
                          '%Y-%m-%d %H:%M:%S',
                          '%Y-%m-%dT%H:%M:%SZ')

@@ -237,7 +237,7 @@ class IptcTag(ListenerInterface):
             return value
 
         elif self.type == 'Date':
-            # According to the IPTC specification, the format for a string field
+            # According to the IPTC specification, the format for a string field
             # representing a date is '%Y%m%d'. However, the string returned by
             # exiv2 using method DateValue::toString() is formatted using
             # pattern '%Y-%m-%d'.
@@ -249,7 +249,7 @@ class IptcTag(ListenerInterface):
                 raise IptcValueError(value, self.type)
 
         elif self.type == 'Time':
-            # According to the IPTC specification, the format for a string field
+            # According to the IPTC specification, the format for a string field
             # representing a time is '%H%M%S±%H%M'. However, the string returned
             # by exiv2 using method TimeValue::toString() is formatted using
             # pattern '%H:%M:%S±%H:%M'.
@@ -306,7 +306,7 @@ class IptcTag(ListenerInterface):
         elif self.type == 'Date':
             if type(value) in (datetime.date, datetime.datetime):
                 # ISO 8601 date format.
-                # According to the IPTC specification, the format for a string
+                # According to the IPTC specification, the format for a string
                 # field representing a date is '%Y%m%d'. However, the string
                 # expected by exiv2's DateValue::read(string) should be
                 # formatted using pattern '%Y-%m-%d'.

@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # Create a pixbuf loader to read the thumbnail data
     pbloader = gtk.gdk.PixbufLoader()
     pbloader.write(preview.data)
-    # Get the resulting pixbuf and build an image to be displayed
+    # Get the resulting pixbuf and build an image to be displayed
     pixbuf = pbloader.get_pixbuf()
     pbloader.close()
     imgwidget = gtk.Image()
