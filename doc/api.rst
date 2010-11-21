@@ -35,7 +35,7 @@ pyexiv2.iptc
 .. autoexception:: IptcValueError
 .. autoclass:: IptcTag
    :members: key, type, name, title, description, photoshop_name, repeatable,
-             record_name, record_description, raw_values, values
+             record_name, record_description, raw_value, value
 
 pyexiv2.xmp
 ###########

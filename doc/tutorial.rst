@@ -129,13 +129,13 @@ one value::
   False
 
 As with EXIF tags, the values of an :class:`IptcTag` object can be accessed in
-two different ways: with the :attr:`raw_values` and with the :attr:`values`
+two different ways: with the :attr:`raw_value` and with the :attr:`value`
 attributes::
 
-  >>> tag.raw_values
+  >>> tag.raw_value
   ['2004-07-13']
 
-  >>> tag.values
+  >>> tag.value
   [datetime.date(2004, 7, 13)]
 
 Note that querying the values of a tag may raise an :exc:`IptcValueError` if the
@@ -146,12 +146,12 @@ python object.
 
 Now let's modify the values of the tag and write it back to the file::
 
-  >>> tag.values = [datetime.date.today()]
+  >>> tag.value = [datetime.date.today()]
 
   >>> metadata.write()
 
 Similarly to reading the values of a tag, one can set either the
-:attr:`raw_values` or the :attr:`values` (which will be automatically converted
+:attr:`raw_value` or the :attr:`value` (which will be automatically converted
 to correctly formatted byte strings by pyexiv2).
 
 You can also add new tags to the metadata by providing a valid key and values
@@ -189,7 +189,7 @@ Each of those tags can be accessed with the ``[]`` operator on the metadata::
 
   >>> tag = metadata['Xmp.xmp.ModifyDate']
 
-As with EXIF tags, the values of an :class:`XmpTag` object can be accessed in
+As with EXIF tags, the value of an :class:`XmpTag` object can be accessed in
 two different ways: with the :attr:`raw_value` and with the :attr:`value`
 attributes::
 

@@ -280,7 +280,7 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._tags['iptc'], {tag.key: tag})
         self.assert_(tag.key in self.metadata._image._iptcKeys())
         self.assertEqual(self.metadata._image._getIptcTag(tag.key)._getRawValues(),
-                         tag.raw_values)
+                         tag.raw_value)
 
     def test_set_iptc_tag_overwrite(self):
         self.metadata.read()
@@ -291,7 +291,7 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._tags['iptc'], {tag.key: tag})
         self.assert_(tag.key in self.metadata._image._iptcKeys())
         self.assertEqual(self.metadata._image._getIptcTag(tag.key)._getRawValues(),
-                         tag.raw_values)
+                         tag.raw_value)
 
     def test_set_iptc_tag_overwrite_already_cached(self):
         self.metadata.read()
@@ -305,7 +305,7 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(self.metadata._tags['iptc'], {key: new_tag})
         self.assert_(key in self.metadata._image._iptcKeys())
         self.assertEqual(self.metadata._image._getIptcTag(key)._getRawValues(),
-                         new_tag.raw_values)
+                         new_tag.raw_value)
 
     def test_set_iptc_tag_direct_value_assignment(self):
         self.metadata.read()
@@ -317,10 +317,10 @@ class TestImageMetadata(unittest.TestCase):
         self.assert_(key in self.metadata.iptc_keys)
         self.assert_(key in self.metadata._image._iptcKeys())
         tag = self.metadata._get_iptc_tag(key)
-        self.assertEqual(tag.values, values)
+        self.assertEqual(tag.value, values)
         self.assertEqual(self.metadata._tags['iptc'], {key: tag})
         self.assertEqual(self.metadata._image._getIptcTag(key)._getRawValues(),
-                         tag.raw_values)
+                         tag.raw_value)
 
     def test_delete_iptc_tag_inexistent(self):
         self.metadata.read()
@@ -594,7 +594,7 @@ class TestImageMetadata(unittest.TestCase):
             self.failUnlessEqual(self.metadata[key].value, self.other[key].value)
 
         for key in self.metadata.iptc_keys:
-            self.failUnlessEqual(self.metadata[key].values, self.other[key].values)
+            self.failUnlessEqual(self.metadata[key].value, self.other[key].value)
 
         for key in self.metadata.xmp_keys:
             self.failUnlessEqual(self.metadata[key].value, self.other[key].value)

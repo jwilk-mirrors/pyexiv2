@@ -30,6 +30,7 @@ from pyexiv2.iptc import IptcTag, IptcValueError
 from pyexiv2.utils import FixedOffset
 
 import datetime
+import warnings
 
 
 class TestIptcTag(unittest.TestCase):
@@ -186,9 +187,9 @@ class TestIptcTag(unittest.TestCase):
 
     def test_set_values(self):
         tag = IptcTag('Iptc.Application2.City', ['Seattle'])
-        old_values = tag.values
-        tag.values = ['Barcelona']
-        self.failIfEqual(tag.values, old_values)
+        old_values = tag.value
+        tag.value = ['Barcelona']
+        self.failIfEqual(tag.value, old_values)
 
     def test_set_raw_values_invalid(self):
         tag = IptcTag('Iptc.Envelope.DateSent')
@@ -199,4 +200,33 @@ class TestIptcTag(unittest.TestCase):
         tag = IptcTag('Iptc.Application2.ReleaseDate')
         values = [datetime.date.today(), datetime.date.today()]
         self.failUnlessRaises(KeyError, tag._set_values, values)
+
+    def test_deprecated_properties(self):
+        # The .raw_values and .values properties are deprecated in favour of
+        # .raw_value and .value. Check that they still work for backward
+        # compatibility and that they issue a deprecation warning.
+        # See https://launchpad.net/bugs/617557.
+        tag = IptcTag('Iptc.Application2.City', ['Barcelona'])
+        raw_value = tag.raw_value
+        value = tag.value
+
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter('always')
+
+            self.assertEqual(tag.raw_values, raw_value)
+            self.assertEqual(len(w), 1)
+            self.assert_(issubclass(w[-1].category, DeprecationWarning))
+
+            self.assertEqual(tag.values, value)
+            self.assertEqual(len(w), 2)
+            self.assert_(issubclass(w[-1].category, DeprecationWarning))
+
+            tag.raw_values = ['Madrid']
+            self.assertEqual(len(w), 3)
+            self.assert_(issubclass(w[-1].category, DeprecationWarning))
+
+            tag.values = ['Madrid']
+            self.assertEqual(len(w), 4)
+            self.assert_(issubclass(w[-1].category, DeprecationWarning))
 
