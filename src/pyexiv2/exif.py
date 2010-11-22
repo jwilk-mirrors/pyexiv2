@@ -423,19 +423,19 @@ class ExifThumbnail(object):
     The image is either a TIFF or a JPEG image.
     """
 
-    def __init__(self, _image):
-        self._image = _image
+    def __init__(self, _metadata):
+        self._metadata = _metadata
 
     @property
     def mime_type(self):
         """The mime type of the preview image (e.g. ``image/jpeg``)."""
-        return self._image._getExifThumbnailMimeType()
+        return self._metadata._image._getExifThumbnailMimeType()
 
     @property
     def extension(self):
         """The file extension of the preview image with a leading dot
         (e.g. ``.jpg``)."""
-        return self._image._getExifThumbnailExtension()
+        return self._metadata._image._getExifThumbnailExtension()
 
     def write_to_file(self, path):
         """
@@ -445,14 +445,24 @@ class ExifThumbnail(object):
         :param path: path to write the thumbnail to (without an extension)
         :type path: string
         """
-        self._image._writeExifThumbnailToFile(path)
+        self._metadata._image._writeExifThumbnailToFile(path)
+
+    def _update_exif_tags_cache(self):
+        # Update the cache of EXIF tags
+        keys = self._metadata._image._exifKeys()
+        self._metadata._keys['exif'] = keys
+        cached = self._metadata._tags['exif'].keys()
+        for key in cached:
+            if key not in keys:
+                del self._metadata._tags['exif'][key]
 
     def erase(self):
         """
         Delete the thumbnail from the EXIF data.
         Removes all Exif.Thumbnail.*, i.e. Exif IFD1 tags.
         """
-        self._image._eraseExifThumbnail()
+        self._metadata._image._eraseExifThumbnail()
+        self._update_exif_tags_cache()
 
     def set_from_file(self, path):
         """
@@ -465,13 +475,15 @@ class ExifThumbnail(object):
         :param path: path to a JPEG file to set the thumbnail to
         :type path: string
         """
-        self._image._setExifThumbnailFromFile(path)
+        self._metadata._image._setExifThumbnailFromFile(path)
+        self._update_exif_tags_cache()
 
     def _get_data(self):
-        return self._image._getExifThumbnailData()
+        return self._metadata._image._getExifThumbnailData()
 
     def _set_data(self, data):
-        self._image._setExifThumbnailFromData(data)
+        self._metadata._image._setExifThumbnailFromData(data)
+        self._update_exif_tags_cache()
 
     data = property(fget=_get_data, fset=_set_data,
                     doc='The raw thumbnail data. Setting it is restricted to ' +

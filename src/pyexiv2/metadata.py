@@ -397,6 +397,6 @@ class ImageMetadata(MutableMapping):
     def exif_thumbnail(self):
         """A thumbnail image optionally embedded in the EXIF data."""
         if self._exif_thumbnail is None:
-            self._exif_thumbnail = ExifThumbnail(self._image)
+            self._exif_thumbnail = ExifThumbnail(self)
         return self._exif_thumbnail
 
