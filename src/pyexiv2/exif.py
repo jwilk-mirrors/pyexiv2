@@ -456,10 +456,10 @@ class ExifThumbnail(object):
 
     def set_from_file(self, path):
         """
-        Set the Exif thumbnail to the JPEG image path.
-        This sets only the Compression, JPEGInterchangeFormat and
-        JPEGInterchangeFormatLength tags, which is not all the thumbnail Exif
-        information mandatory according to the Exif standard
+        Set the EXIF thumbnail to the JPEG image path.
+        This sets only the ``Compression``, ``JPEGInterchangeFormat`` and
+        ``JPEGInterchangeFormatLength`` tags, which is not all the thumbnail
+        EXIF information mandatory according to the EXIF standard
         (but it is enough to work with the thumbnail).
 
         :param path: path to a JPEG file to set the thumbnail to

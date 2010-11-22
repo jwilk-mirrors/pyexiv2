@@ -27,6 +27,8 @@ pyexiv2.exif
 .. autoclass:: ExifTag
    :members: key, type, name, label, description, section_name,
              section_description, raw_value, value, human_value
+.. autoclass:: ExifThumbnail
+   :members: mime_type, extension, data, set_from_file, write_to_file, erase
 
 pyexiv2.iptc
 ############
