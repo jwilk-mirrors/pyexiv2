@@ -418,7 +418,9 @@ class ExifTag(ListenerInterface):
 class ExifThumbnail(object):
 
     """
-    DOCME
+    A thumbnail image optionally embedded in the IFD1 segment of the EXIF data.
+
+    The image is either a TIFF or a JPEG image.
     """
 
     def __init__(self, _image):
@@ -443,10 +445,35 @@ class ExifThumbnail(object):
         :param path: path to write the thumbnail to (without an extension)
         :type path: string
         """
-        return self._image._writeExifThumbnailToFile(path)
+        self._image._writeExifThumbnailToFile(path)
 
-    @property
-    def data(self):
-        """The thumbnail image data buffer."""
+    def erase(self):
+        """
+        Delete the thumbnail from the EXIF data.
+        Removes all Exif.Thumbnail.*, i.e. Exif IFD1 tags.
+        """
+        self._image._eraseExifThumbnail()
+
+    def set_from_file(self, path):
+        """
+        Set the Exif thumbnail to the JPEG image path.
+        This sets only the Compression, JPEGInterchangeFormat and
+        JPEGInterchangeFormatLength tags, which is not all the thumbnail Exif
+        information mandatory according to the Exif standard
+        (but it is enough to work with the thumbnail).
+
+        :param path: path to a JPEG file to set the thumbnail to
+        :type path: string
+        """
+        self._image._setExifThumbnailFromFile(path)
+
+    def _get_data(self):
         return self._image._getExifThumbnailData()
+
+    def _set_data(self, data):
+        self._image._setExifThumbnailFromData(data)
+
+    data = property(fget=_get_data, fset=_set_data,
+                    doc='The raw thumbnail data. Setting it is restricted to ' +
+                        'a buffer in the JPEG format.')
 

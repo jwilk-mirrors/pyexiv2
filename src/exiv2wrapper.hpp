@@ -235,7 +235,9 @@ public:
     const std::string getExifThumbnailExtension();
     void writeExifThumbnailToFile(const std::string& path);
     const std::string getExifThumbnailData();
-    // TODO: other accessors (getters and setters)
+    void eraseExifThumbnail();
+    void setExifThumbnailFromFile(const std::string& path);
+    void setExifThumbnailFromData(const std::string& data);
 
     // Copy the metadata to another image.
     void copyMetadata(Image& other, bool exif=true, bool iptc=true, bool xmp=true) const;

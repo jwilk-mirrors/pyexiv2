@@ -493,6 +493,22 @@ const std::string Image::getExifThumbnailData()
     return data;
 }
 
+void Image::eraseExifThumbnail()
+{
+    _getExifThumbnail()->erase();
+}
+
+void Image::setExifThumbnailFromFile(const std::string& path)
+{
+    _getExifThumbnail()->setJpegThumbnail(path);
+}
+
+void Image::setExifThumbnailFromData(const std::string& data)
+{
+    const Exiv2::byte* buffer = (const Exiv2::byte*) data.c_str();
+    _getExifThumbnail()->setJpegThumbnail(buffer, data.size());
+}
+
 
 ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifData* data): _key(key)
 {
