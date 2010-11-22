@@ -647,3 +647,97 @@ class TestImageMetadata(unittest.TestCase):
         self.assertTrue('Exif.Photo.UserComment' not in self.clean)
         self.assertTrue('Iptc.Application2.Caption' not in self.clean)
         self.assertTrue('Xmp.dc.subject' not in self.clean)
+
+    ###########################
+    # Test the EXIF thumbnail #
+    ###########################
+
+    def _test_thumbnail_tags(self, there):
+        keys = ('Exif.Thumbnail.Compression',
+                'Exif.Thumbnail.JPEGInterchangeFormat',
+                'Exif.Thumbnail.JPEGInterchangeFormatLength')
+        for key in keys:
+            self.assertEqual(key in self.metadata.exif_keys, there)
+
+    def test_no_exif_thumbnail(self):
+        self.metadata.read()
+        thumb = self.metadata.exif_thumbnail
+        self.assertEqual(thumb.mime_type, '')
+        self.assertEqual(thumb.extension, '')
+        self.assertEqual(thumb.data, '')
+        self._test_thumbnail_tags(False)
+
+    def test_set_exif_thumbnail_from_data(self):
+        self.metadata.read()
+        self._test_thumbnail_tags(False)
+        thumb = self.metadata.exif_thumbnail
+        thumb.data = EMPTY_JPG_DATA
+        self.assertEqual(thumb.mime_type, 'image/jpeg')
+        self.assertEqual(thumb.extension, '.jpg')
+        self.assertEqual(thumb.data, EMPTY_JPG_DATA)
+        self._test_thumbnail_tags(True)
+
+    def test_set_exif_thumbnail_from_file(self):
+        fd, pathname = tempfile.mkstemp(suffix='.jpg')
+        os.write(fd, EMPTY_JPG_DATA)
+        os.close(fd)
+        self.metadata.read()
+        self._test_thumbnail_tags(False)
+        thumb = self.metadata.exif_thumbnail
+        thumb.set_from_file(pathname)
+        os.remove(pathname)
+        self.assertEqual(thumb.mime_type, 'image/jpeg')
+        self.assertEqual(thumb.extension, '.jpg')
+        self.assertEqual(thumb.data, EMPTY_JPG_DATA)
+        self._test_thumbnail_tags(True)
+
+    def test_write_exif_thumbnail_to_file(self):
+        self.metadata.read()
+        self._test_thumbnail_tags(False)
+        thumb = self.metadata.exif_thumbnail
+        thumb.data = EMPTY_JPG_DATA
+        fd, pathname = tempfile.mkstemp()
+        os.close(fd)
+        os.remove(pathname)
+        thumb.write_to_file(pathname)
+        pathname = pathname + thumb.extension
+        fd = open(pathname)
+        self.assertEqual(fd.read(), EMPTY_JPG_DATA)
+        fd.close()
+        os.remove(pathname)
+
+    def test_erase_exif_thumbnail(self):
+        self.metadata.read()
+        self._test_thumbnail_tags(False)
+        thumb = self.metadata.exif_thumbnail
+        thumb.data = EMPTY_JPG_DATA
+        self.assertEqual(thumb.mime_type, 'image/jpeg')
+        self.assertEqual(thumb.extension, '.jpg')
+        self.assertEqual(thumb.data, EMPTY_JPG_DATA)
+        self._test_thumbnail_tags(True)
+        thumb.erase()
+        self.assertEqual(thumb.mime_type, '')
+        self.assertEqual(thumb.extension, '')
+        self.assertEqual(thumb.data, '')
+        self._test_thumbnail_tags(False)
+
+    def test_set_exif_thumbnail_from_invalid_data(self):
+        # No check on the format of the buffer is performed, therefore it will
+        # always work.
+        self.metadata.read()
+        self._test_thumbnail_tags(False)
+        thumb = self.metadata.exif_thumbnail
+        thumb.data = 'invalid'
+        self.assertEqual(thumb.mime_type, 'image/jpeg')
+        self._test_thumbnail_tags(True)
+
+    def test_set_exif_thumbnail_from_inexistent_file(self):
+        self.metadata.read()
+        self._test_thumbnail_tags(False)
+        thumb = self.metadata.exif_thumbnail
+        fd, pathname = tempfile.mkstemp()
+        os.close(fd)
+        os.remove(pathname)
+        self.failUnlessRaises(IOError, thumb.set_from_file, pathname)
+        self._test_thumbnail_tags(False)
+
