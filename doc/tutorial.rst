@@ -94,6 +94,16 @@ If the tag was not present, one is created and its value is set::
 
   >>> metadata[key] = value
 
+The EXIF data may optionally embed a thumbnail in the JPEG or TIFF format.
+The thumbnail can be accessed, set from a JPEG file or buffer, saved to disk and
+erased::
+
+  >>> thumb = metadata.exif_thumbnail
+  >>> thumb.set_from_file('/tmp/thumbnail.jpg')
+  >>> thumb.write_to_file('/tmp/copy')
+  >>> thumb.erase()
+  >>> metadata.write()
+
 
 Reading and writing IPTC tags
 #############################
