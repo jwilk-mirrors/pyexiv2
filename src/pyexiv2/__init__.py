@@ -60,7 +60,7 @@ A typical use of this binding would be:
 import libexiv2python
 
 from pyexiv2.metadata import ImageMetadata
-from pyexiv2.exif import ExifValueError, ExifTag
+from pyexiv2.exif import ExifValueError, ExifTag, ExifThumbnail
 from pyexiv2.iptc import IptcValueError, IptcTag
 from pyexiv2.xmp import XmpValueError, XmpTag
 from pyexiv2.preview import Preview
