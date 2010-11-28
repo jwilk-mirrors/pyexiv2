@@ -741,3 +741,16 @@ class TestImageMetadata(unittest.TestCase):
         self.failUnlessRaises(IOError, thumb.set_from_file, pathname)
         self._test_thumbnail_tags(False)
 
+    def test_exif_thumbnail_is_preview(self):
+        self.metadata.read()
+        self._test_thumbnail_tags(False)
+        self.assertEqual(len(self.metadata.previews), 0)
+        thumb = self.metadata.exif_thumbnail
+        thumb.data = EMPTY_JPG_DATA
+        self._test_thumbnail_tags(True)
+        self.assertEqual(len(self.metadata.previews), 1)
+        preview = self.metadata.previews[0]
+        self.assertEqual(thumb.mime_type, preview.mime_type)
+        self.assertEqual(thumb.extension, preview.extension)
+        self.assertEqual(thumb.data, preview.data)
+
