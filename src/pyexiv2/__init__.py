@@ -62,7 +62,8 @@ import libexiv2python
 from pyexiv2.metadata import ImageMetadata
 from pyexiv2.exif import ExifValueError, ExifTag, ExifThumbnail
 from pyexiv2.iptc import IptcValueError, IptcTag
-from pyexiv2.xmp import XmpValueError, XmpTag
+from pyexiv2.xmp import XmpValueError, XmpTag, register_namespace, \
+                        unregister_namespace, unregister_namespaces
 from pyexiv2.preview import Preview
 from pyexiv2.utils import FixedOffset, Rational, NotifyingList, \
                           undefined_to_string, string_to_undefined, \

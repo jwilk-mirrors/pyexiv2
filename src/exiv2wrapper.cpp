@@ -34,6 +34,9 @@
 #define NON_REPEATABLE 102
 #define KEY_NOT_FOUND 103
 #define INVALID_VALUE 104
+#define EXISTING_PREFIX 105
+#define BUILTIN_NS 106
+#define NOT_REGISTERED 107
 
 // Custom macros
 #define CHECK_METADATA_READ \
@@ -1279,11 +1282,67 @@ void translateExiv2Error(Exiv2::Error const& error)
         case INVALID_VALUE:
             PyErr_SetString(PyExc_ValueError, "Invalid value");
             break;
+        case EXISTING_PREFIX:
+            PyErr_SetString(PyExc_KeyError, "A namespace with this prefix already exists");
+            break;
+        case BUILTIN_NS:
+            PyErr_SetString(PyExc_KeyError, "Cannot unregister a builtin namespace");
+            break;
+        case NOT_REGISTERED:
+            PyErr_SetString(PyExc_KeyError, "No namespace registered under this name");
+            break;
 
         // Default handler
         default:
             PyErr_SetString(PyExc_RuntimeError, message);
     }
+}
+
+
+void registerXmpNs(const std::string& name, const std::string& prefix)
+{
+    try
+    {
+        const std::string& ns = Exiv2::XmpProperties::ns(prefix);
+    }
+    catch (Exiv2::Error& error)
+    {
+        // No namespace exists with the requested prefix, it is safe to
+        // register a new one.
+        Exiv2::XmpProperties::registerNs(name, prefix);
+        return;
+    }
+    throw Exiv2::Error(EXISTING_PREFIX, prefix);
+}
+
+void unregisterXmpNs(const std::string& name)
+{
+    const std::string& prefix = Exiv2::XmpProperties::prefix(name);
+    if (prefix != "")
+    {
+        Exiv2::XmpProperties::unregisterNs(name);
+        try
+        {
+            const Exiv2::XmpNsInfo* info = Exiv2::XmpProperties::nsInfo(prefix);
+        }
+        catch (Exiv2::Error& error)
+        {
+            // The namespace has been successfully unregistered.
+            return;
+        }
+        // The namespace hasn’t been unregistered because it’s builtin.
+        throw Exiv2::Error(BUILTIN_NS, name);
+    }
+    else
+    {
+        throw Exiv2::Error(NOT_REGISTERED, name);
+    } 
+}
+
+void unregisterAllXmpNs()
+{
+    // Unregister all custom namespaces.
+    Exiv2::XmpProperties::unregisterNs();
 }
 
 } // End of namespace exiv2wrapper

@@ -440,6 +440,18 @@ class XmpTag(object):
             else:
                 raise XmpValueError(value, type)
 
+        elif type == '':
+            # Unknown type, assume string
+            if isinstance(value, unicode):
+                try:
+                    return value.encode('utf-8')
+                except UnicodeEncodeError:
+                    raise XmpValueError(value, type)
+            elif isinstance(value, str):
+                return value
+            else:
+                raise XmpValueError(value, type)
+
         raise NotImplementedError('XMP conversion for type [%s]' % type)
 
     def __str__(self):
@@ -453,4 +465,58 @@ class XmpTag(object):
         else:
              right = self._raw_value
         return '<%s = %s>' % (left, right)
+
+
+def register_namespace(name, prefix):
+    """
+    Register a custom XMP namespace.
+
+    Overriding the prefix of a known or previously registered namespace is not
+    allowed.
+
+    :param name: the name of the custom namespace (ending with a ``/``),
+                 typically a URL (e.g. http://purl.org/dc/elements/1.1/)
+    :type name: string
+    :param prefix: the prefix for the custom namespace (keys in this namespace
+                   will be in the form ``Xmp.{prefix}.{something}``)
+    :type prefix: string
+
+    :raise ValueError: if the name doesn’t end with a ``/``
+    :raise KeyError: if a namespace already exist with this prefix
+    """
+    if not name.endswith('/'):
+        raise ValueError('Name should end with a /')
+    libexiv2python._registerXmpNs(name, prefix)
+
+
+def unregister_namespace(name):
+    """
+    Unregister a custom XMP namespace.
+
+    A custom namespace is identified by its name, **not** by its prefix.
+
+    Attempting to unregister an unknown namespace raises an error, as does
+    attempting to unregister a builtin namespace.
+
+    :param name: the name of the custom namespace (ending with a ``/``),
+                 typically a URL (e.g. http://purl.org/dc/elements/1.1/)
+    :type name: string
+
+    :raise ValueError: if the name doesn’t end with a ``/``
+    :raise KeyError: if the namespace is unknown or a builtin namespace
+    """
+    if not name.endswith('/'):
+        raise ValueError('Name should end with a /')
+    libexiv2python._unregisterXmpNs(name)
+
+
+def unregister_namespaces():
+    """
+    Unregister all custom XMP namespaces.
+
+    Builtin namespaces are not unregistered.
+
+    This function always succeeds.
+    """
+    libexiv2python._unregisterAllXmpNs()
 
