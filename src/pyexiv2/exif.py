@@ -30,7 +30,8 @@ EXIF specific code.
 
 import libexiv2python
 
-from pyexiv2.utils import Rational, NotifyingList, ListenerInterface, \
+from pyexiv2.utils import Rational, Fraction, \
+                          NotifyingList, ListenerInterface, \
                           undefined_to_string, string_to_undefined
 
 import time
@@ -376,13 +377,13 @@ class ExifTag(ListenerInterface):
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Rational':
-            if type(value) is Rational and value.numerator >= 0:
+            if type(value) in (Rational, Fraction) and value.numerator >= 0:
                 return str(value)
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'SRational':
-            if type(value) is Rational:
+            if type(value) in (Rational, Fraction):
                 return str(value)
             else:
                 raise ExifValueError(value, self.type)
