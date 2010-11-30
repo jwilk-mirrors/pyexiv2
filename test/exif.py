@@ -27,7 +27,7 @@
 import unittest
 
 from pyexiv2.exif import ExifTag, ExifValueError
-from pyexiv2.utils import Rational
+from pyexiv2.utils import Rational, Fraction
 
 import datetime
 
@@ -263,6 +263,8 @@ class TestExifTag(unittest.TestCase):
         tag = ExifTag('Exif.Image.XResolution')
         self.assertEqual(tag.type, 'Rational')
         self.assertEqual(tag._convert_to_string(Rational(5, 3)), '5/3')
+        if Fraction is not None:
+            self.assertEqual(tag._convert_to_string(Fraction('1.6')), '8/5')
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 'invalid')
@@ -287,6 +289,9 @@ class TestExifTag(unittest.TestCase):
         self.assertEqual(tag.type, 'SRational')
         self.assertEqual(tag._convert_to_string(Rational(5, 3)), '5/3')
         self.assertEqual(tag._convert_to_string(Rational(-5, 3)), '-5/3')
+        if Fraction is not None:
+            self.assertEqual(tag._convert_to_string(Fraction('1.6')), '8/5')
+            self.assertEqual(tag._convert_to_string(Fraction('-1.6')), '-8/5')
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 'invalid')
