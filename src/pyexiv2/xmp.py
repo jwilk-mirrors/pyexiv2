@@ -30,7 +30,7 @@ XMP specific code.
 
 import libexiv2python
 
-from pyexiv2.utils import FixedOffset, Rational, GPSCoordinate
+from pyexiv2.utils import FixedOffset, Rational, Fraction, GPSCoordinate
 
 import datetime
 import re
@@ -435,7 +435,8 @@ class XmpTag(object):
                 raise XmpValueError(value, type)
 
         elif type == 'Rational':
-            if isinstance(value, Rational):
+            if isinstance(value, Rational) or \
+               (Fraction is not None and isinstance(value, Fraction)):
                 return str(value)
             else:
                 raise XmpValueError(value, type)
