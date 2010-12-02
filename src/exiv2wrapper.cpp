@@ -523,6 +523,20 @@ ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifDat
         _data = 0;
     }
 
+// Conditional code, exiv2 0.21 changed APIs we need
+// (see https://bugs.launchpad.net/pyexiv2/+bug/684177).
+#if EXIV2_TEST_VERSION(0,21,0)
+    Exiv2::ExifKey exifKey(key);
+    _type = Exiv2::TypeInfo::typeName(exifKey.defaultTypeId());
+    _name = exifKey.tagName();
+    _label = exifKey.tagLabel();
+    _description = exifKey.tagDesc();
+    _sectionName = Exiv2::ExifTags::sectionName(exifKey);
+    // The section description is not exposed in the API any longer
+    // (see http://dev.exiv2.org/issues/744). For want of anything better,
+    // fall back on the section’s name.
+    _sectionDescription = _sectionName;
+#else
     const uint16_t tag = _datum->tag();
     const Exiv2::IfdId ifd = _datum->ifdId();
     _type = Exiv2::TypeInfo::typeName(Exiv2::ExifTags::tagType(tag, ifd));
@@ -531,6 +545,7 @@ ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifDat
     _description = Exiv2::ExifTags::tagDesc(tag, ifd);
     _sectionName = Exiv2::ExifTags::sectionName(tag, ifd);
     _sectionDescription = Exiv2::ExifTags::sectionDesc(tag, ifd);
+#endif
 }
 
 ExifTag::~ExifTag()
