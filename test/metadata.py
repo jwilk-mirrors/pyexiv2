@@ -83,8 +83,41 @@ class TestImageMetadata(unittest.TestCase):
     # Test general methods
     ######################
 
+    def test_not_read_raises(self):
+        # http://bugs.launchpad.net/pyexiv2/+bug/687373
+        self.assertRaises(IOError, self.metadata.write)
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'dimensions')
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'mime_type')
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'exif_keys')
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'iptc_keys')
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'xmp_keys')
+        self.assertRaises(IOError, self.metadata._get_exif_tag, 'Exif.Image.Make')
+        self.assertRaises(IOError, self.metadata._get_iptc_tag, 'Iptc.Application2.Caption')
+        self.assertRaises(IOError, self.metadata._get_xmp_tag, 'Xmp.dc.format')
+        self.assertRaises(IOError, self.metadata._set_exif_tag, 'Exif.Image.Make', 'foobar')
+        self.assertRaises(IOError, self.metadata._set_iptc_tag, 'Iptc.Application2.Caption', ['foobar'])
+        self.assertRaises(IOError, self.metadata._set_xmp_tag, 'Xmp.dc.format', ('foo', 'bar'))
+        self.assertRaises(IOError, self.metadata._delete_exif_tag, 'Exif.Image.Make')
+        self.assertRaises(IOError, self.metadata._delete_iptc_tag, 'Iptc.Application2.Caption')
+        self.assertRaises(IOError, self.metadata._delete_xmp_tag, 'Xmp.dc.format')
+        self.assertRaises(IOError, self.metadata._get_comment)
+        self.assertRaises(IOError, self.metadata._set_comment, 'foobar')
+        self.assertRaises(IOError, self.metadata._del_comment)
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'previews')
+        other = ImageMetadata(self.pathname)
+        self.assertRaises(IOError, self.metadata.copy, other)
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'buffer')
+        thumb = self.metadata.exif_thumbnail
+        self.assertRaises(IOError, thumb.__getattribute__, 'mime_type')
+        self.assertRaises(IOError, thumb.__getattribute__, 'extension')
+        self.assertRaises(IOError, thumb.write_to_file, '/tmp/foobar.jpg')
+        self.assertRaises(IOError, thumb.erase)
+        self.assertRaises(IOError, thumb.set_from_file, '/tmp/foobar.jpg')
+        self.assertRaises(IOError, thumb.__getattribute__, 'data')
+        self.assertRaises(IOError, thumb.__setattr__, 'data', EMPTY_JPG_DATA)
+
     def test_read(self):
-        self.assertEqual(self.metadata._image, None)
+        self.assertRaises(IOError, self.metadata.__getattribute__, '_image')
         self.metadata.read()
         self.failIfEqual(self.metadata._image, None)
 

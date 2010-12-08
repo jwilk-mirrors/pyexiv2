@@ -61,7 +61,7 @@ class ImageMetadata(MutableMapping):
         self.filename = filename
         if filename is not None:
             self.filename = filename.encode(sys.getfilesystemencoding())
-        self._image = None
+        self.__image = None
         self._keys = {'exif': None, 'iptc': None, 'xmp': None}
         self._tags = {'exif': {}, 'iptc': {}, 'xmp': {}}
         self._exif_thumbnail = None
@@ -86,8 +86,14 @@ class ImageMetadata(MutableMapping):
         :type buffer: string
         """
         obj = cls(None)
-        obj._image = libexiv2python._Image(buffer, len(buffer))
+        obj.__image = libexiv2python._Image(buffer, len(buffer))
         return obj
+
+    @property
+    def _image(self):
+        if self.__image is None:
+            raise IOError('Image metadata has not been read yet')
+        return self.__image
 
     def read(self):
         """
@@ -96,9 +102,9 @@ class ImageMetadata(MutableMapping):
         the metadata (an exception will be raised if trying to access metadata
         before calling this method).
         """
-        if self._image is None:
-            self._image = self._instantiate_image(self.filename)
-        self._image._readMetadata()
+        if self.__image is None:
+            self.__image = self._instantiate_image(self.filename)
+        self.__image._readMetadata()
 
     def write(self, preserve_timestamps=False):
         """
