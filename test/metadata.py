@@ -152,7 +152,11 @@ class TestImageMetadata(unittest.TestCase):
         stat2 = os.stat(self.pathname)
         atime2 = round(stat2.st_atime)
         mtime2 = round(stat2.st_mtime)
-        self.failIfEqual(atime2, atime)
+        # It is not safe to assume that atime will have been modified when the
+        # file has been read, as it may depend on mount options (e.g. noatime,
+        # relatime).
+        # See discussion at http://bugs.launchpad.net/pyexiv2/+bug/624999.
+        #self.failIfEqual(atime2, atime)
         self.failIfEqual(mtime2, mtime)
         metadata.comment = 'Yesterday'
         time.sleep(1.1)
