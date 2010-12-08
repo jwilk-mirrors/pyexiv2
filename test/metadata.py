@@ -180,7 +180,7 @@ class TestImageMetadata(unittest.TestCase):
         # Get an existing tag
         key = 'Exif.Image.Make'
         tag = self.metadata._get_exif_tag(key)
-        self.assertEqual(type(tag), ExifTag)
+        self.assert_(isinstance(tag, ExifTag))
         self.assertEqual(self.metadata._tags['exif'][key], tag)
         # Try to get an nonexistent tag
         key = 'Exif.Photo.Sharpness'
@@ -288,7 +288,7 @@ class TestImageMetadata(unittest.TestCase):
         # Get an existing tag
         key = 'Iptc.Application2.DateCreated'
         tag = self.metadata._get_iptc_tag(key)
-        self.assertEqual(type(tag), IptcTag)
+        self.assert_(isinstance(tag, IptcTag))
         self.assertEqual(self.metadata._tags['iptc'][key], tag)
         # Try to get an nonexistent tag
         key = 'Iptc.Application2.Copyright'
@@ -396,7 +396,7 @@ class TestImageMetadata(unittest.TestCase):
         # Get an existing tag
         key = 'Xmp.dc.subject'
         tag = self.metadata._get_xmp_tag(key)
-        self.assertEqual(type(tag), XmpTag)
+        self.assert_(isinstance(tag, XmpTag))
         self.assertEqual(self.metadata._tags['xmp'][key], tag)
         # Try to get an nonexistent tag
         key = 'Xmp.xmp.Label'
@@ -497,13 +497,13 @@ class TestImageMetadata(unittest.TestCase):
         # Get existing tags
         key = 'Exif.Image.DateTime'
         tag = self.metadata[key]
-        self.assertEqual(type(tag), ExifTag)
+        self.assert_(isinstance(tag, ExifTag))
         key = 'Iptc.Application2.Caption'
         tag = self.metadata[key]
-        self.assertEqual(type(tag), IptcTag)
+        self.assert_(isinstance(tag, IptcTag))
         key = 'Xmp.dc.format'
         tag = self.metadata[key]
-        self.assertEqual(type(tag), XmpTag)
+        self.assert_(isinstance(tag, XmpTag))
         # Try to get nonexistent tags
         keys = ('Exif.Image.SamplesPerPixel', 'Iptc.Application2.FixtureId',
                 'Xmp.xmp.Rating', 'Wrong.Noluck.Raise')

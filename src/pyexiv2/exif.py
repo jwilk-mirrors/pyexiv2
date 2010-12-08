@@ -312,89 +312,92 @@ class ExifTag(ListenerInterface):
         :raise ExifValueError: if the conversion fails
         """
         if self.type == 'Ascii':
-            if type(value) is datetime.datetime:
+            if isinstance(value, datetime.datetime):
                 return value.strftime(self._datetime_formats[0])
-            elif type(value) is datetime.date:
+            elif isinstance(value, datetime.date):
                 if self.key == 'Exif.GPSInfo.GPSDateStamp':
                     # Special case
                     return value.strftime(self._date_formats[0])
                 else:
                     return value.strftime('%s 00:00:00' % self._date_formats[0])
-            elif type(value) is unicode:
+            elif isinstance(value, unicode):
                 try:
                     return value.encode('utf-8')
                 except UnicodeEncodeError:
                     raise ExifValueError(value, self.type)
-            elif type(value) is str:
+            elif isinstance(value, str):
                 return value
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type in ('Byte', 'SByte'):
-            if type(value) is unicode:
+            if isinstance(value, unicode):
                 try:
                     return value.encode('utf-8')
                 except UnicodeEncodeError:
                     raise ExifValueError(value, self.type)
-            elif type(value) is str:
+            elif isinstance(value, str):
                 return value
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Comment':
-            if type(value) is unicode:
+            if isinstance(value, unicode):
                 try:
                     return value.encode('utf-8')
                 except UnicodeEncodeError:
                     raise ExifValueError(value, self.type)
-            elif type(value) is str:
+            elif isinstance(value, str):
                 return value
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Short':
-            if type(value) is int and value >= 0:
+            if isinstance(value, int) and value >= 0:
                 return str(value)
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'SShort':
-            if type(value) is int:
+            if isinstance(value, int):
                 return str(value)
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Long':
-            if type(value) in (int, long) and value >= 0:
+            if isinstance(value, (int, long)) and value >= 0:
                 return str(value)
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'SLong':
-            if type(value) in (int, long):
+            if isinstance(value, (int, long)):
                 return str(value)
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Rational':
-            if type(value) in (Rational, Fraction) and value.numerator >= 0:
+            if (isinstance(value, Rational) or \
+                (Fraction is not None and isinstance(value, Fraction))) \
+                and value.numerator >= 0:
                 return str(value)
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'SRational':
-            if type(value) in (Rational, Fraction):
+            if isinstance(value, Rational) or \
+               (Fraction is not None and isinstance(value, Fraction)):
                 return str(value)
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Undefined':
-            if type(value) is unicode:
+            if isinstance(value, unicode):
                 try:
                     return string_to_undefined(value.encode('utf-8'))
                 except UnicodeEncodeError:
                     raise ExifValueError(value, self.type)
-            elif type(value) is str:
+            elif isinstance(value, str):
                 return string_to_undefined(value)
             else:
                 raise ExifValueError(value, self.type)

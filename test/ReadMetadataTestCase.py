@@ -38,12 +38,12 @@ class ReadMetadataTestCase(unittest.TestCase):
     """
 
     def check_type_and_value(self, tag, etype, evalue):
-        self.assertEqual(type(tag.value), etype)
+        self.assert_(isinstance(tag.value, etype))
         self.assertEqual(tag.value, evalue)
 
     def check_type_and_values(self, tag, etype, evalues):
         for value in tag.value:
-            self.assertEqual(type(value), etype)
+            self.assert_(isinstance(value, etype))
         self.assertEqual(tag.value, evalues)
 
     def assertCorrectFile(self, filename, md5sum):
