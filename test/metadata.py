@@ -738,7 +738,7 @@ class TestImageMetadata(unittest.TestCase):
         os.remove(pathname)
         thumb.write_to_file(pathname)
         pathname = pathname + thumb.extension
-        fd = open(pathname)
+        fd = open(pathname, 'rb')
         self.assertEqual(fd.read(), EMPTY_JPG_DATA)
         fd.close()
         os.remove(pathname)
