@@ -104,9 +104,9 @@ Read the comments in the header of the script to know the pre-requisites.
 
 The result of the compilation is a DLL, ``libexiv2python.pyd``, in the build
 directory. This file and the ``pyexiv2`` folder in ``src`` should be copied to
-the system-wide site directory of a Python 2.6 setup
-(typically ``C:\Python26\Lib\site-packages\``) or to the user site directory
-(``%APPDATA%\Python\Python26\site-packages\``).
+the system-wide site directory of a Python 2.7 setup
+(typically ``C:\Python27\Lib\site-packages\``) or to the user site directory
+(``%APPDATA%\Python\Python27\site-packages\``).
 
 The top-level directory of the branch also contains an NSIS installer script
 named ``win32-installer.nsi``.
