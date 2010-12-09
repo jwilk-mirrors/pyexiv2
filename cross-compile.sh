@@ -64,22 +64,22 @@ make -j3 install
 cd ..
 
 # exiv2
-wget http://exiv2.org/exiv2-0.20.tar.gz
-tar xf exiv2-0.20.tar.gz
-cd exiv2-0.20
+wget http://exiv2.org/exiv2-0.21.tar.gz
+tar xf exiv2-0.21.tar.gz
+cd exiv2-0.21
 ./configure --disable-shared --disable-visibility --target=$PLATFORM --host=$PLATFORM --build=$BUILD --disable-nls --with-zlib=$BASE/zlib --with-libiconv-prefix=$BASE/libiconv --with-expat=$BASE/expat --prefix=$BASE/exiv2
 make -j3 install
 cd ..
 
 # python
-wget http://python.org/ftp/python/2.7/python-2.7.msi
-7z x python-2.7.msi -opython
+wget http://python.org/ftp/python/2.7.1/python-2.7.1.msi
+7z x python-2.7.1.msi -opython
 7z x python/python -opython
 
 # boost-python
-wget --trust-server-names=on http://sourceforge.net/projects/boost/files/boost/1.44.0/boost_1_44_0.tar.bz2/download
-tar xf boost_1_44_0.tar.bz2
-cd boost_1_44_0
+wget --trust-server-names=on http://sourceforge.net/projects/boost/files/boost/1.45.0/boost_1_45_0.tar.bz2/download
+tar xf boost_1_45_0.tar.bz2
+cd boost_1_45_0
 echo "using gcc : : $COMPILER : <compileflags>-I$BASE/python <archiver>$ARCHIVER ;" >> tools/build/v2/user-config.jam
 bjam install -j 3 --prefix=$BASE/boost --with-python toolset=gcc link=static
 cd ..
