@@ -36,6 +36,7 @@ from pyexiv2.utils import Rational, Fraction, \
 
 import time
 import datetime
+import sys
 
 
 class ExifValueError(ValueError):
@@ -264,10 +265,30 @@ class ExifTag(ListenerInterface):
             return value
 
         elif self.type == 'Comment':
-            # There is currently no charset conversion.
-            # TODO: guess the encoding and decode accordingly into unicode
-            # where relevant.
-            return value
+            if value.startswith('charset='):
+                charset, val = value.split(' ', 1)
+                charset = charset.split('=')[1].strip('"')
+                encoding = sys.getdefaultencoding()
+                if charset == 'Ascii':
+                    encoding = 'ascii'
+                elif charset == 'Jis':
+                    encoding = 'shift_jis'
+                elif charset == 'Unicode':
+                    byte_order = self._tag._getByteOrder()
+                    if byte_order == 1:
+                        # little endian (II)
+                        encoding = 'utf-16le'
+                    elif byte_order == 2:
+                        # big endian (MM)
+                        encoding = 'utf-16be'
+                elif charset == 'Undefined':
+                    pass
+                elif charset == 'InvalidCharsetId':
+                    pass
+                return val.decode(encoding, 'replace')
+            else:
+                # No encoding defined.
+                return value
 
         elif self.type in ('Short', 'SShort'):
             try:
