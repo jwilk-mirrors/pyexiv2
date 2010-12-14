@@ -373,8 +373,8 @@ class ExifTag(ListenerInterface):
                 charset = charset.split('=')[1].strip('"')
                 encoding = self._match_encoding(charset)
                 try:
-                    val = value.encode(encoding, 'replace')
-                except UnicodeDecodeError:
+                    val = value.encode(encoding)
+                except UnicodeError:
                     # Best effort, do not fail just because the original
                     # encoding of the tag cannot encode the new value.
                     pass
