@@ -227,6 +227,26 @@ class ExifTag(ListenerInterface):
         # self._value is a list of values and its contents changed.
         self._set_value(self._value)
 
+    def _match_encoding(self, charset):
+        encoding = sys.getdefaultencoding()
+        if charset == 'Ascii':
+            encoding = 'ascii'
+        elif charset == 'Jis':
+            encoding = 'shift_jis'
+        elif charset == 'Unicode':
+            byte_order = self._tag._getByteOrder()
+            if byte_order == 1:
+                # little endian (II)
+                encoding = 'utf-16le'
+            elif byte_order == 2:
+                # big endian (MM)
+                encoding = 'utf-16be'
+        elif charset == 'Undefined':
+            pass
+        elif charset == 'InvalidCharsetId':
+            pass
+        return encoding
+
     def _convert_to_python(self, value):
         """
         Convert one raw value to its corresponding python type.
@@ -268,23 +288,7 @@ class ExifTag(ListenerInterface):
             if value.startswith('charset='):
                 charset, val = value.split(' ', 1)
                 charset = charset.split('=')[1].strip('"')
-                encoding = sys.getdefaultencoding()
-                if charset == 'Ascii':
-                    encoding = 'ascii'
-                elif charset == 'Jis':
-                    encoding = 'shift_jis'
-                elif charset == 'Unicode':
-                    byte_order = self._tag._getByteOrder()
-                    if byte_order == 1:
-                        # little endian (II)
-                        encoding = 'utf-16le'
-                    elif byte_order == 2:
-                        # big endian (MM)
-                        encoding = 'utf-16be'
-                elif charset == 'Undefined':
-                    pass
-                elif charset == 'InvalidCharsetId':
-                    pass
+                encoding = self._match_encoding(charset)
                 return val.decode(encoding, 'replace')
             else:
                 # No encoding defined.
@@ -363,15 +367,24 @@ class ExifTag(ListenerInterface):
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Comment':
-            if isinstance(value, unicode):
-                try:
-                    return value.encode('utf-8')
-                except UnicodeEncodeError:
-                    raise ExifValueError(value, self.type)
-            elif isinstance(value, str):
-                return value
+            if self.raw_value is not None and \
+                self.raw_value.startswith('charset='):
+                charset, val = self.raw_value.split(' ', 1)
+                charset = charset.split('=')[1].strip('"')
+                encoding = self._match_encoding(charset)
+                val = value.encode(encoding, 'replace')
+                return 'charset="%s" %s' % (charset, val)
             else:
-                raise ExifValueError(value, self.type)
+                # No encoding defined.
+                if isinstance(value, unicode):
+                    try:
+                        return value.encode('utf-8')
+                    except UnicodeEncodeError:
+                        raise ExifValueError(value, self.type)
+                elif isinstance(value, str):
+                    return value
+                else:
+                    raise ExifValueError(value, self.type)
 
         elif self.type == 'Short':
             if isinstance(value, int) and value >= 0:
