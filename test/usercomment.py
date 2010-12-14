@@ -40,19 +40,19 @@ class TestUserComment(unittest.TestCase):
         m.read()
         return m
 
-    def test_ascii(self):
+    def test_read_ascii(self):
         m = self._read_image('usercomment-ascii.jpg', 'ad29ac65fb6f63c8361aaed6cb02f8c7')
         tag = m['Exif.Photo.UserComment']
         self.assertEqual(tag.raw_value, 'charset="Ascii" deja vu')
         self.assertEqual(tag.value, u'deja vu')
 
-    def test_unicode_little_endian(self):
+    def test_read_unicode_little_endian(self):
         m = self._read_image('usercomment-unicode-ii.jpg', '13b7cc09129a8677f2cf18634f5abd3c')
         tag = m['Exif.Photo.UserComment']
         self.assertEqual(tag.raw_value, 'charset="Unicode" d\x00\xe9\x00j\x00\xe0\x00 \x00v\x00u\x00')
         self.assertEqual(tag.value, u'déjà vu')
 
-    def test_unicode_big_endian(self):
+    def test_read_unicode_big_endian(self):
         m = self._read_image('usercomment-unicode-mm.jpg', '7addfed7823c556ba489cd4ab2037200')
         tag = m['Exif.Photo.UserComment']
         self.assertEqual(tag.raw_value, 'charset="Unicode" \x00d\x00\xe9\x00j\x00\xe0\x00 \x00v\x00u')
