@@ -58,3 +58,31 @@ class TestUserComment(unittest.TestCase):
         self.assertEqual(tag.raw_value, 'charset="Unicode" \x00d\x00\xe9\x00j\x00\xe0\x00 \x00v\x00u')
         self.assertEqual(tag.value, u'déjà vu')
 
+    def test_write_ascii(self):
+        m = self._read_image('usercomment-ascii.jpg', 'ad29ac65fb6f63c8361aaed6cb02f8c7')
+        tag = m['Exif.Photo.UserComment']
+        tag.value = 'foo bar'
+        self.assertEqual(tag.raw_value, 'charset="Ascii" foo bar')
+        self.assertEqual(tag.value, u'foo bar')
+
+    def test_write_unicode_over_ascii(self):
+        m = self._read_image('usercomment-ascii.jpg', 'ad29ac65fb6f63c8361aaed6cb02f8c7')
+        tag = m['Exif.Photo.UserComment']
+        tag.value = u'déjà vu'
+        self.assertEqual(tag.raw_value, 'déjà vu')
+        self.assertEqual(tag.value, u'déjà vu')
+
+    def test_write_unicode_little_endian(self):
+        m = self._read_image('usercomment-unicode-ii.jpg', '13b7cc09129a8677f2cf18634f5abd3c')
+        tag = m['Exif.Photo.UserComment']
+        tag.value = u'DÉJÀ VU'
+        self.assertEqual(tag.raw_value, 'charset="Unicode" D\x00\xc9\x00J\x00\xc0\x00 \x00V\x00U\x00')
+        self.assertEqual(tag.value, u'DÉJÀ VU')
+
+    def test_write_unicode_big_endian(self):
+        m = self._read_image('usercomment-unicode-mm.jpg', '7addfed7823c556ba489cd4ab2037200')
+        tag = m['Exif.Photo.UserComment']
+        tag.value = u'DÉJÀ VU'
+        self.assertEqual(tag.raw_value, 'charset="Unicode" \x00D\x00\xc9\x00J\x00\xc0\x00 \x00V\x00U')
+        self.assertEqual(tag.value, u'DÉJÀ VU')
+
