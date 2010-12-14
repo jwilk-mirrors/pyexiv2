@@ -367,24 +367,29 @@ class ExifTag(ListenerInterface):
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Comment':
-            if self.raw_value is not None and \
+            if value is not None and self.raw_value is not None and \
                 self.raw_value.startswith('charset='):
                 charset, val = self.raw_value.split(' ', 1)
                 charset = charset.split('=')[1].strip('"')
                 encoding = self._match_encoding(charset)
-                val = value.encode(encoding, 'replace')
-                return 'charset="%s" %s' % (charset, val)
-            else:
-                # No encoding defined.
-                if isinstance(value, unicode):
-                    try:
-                        return value.encode('utf-8')
-                    except UnicodeEncodeError:
-                        raise ExifValueError(value, self.type)
-                elif isinstance(value, str):
-                    return value
+                try:
+                    val = value.encode(encoding, 'replace')
+                except UnicodeDecodeError:
+                    # Best effort, do not fail just because the original
+                    # encoding of the tag cannot encode the new value.
+                    pass
                 else:
+                    return 'charset="%s" %s' % (charset, val)
+
+            if isinstance(value, unicode):
+                try:
+                    return value.encode('utf-8')
+                except UnicodeEncodeError:
                     raise ExifValueError(value, self.type)
+            elif isinstance(value, str):
+                return value
+            else:
+                raise ExifValueError(value, self.type)
 
         elif self.type == 'Short':
             if isinstance(value, int) and value >= 0:
