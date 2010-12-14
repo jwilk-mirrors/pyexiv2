@@ -135,6 +135,10 @@ class TestExifTag(unittest.TestCase):
         tag = ExifTag('Exif.Photo.UserComment')
         self.assertEqual(tag.type, 'Comment')
         self.assertEqual(tag._convert_to_python('A comment'), 'A comment')
+        charsets = ('Ascii', 'Jis', 'Unicode', 'Undefined', 'InvalidCharsetId')
+        for charset in charsets:
+            self.assertEqual(tag._convert_to_python('charset="%s" A comment' % charset), 'A comment')
+            self.failIfEqual(tag._convert_to_python('charset="%s" déjà vu' % charset), 'déjà vu')
 
     def test_convert_to_string_comment(self):
         # Valid values
@@ -142,6 +146,12 @@ class TestExifTag(unittest.TestCase):
         self.assertEqual(tag.type, 'Comment')
         self.assertEqual(tag._convert_to_string('A comment'), 'A comment')
         self.assertEqual(tag._convert_to_string(u'A comment'), 'A comment')
+        charsets = ('Ascii', 'Jis', 'Unicode', 'Undefined')
+        for charset in charsets:
+            tag.raw_value = 'charset="%s" foo' % charset
+            self.assertEqual(tag._convert_to_string('A comment'),
+                             'charset="%s" A comment' % charset)
+            self.assertEqual(tag._convert_to_string('déjà vu'), 'déjà vu')
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, None)
