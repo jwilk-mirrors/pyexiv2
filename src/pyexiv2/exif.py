@@ -292,7 +292,10 @@ class ExifTag(ListenerInterface):
                 return val.decode(encoding, 'replace')
             else:
                 # No encoding defined.
-                return value
+                try:
+                    return value.decode('utf-8')
+                except UnicodeError:
+                    return value
 
         elif self.type in ('Short', 'SShort'):
             try:
