@@ -28,10 +28,12 @@ from pyexiv2.metadata import ImageMetadata
 
 import unittest
 import testutils
-import os.path
+import os
+import tempfile
+from metadata import EMPTY_JPG_DATA
 
 
-class TestUserComment(unittest.TestCase):
+class TestUserCommentReadWrite(unittest.TestCase):
 
     checksums = {
         'usercomment-ascii.jpg': 'ad29ac65fb6f63c8361aaed6cb02f8c7',
@@ -91,4 +93,35 @@ class TestUserComment(unittest.TestCase):
         tag.value = u'DÉJÀ VU'
         self.assertEqual(tag.raw_value, 'charset="Unicode" \x00D\x00\xc9\x00J\x00\xc0\x00 \x00V\x00U')
         self.assertEqual(tag.value, u'DÉJÀ VU')
+
+
+class TestUserCommentAdd(unittest.TestCase):
+
+    def setUp(self):
+        # Create an empty image file
+        fd, self.pathname = tempfile.mkstemp(suffix='.jpg')
+        os.write(fd, EMPTY_JPG_DATA)
+        os.close(fd)
+
+    def tearDown(self):
+        os.remove(self.pathname)
+
+    def _test_add_comment(self, value):
+        metadata = ImageMetadata(self.pathname)
+        metadata.read()
+        key = 'Exif.Photo.UserComment'
+        metadata[key] = value
+        metadata.write()
+
+        metadata = ImageMetadata(self.pathname)
+        metadata.read()
+        self.assert_(key in metadata.exif_keys)
+        tag = metadata[key]
+        self.assertEqual(tag.value, value)
+
+    def test_add_comment_ascii(self):
+        self._test_add_comment('deja vu')
+
+    def test_add_comment_unicode(self):
+        self._test_add_comment(u'déjà vu')
 
