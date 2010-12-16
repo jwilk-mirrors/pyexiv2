@@ -48,6 +48,14 @@ class TestUserCommentReadWrite(unittest.TestCase):
         m.read()
         return m
 
+    def _expected_raw_value(self, endianness, value):
+        from pyexiv2 import __exiv2_version__
+        if __exiv2_version__ >= '0.20':
+            return value
+        else:
+            encodings = {'ii': 'utf-16le', 'mm': 'utf-16be'}
+            return value.decode('utf-8').encode(encodings[endianness])
+
     def test_read_ascii(self):
         m = self._read_image('usercomment-ascii.jpg')
         tag = m['Exif.Photo.UserComment']
@@ -57,13 +65,13 @@ class TestUserCommentReadWrite(unittest.TestCase):
     def test_read_unicode_little_endian(self):
         m = self._read_image('usercomment-unicode-ii.jpg')
         tag = m['Exif.Photo.UserComment']
-        self.assertEqual(tag.raw_value, 'charset="Unicode" d\x00\xe9\x00j\x00\xe0\x00 \x00v\x00u\x00')
+        self.assertEqual(tag.raw_value, 'charset="Unicode" %s' % self._expected_raw_value('ii', 'déjà vu'))
         self.assertEqual(tag.value, u'déjà vu')
 
     def test_read_unicode_big_endian(self):
         m = self._read_image('usercomment-unicode-mm.jpg')
         tag = m['Exif.Photo.UserComment']
-        self.assertEqual(tag.raw_value, 'charset="Unicode" \x00d\x00\xe9\x00j\x00\xe0\x00 \x00v\x00u')
+        self.assertEqual(tag.raw_value, 'charset="Unicode" %s' % self._expected_raw_value('mm', 'déjà vu'))
         self.assertEqual(tag.value, u'déjà vu')
 
     def test_write_ascii(self):
@@ -84,14 +92,14 @@ class TestUserCommentReadWrite(unittest.TestCase):
         m = self._read_image('usercomment-unicode-ii.jpg')
         tag = m['Exif.Photo.UserComment']
         tag.value = u'DÉJÀ VU'
-        self.assertEqual(tag.raw_value, 'charset="Unicode" D\x00\xc9\x00J\x00\xc0\x00 \x00V\x00U\x00')
+        self.assertEqual(tag.raw_value, 'charset="Unicode" %s' % self._expected_raw_value('ii', 'DÉJÀ VU'))
         self.assertEqual(tag.value, u'DÉJÀ VU')
 
     def test_write_unicode_big_endian(self):
         m = self._read_image('usercomment-unicode-mm.jpg')
         tag = m['Exif.Photo.UserComment']
         tag.value = u'DÉJÀ VU'
-        self.assertEqual(tag.raw_value, 'charset="Unicode" \x00D\x00\xc9\x00J\x00\xc0\x00 \x00V\x00U')
+        self.assertEqual(tag.raw_value, 'charset="Unicode" %s' % self._expected_raw_value('mm', 'DÉJÀ VU'))
         self.assertEqual(tag.value, u'DÉJÀ VU')
 
 

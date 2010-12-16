@@ -234,13 +234,18 @@ class ExifTag(ListenerInterface):
         elif charset == 'Jis':
             encoding = 'shift_jis'
         elif charset == 'Unicode':
-            byte_order = self._tag._getByteOrder()
-            if byte_order == 1:
-                # little endian (II)
-                encoding = 'utf-16le'
-            elif byte_order == 2:
-                # big endian (MM)
-                encoding = 'utf-16be'
+            # Starting from 0.20, exiv2 converts unicode comments to UTF-8
+            from pyexiv2 import __exiv2_version__
+            if __exiv2_version__ >= '0.20':
+                encoding = 'utf-8'
+            else:
+                byte_order = self._tag._getByteOrder()
+                if byte_order == 1:
+                    # little endian (II)
+                    encoding = 'utf-16le'
+                elif byte_order == 2:
+                    # big endian (MM)
+                    encoding = 'utf-16be'
         elif charset == 'Undefined':
             pass
         elif charset == 'InvalidCharsetId':
