@@ -26,10 +26,13 @@
 
 import unittest
 
-from pyexiv2.xmp import XmpTag, XmpValueError
+from pyexiv2.xmp import XmpTag, XmpValueError, register_namespace, \
+                        unregister_namespace, unregister_namespaces
 from pyexiv2.utils import FixedOffset, Rational, Fraction
+from pyexiv2.metadata import ImageMetadata
 
 import datetime
+from testutils import EMPTY_JPG_DATA
 
 
 class TestXmpTag(unittest.TestCase):
@@ -322,4 +325,101 @@ class TestXmpTag(unittest.TestCase):
         tag = XmpTag('Xmp.dc.title')
         self.failUnlessEqual(tag.type, 'Lang Alt')
         self.failUnlessRaises(ValueError, tag._set_value, {})
+
+
+class TestXmpNamespaces(unittest.TestCase):
+
+    def setUp(self):
+        self.metadata = ImageMetadata.from_buffer(EMPTY_JPG_DATA)
+        self.metadata.read()
+
+    def test_not_registered(self):
+        self.assertEqual(len(self.metadata.xmp_keys), 0)
+        key = 'Xmp.foo.bar'
+        value = 'foobar'
+        self.assertRaises(KeyError, self.metadata.__setitem__, key, value)
+
+    def test_name_must_end_with_slash(self):
+        self.assertRaises(ValueError, register_namespace, 'foobar', 'foo')
+        self.assertRaises(ValueError, unregister_namespace, 'foobar')
+
+    def test_cannot_register_builtin(self):
+        self.assertRaises(KeyError, register_namespace, 'foobar/', 'dc')
+
+    def test_cannot_register_twice(self):
+        name = 'foobar/'
+        prefix = 'boo'
+        register_namespace(name, prefix)
+        self.assertRaises(KeyError, register_namespace, name, prefix)
+
+    def test_register_and_set(self):
+        register_namespace('foobar/', 'bar')
+        key = 'Xmp.bar.foo'
+        value = 'foobar'
+        self.metadata[key] = value
+        self.assert_(key in self.metadata.xmp_keys)
+
+    def test_can_only_set_text_values(self):
+        # At the moment custom namespaces only support setting simple text
+        # values.
+        register_namespace('foobar/', 'far')
+        key = 'Xmp.far.foo'
+        value = datetime.date.today()
+        self.assertRaises(XmpValueError, self.metadata.__setitem__, key, value)
+        value = datetime.datetime.now()
+        self.assertRaises(XmpValueError, self.metadata.__setitem__, key, value)
+        value = ['foo', 'bar']
+        self.assertRaises(XmpValueError, self.metadata.__setitem__, key, value)
+        value = {'x-default': 'foo', 'fr-FR': 'bar'}
+        self.assertRaises(XmpValueError, self.metadata.__setitem__, key, value)
+        value = 'simple text value'
+        self.metadata[key] = value
+
+    def test_cannot_unregister_builtin(self):
+        name = 'http://purl.org/dc/elements/1.1/' # DC builtin namespace
+        self.assertRaises(KeyError, unregister_namespace, name)
+
+    def test_cannot_unregister_inexistent(self):
+        name = 'boofar/'
+        self.assertRaises(KeyError, unregister_namespace, name)
+
+    def test_cannot_unregister_twice(self):
+        name = 'bleh/'
+        prefix = 'ble'
+        register_namespace(name, prefix)
+        unregister_namespace(name)
+        self.assertRaises(KeyError, unregister_namespace, name)
+
+    def test_unregister(self):
+        name = 'blah/'
+        prefix = 'bla'
+        register_namespace(name, prefix)
+        unregister_namespace(name)
+
+    def test_unregister_invalidates_keys_in_ns(self):
+        name = 'blih/'
+        prefix = 'bli'
+        register_namespace(name, prefix)
+        key = 'Xmp.%s.blu' % prefix
+        self.metadata[key] = 'foobar'
+        self.assert_(key in self.metadata.xmp_keys)
+        unregister_namespace(name)
+        self.assertRaises(KeyError, self.metadata.write)
+
+    def test_unregister_all_ns(self):
+        # Unregistering all custom namespaces will always succeed, even if there
+        # are no custom namespaces registered.
+        unregister_namespaces()
+
+        name = 'blop/'
+        prefix = 'blo'
+        register_namespace(name, prefix)
+        self.metadata['Xmp.%s.bar' % prefix] = 'foobar'
+        name2 = 'blup/'
+        prefix2 = 'blu'
+        register_namespace(name2, prefix2)
+        self.metadata['Xmp.%s.bar' % prefix2] = 'foobar'
+        unregister_namespaces()
+        self.assertRaises(KeyError, self.metadata.__setitem__, 'Xmp.%s.baz' % prefix, 'foobaz')
+        self.assertRaises(KeyError, self.metadata.__setitem__, 'Xmp.%s.baz' % prefix2, 'foobaz')
 

@@ -240,6 +240,19 @@ If the tag was not present, one is created and its value is set::
 
   >>> metadata[key] = value
 
+If you need to write custom metadata, you can register a custom XMP namespace::
+
+  >>> pyexiv2.xmp.register_namespace('http://example.org/foo/', 'foo')
+  >>> metadata['Xmp.foo.bar'] = 'baz'
+
+Note that a limitation of the current implementation is that only simple text
+values can be written to tags in a custom namespace.
+
+A custom namespace can be unregistered. This has the effect of invalidating all
+tags in this namespace for images that have not been written back yet::
+
+  >>> pyexiv2.xmp.unregister_namespace('http://example.org/foo/')
+
 Accessing embedded previews
 ###########################
 

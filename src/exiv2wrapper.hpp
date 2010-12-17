@@ -278,6 +278,12 @@ private:
 // Translate an Exiv2 generic exception into a Python exception
 void translateExiv2Error(Exiv2::Error const& error);
 
+
+// Functions to manipulate custom XMP namespaces
+void registerXmpNs(const std::string& name, const std::string& prefix);
+void unregisterXmpNs(const std::string& name);
+void unregisterAllXmpNs();
+
 } // End of namespace exiv2wrapper
 
 #endif

@@ -34,7 +34,7 @@ from gps_coordinate import TestGPSCoordinate
 from notifying_list import TestNotifyingList
 from exif import TestExifTag
 from iptc import TestIptcTag
-from xmp import TestXmpTag
+from xmp import TestXmpTag, TestXmpNamespaces
 from metadata import TestImageMetadata
 from buffer import TestBuffer
 from encoding import TestEncodings
@@ -52,6 +52,7 @@ def run_unit_tests():
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestExifTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestIptcTag))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpTag))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestXmpNamespaces))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestImageMetadata))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestBuffer))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestEncodings))

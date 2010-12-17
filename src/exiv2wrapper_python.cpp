@@ -154,5 +154,9 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_setExifThumbnailFromFile", &Image::setExifThumbnailFromFile)
         .def("_setExifThumbnailFromData", &Image::setExifThumbnailFromData)
     ;
+
+    def("_registerXmpNs", registerXmpNs, args("name", "prefix"));
+    def("_unregisterXmpNs", unregisterXmpNs, args("name"));
+    def("_unregisterAllXmpNs", unregisterAllXmpNs);
 }
 

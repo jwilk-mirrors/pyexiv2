@@ -43,6 +43,9 @@ pyexiv2.xmp
 ###########
 
 .. module:: pyexiv2.xmp
+.. autofunction:: register_namespace
+.. autofunction:: unregister_namespace
+.. autofunction:: unregister_namespaces
 .. autoexception:: XmpValueError
 .. autoclass:: XmpTag
    :members: key, type, name, title, description, raw_value, value
