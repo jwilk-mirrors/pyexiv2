@@ -230,7 +230,7 @@ const ExifTag Image::getExifTag(std::string key)
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    return ExifTag(key, &(*_exifData)[key], _exifData);
+    return ExifTag(key, &(*_exifData)[key], _exifData, _image->byteOrder());
 }
 
 void Image::deleteExifTag(std::string key)
@@ -450,6 +450,12 @@ std::string Image::getDataBuffer() const
     return buffer;
 }
 
+Exiv2::ByteOrder Image::getByteOrder() const
+{
+    CHECK_METADATA_READ
+    return _image->byteOrder();
+}
+
 Exiv2::ExifThumb* Image::_getExifThumbnail()
 {
     CHECK_METADATA_READ
@@ -510,7 +516,10 @@ void Image::setExifThumbnailFromData(const std::string& data)
 }
 
 
-ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifData* data): _key(key)
+ExifTag::ExifTag(const std::string& key,
+                 Exiv2::Exifdatum* datum, Exiv2::ExifData* data,
+                 Exiv2::ByteOrder byteOrder):
+    _key(key), _byteOrder(byteOrder)
 {
     if (datum != 0 && data != 0)
     {
@@ -580,6 +589,8 @@ void ExifTag::setParentImage(Image& image)
     delete _datum;
     _datum = &(*_data)[_key.key()];
     _datum->setValue(value);
+
+    _byteOrder = image.getByteOrder();
 }
 
 const std::string ExifTag::getKey()
@@ -625,6 +636,11 @@ const std::string ExifTag::getRawValue()
 const std::string ExifTag::getHumanValue()
 {
     return _datum->print(_data);
+}
+
+int ExifTag::getByteOrder()
+{
+    return _byteOrder;
 }
 
 

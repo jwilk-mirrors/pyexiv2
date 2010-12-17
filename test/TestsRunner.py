@@ -39,6 +39,7 @@ from metadata import TestImageMetadata
 from buffer import TestBuffer
 from encoding import TestEncodings
 from utils import TestConversions
+from usercomment import TestUserCommentReadWrite, TestUserCommentAdd
 
 
 def run_unit_tests():
@@ -55,6 +56,8 @@ def run_unit_tests():
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestBuffer))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestEncodings))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestConversions))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUserCommentReadWrite))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUserCommentAdd))
     # Run the test suite
     return unittest.TextTestRunner(verbosity=2).run(suite)
 

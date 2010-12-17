@@ -36,6 +36,7 @@ from pyexiv2.utils import Rational, Fraction, \
 
 import time
 import datetime
+import sys
 
 
 class ExifValueError(ValueError):
@@ -226,6 +227,31 @@ class ExifTag(ListenerInterface):
         # self._value is a list of values and its contents changed.
         self._set_value(self._value)
 
+    def _match_encoding(self, charset):
+        encoding = sys.getdefaultencoding()
+        if charset == 'Ascii':
+            encoding = 'ascii'
+        elif charset == 'Jis':
+            encoding = 'shift_jis'
+        elif charset == 'Unicode':
+            # Starting from 0.20, exiv2 converts unicode comments to UTF-8
+            from pyexiv2 import __exiv2_version__
+            if __exiv2_version__ >= '0.20':
+                encoding = 'utf-8'
+            else:
+                byte_order = self._tag._getByteOrder()
+                if byte_order == 1:
+                    # little endian (II)
+                    encoding = 'utf-16le'
+                elif byte_order == 2:
+                    # big endian (MM)
+                    encoding = 'utf-16be'
+        elif charset == 'Undefined':
+            pass
+        elif charset == 'InvalidCharsetId':
+            pass
+        return encoding
+
     def _convert_to_python(self, value):
         """
         Convert one raw value to its corresponding python type.
@@ -264,10 +290,17 @@ class ExifTag(ListenerInterface):
             return value
 
         elif self.type == 'Comment':
-            # There is currently no charset conversion.
-            # TODO: guess the encoding and decode accordingly into unicode
-            # where relevant.
-            return value
+            if value.startswith('charset='):
+                charset, val = value.split(' ', 1)
+                charset = charset.split('=')[1].strip('"')
+                encoding = self._match_encoding(charset)
+                return val.decode(encoding, 'replace')
+            else:
+                # No encoding defined.
+                try:
+                    return value.decode('utf-8')
+                except UnicodeError:
+                    return value
 
         elif self.type in ('Short', 'SShort'):
             try:
@@ -342,6 +375,20 @@ class ExifTag(ListenerInterface):
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Comment':
+            if value is not None and self.raw_value is not None and \
+                self.raw_value.startswith('charset='):
+                charset, val = self.raw_value.split(' ', 1)
+                charset = charset.split('=')[1].strip('"')
+                encoding = self._match_encoding(charset)
+                try:
+                    val = value.encode(encoding)
+                except UnicodeError:
+                    # Best effort, do not fail just because the original
+                    # encoding of the tag cannot encode the new value.
+                    pass
+                else:
+                    return 'charset="%s" %s' % (charset, val)
+
             if isinstance(value, unicode):
                 try:
                     return value.encode('utf-8')
