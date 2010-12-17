@@ -30,7 +30,7 @@ import unittest
 import testutils
 import os
 import tempfile
-from metadata import EMPTY_JPG_DATA
+from testutils import EMPTY_JPG_DATA
 
 
 class TestUserCommentReadWrite(unittest.TestCase):
