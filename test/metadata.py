@@ -35,25 +35,7 @@ import os
 import tempfile
 import time
 import unittest
-
-
-EMPTY_JPG_DATA = \
-    '\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb' \
-    '\x00C\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff' \
-    '\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff' \
-    '\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff' \
-    '\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xc0\x00\x0b\x08' \
-    '\x00\x01\x00\x01\x01\x01\x11\x00\xff\xc4\x00\x1f\x00\x00\x01\x05\x01\x01' \
-    '\x01\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x02\x03\x04\x05\x06' \
-    '\x07\x08\t\n\x0b\xff\xc4\x00\xb5\x10\x00\x02\x01\x03\x03\x02\x04\x03\x05' \
-    '\x05\x04\x04\x00\x00\x01}\x01\x02\x03\x00\x04\x11\x05\x12!1A\x06\x13Qa' \
-    '\x07"q\x142\x81\x91\xa1\x08#B\xb1\xc1\x15R\xd1\xf0$3br\x82\t\n\x16\x17' \
-    "\x18\x19\x1a%&\'()*456789:CDEFGHIJSTUVWXYZcdefghijstuvwxyz\x83\x84\x85" \
-    '\x86\x87\x88\x89\x8a\x92\x93\x94\x95\x96\x97\x98\x99\x9a\xa2\xa3\xa4\xa5' \
-    '\xa6\xa7\xa8\xa9\xaa\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xc2\xc3\xc4\xc5' \
-    '\xc6\xc7\xc8\xc9\xca\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xe1\xe2\xe3\xe4' \
-    '\xe5\xe6\xe7\xe8\xe9\xea\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xff\xda' \
-    '\x00\x08\x01\x01\x00\x00?\x00\x92\xbf\xff\xd9'
+from testutils import EMPTY_JPG_DATA
 
 
 class TestImageMetadata(unittest.TestCase):
@@ -83,8 +65,41 @@ class TestImageMetadata(unittest.TestCase):
     # Test general methods
     ######################
 
+    def test_not_read_raises(self):
+        # http://bugs.launchpad.net/pyexiv2/+bug/687373
+        self.assertRaises(IOError, self.metadata.write)
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'dimensions')
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'mime_type')
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'exif_keys')
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'iptc_keys')
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'xmp_keys')
+        self.assertRaises(IOError, self.metadata._get_exif_tag, 'Exif.Image.Make')
+        self.assertRaises(IOError, self.metadata._get_iptc_tag, 'Iptc.Application2.Caption')
+        self.assertRaises(IOError, self.metadata._get_xmp_tag, 'Xmp.dc.format')
+        self.assertRaises(IOError, self.metadata._set_exif_tag, 'Exif.Image.Make', 'foobar')
+        self.assertRaises(IOError, self.metadata._set_iptc_tag, 'Iptc.Application2.Caption', ['foobar'])
+        self.assertRaises(IOError, self.metadata._set_xmp_tag, 'Xmp.dc.format', ('foo', 'bar'))
+        self.assertRaises(IOError, self.metadata._delete_exif_tag, 'Exif.Image.Make')
+        self.assertRaises(IOError, self.metadata._delete_iptc_tag, 'Iptc.Application2.Caption')
+        self.assertRaises(IOError, self.metadata._delete_xmp_tag, 'Xmp.dc.format')
+        self.assertRaises(IOError, self.metadata._get_comment)
+        self.assertRaises(IOError, self.metadata._set_comment, 'foobar')
+        self.assertRaises(IOError, self.metadata._del_comment)
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'previews')
+        other = ImageMetadata(self.pathname)
+        self.assertRaises(IOError, self.metadata.copy, other)
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'buffer')
+        thumb = self.metadata.exif_thumbnail
+        self.assertRaises(IOError, thumb.__getattribute__, 'mime_type')
+        self.assertRaises(IOError, thumb.__getattribute__, 'extension')
+        self.assertRaises(IOError, thumb.write_to_file, '/tmp/foobar.jpg')
+        self.assertRaises(IOError, thumb.erase)
+        self.assertRaises(IOError, thumb.set_from_file, '/tmp/foobar.jpg')
+        self.assertRaises(IOError, thumb.__getattribute__, 'data')
+        self.assertRaises(IOError, thumb.__setattr__, 'data', EMPTY_JPG_DATA)
+
     def test_read(self):
-        self.assertEqual(self.metadata._image, None)
+        self.assertRaises(IOError, self.metadata.__getattribute__, '_image')
         self.metadata.read()
         self.failIfEqual(self.metadata._image, None)
 
@@ -119,7 +134,11 @@ class TestImageMetadata(unittest.TestCase):
         stat2 = os.stat(self.pathname)
         atime2 = round(stat2.st_atime)
         mtime2 = round(stat2.st_mtime)
-        self.failIfEqual(atime2, atime)
+        # It is not safe to assume that atime will have been modified when the
+        # file has been read, as it may depend on mount options (e.g. noatime,
+        # relatime).
+        # See discussion at http://bugs.launchpad.net/pyexiv2/+bug/624999.
+        #self.failIfEqual(atime2, atime)
         self.failIfEqual(mtime2, mtime)
         metadata.comment = 'Yesterday'
         time.sleep(1.1)
@@ -147,7 +166,7 @@ class TestImageMetadata(unittest.TestCase):
         # Get an existing tag
         key = 'Exif.Image.Make'
         tag = self.metadata._get_exif_tag(key)
-        self.assertEqual(type(tag), ExifTag)
+        self.assert_(isinstance(tag, ExifTag))
         self.assertEqual(self.metadata._tags['exif'][key], tag)
         # Try to get an nonexistent tag
         key = 'Exif.Photo.Sharpness'
@@ -255,7 +274,7 @@ class TestImageMetadata(unittest.TestCase):
         # Get an existing tag
         key = 'Iptc.Application2.DateCreated'
         tag = self.metadata._get_iptc_tag(key)
-        self.assertEqual(type(tag), IptcTag)
+        self.assert_(isinstance(tag, IptcTag))
         self.assertEqual(self.metadata._tags['iptc'][key], tag)
         # Try to get an nonexistent tag
         key = 'Iptc.Application2.Copyright'
@@ -363,7 +382,7 @@ class TestImageMetadata(unittest.TestCase):
         # Get an existing tag
         key = 'Xmp.dc.subject'
         tag = self.metadata._get_xmp_tag(key)
-        self.assertEqual(type(tag), XmpTag)
+        self.assert_(isinstance(tag, XmpTag))
         self.assertEqual(self.metadata._tags['xmp'][key], tag)
         # Try to get an nonexistent tag
         key = 'Xmp.xmp.Label'
@@ -464,13 +483,13 @@ class TestImageMetadata(unittest.TestCase):
         # Get existing tags
         key = 'Exif.Image.DateTime'
         tag = self.metadata[key]
-        self.assertEqual(type(tag), ExifTag)
+        self.assert_(isinstance(tag, ExifTag))
         key = 'Iptc.Application2.Caption'
         tag = self.metadata[key]
-        self.assertEqual(type(tag), IptcTag)
+        self.assert_(isinstance(tag, IptcTag))
         key = 'Xmp.dc.format'
         tag = self.metadata[key]
-        self.assertEqual(type(tag), XmpTag)
+        self.assert_(isinstance(tag, XmpTag))
         # Try to get nonexistent tags
         keys = ('Exif.Image.SamplesPerPixel', 'Iptc.Application2.FixtureId',
                 'Xmp.xmp.Rating', 'Wrong.Noluck.Raise')
@@ -701,7 +720,7 @@ class TestImageMetadata(unittest.TestCase):
         os.remove(pathname)
         thumb.write_to_file(pathname)
         pathname = pathname + thumb.extension
-        fd = open(pathname)
+        fd = open(pathname, 'rb')
         self.assertEqual(fd.read(), EMPTY_JPG_DATA)
         fd.close()
         os.remove(pathname)

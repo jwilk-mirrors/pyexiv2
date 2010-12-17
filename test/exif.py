@@ -27,7 +27,7 @@
 import unittest
 
 from pyexiv2.exif import ExifTag, ExifValueError
-from pyexiv2.utils import Rational
+from pyexiv2.utils import Rational, Fraction
 
 import datetime
 
@@ -135,6 +135,10 @@ class TestExifTag(unittest.TestCase):
         tag = ExifTag('Exif.Photo.UserComment')
         self.assertEqual(tag.type, 'Comment')
         self.assertEqual(tag._convert_to_python('A comment'), 'A comment')
+        for charset in ('Ascii', 'Jis', 'Unicode', 'Undefined', 'InvalidCharsetId'):
+            self.assertEqual(tag._convert_to_python('charset="%s" A comment' % charset), 'A comment')
+        for charset in ('Ascii', 'Jis', 'Undefined', 'InvalidCharsetId'):
+            self.failIfEqual(tag._convert_to_python('charset="%s" déjà vu' % charset), u'déjà vu')
 
     def test_convert_to_string_comment(self):
         # Valid values
@@ -142,6 +146,12 @@ class TestExifTag(unittest.TestCase):
         self.assertEqual(tag.type, 'Comment')
         self.assertEqual(tag._convert_to_string('A comment'), 'A comment')
         self.assertEqual(tag._convert_to_string(u'A comment'), 'A comment')
+        charsets = ('Ascii', 'Jis', 'Unicode', 'Undefined')
+        for charset in charsets:
+            tag.raw_value = 'charset="%s" foo' % charset
+            self.assertEqual(tag._convert_to_string('A comment'),
+                             'charset="%s" A comment' % charset)
+            self.assertEqual(tag._convert_to_string('déjà vu'), 'déjà vu')
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, None)
@@ -263,6 +273,8 @@ class TestExifTag(unittest.TestCase):
         tag = ExifTag('Exif.Image.XResolution')
         self.assertEqual(tag.type, 'Rational')
         self.assertEqual(tag._convert_to_string(Rational(5, 3)), '5/3')
+        if Fraction is not None:
+            self.assertEqual(tag._convert_to_string(Fraction('1.6')), '8/5')
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 'invalid')
@@ -287,6 +299,9 @@ class TestExifTag(unittest.TestCase):
         self.assertEqual(tag.type, 'SRational')
         self.assertEqual(tag._convert_to_string(Rational(5, 3)), '5/3')
         self.assertEqual(tag._convert_to_string(Rational(-5, 3)), '-5/3')
+        if Fraction is not None:
+            self.assertEqual(tag._convert_to_string(Fraction('1.6')), '8/5')
+            self.assertEqual(tag._convert_to_string(Fraction('-1.6')), '-8/5')
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 'invalid')

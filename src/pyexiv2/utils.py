@@ -31,6 +31,16 @@ Utilitary classes and functions.
 import datetime
 import re
 
+# Support for fractions.Fraction as a replacement for the Rational class is not
+# implemented yet as we have to support versions of Python < 2.6
+# (see https://launchpad.net/bugs/514415).
+# However, it doesn’t hurt to accept Fraction objects as values when the module
+# is available (see https://launchpad.net/bugs/683232).
+try:
+    from fractions import Fraction
+except ImportError:
+    Fraction = None
+
 
 class FixedOffset(datetime.tzinfo):
 

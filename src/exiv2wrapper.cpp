@@ -233,7 +233,7 @@ const ExifTag Image::getExifTag(std::string key)
         throw Exiv2::Error(KEY_NOT_FOUND, key);
     }
 
-    return ExifTag(key, &(*_exifData)[key], _exifData);
+    return ExifTag(key, &(*_exifData)[key], _exifData, _image->byteOrder());
 }
 
 void Image::deleteExifTag(std::string key)
@@ -453,6 +453,12 @@ std::string Image::getDataBuffer() const
     return buffer;
 }
 
+Exiv2::ByteOrder Image::getByteOrder() const
+{
+    CHECK_METADATA_READ
+    return _image->byteOrder();
+}
+
 Exiv2::ExifThumb* Image::_getExifThumbnail()
 {
     CHECK_METADATA_READ
@@ -513,7 +519,10 @@ void Image::setExifThumbnailFromData(const std::string& data)
 }
 
 
-ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifData* data): _key(key)
+ExifTag::ExifTag(const std::string& key,
+                 Exiv2::Exifdatum* datum, Exiv2::ExifData* data,
+                 Exiv2::ByteOrder byteOrder):
+    _key(key), _byteOrder(byteOrder)
 {
     if (datum != 0 && data != 0)
     {
@@ -526,6 +535,20 @@ ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifDat
         _data = 0;
     }
 
+// Conditional code, exiv2 0.21 changed APIs we need
+// (see https://bugs.launchpad.net/pyexiv2/+bug/684177).
+#if EXIV2_TEST_VERSION(0,21,0)
+    Exiv2::ExifKey exifKey(key);
+    _type = Exiv2::TypeInfo::typeName(exifKey.defaultTypeId());
+    _name = exifKey.tagName();
+    _label = exifKey.tagLabel();
+    _description = exifKey.tagDesc();
+    _sectionName = Exiv2::ExifTags::sectionName(exifKey);
+    // The section description is not exposed in the API any longer
+    // (see http://dev.exiv2.org/issues/744). For want of anything better,
+    // fall back on the section’s name.
+    _sectionDescription = _sectionName;
+#else
     const uint16_t tag = _datum->tag();
     const Exiv2::IfdId ifd = _datum->ifdId();
     _type = Exiv2::TypeInfo::typeName(Exiv2::ExifTags::tagType(tag, ifd));
@@ -534,6 +557,7 @@ ExifTag::ExifTag(const std::string& key, Exiv2::Exifdatum* datum, Exiv2::ExifDat
     _description = Exiv2::ExifTags::tagDesc(tag, ifd);
     _sectionName = Exiv2::ExifTags::sectionName(tag, ifd);
     _sectionDescription = Exiv2::ExifTags::sectionDesc(tag, ifd);
+#endif
 }
 
 ExifTag::~ExifTag()
@@ -568,6 +592,8 @@ void ExifTag::setParentImage(Image& image)
     delete _datum;
     _datum = &(*_data)[_key.key()];
     _datum->setValue(value);
+
+    _byteOrder = image.getByteOrder();
 }
 
 const std::string ExifTag::getKey()
@@ -613,6 +639,11 @@ const std::string ExifTag::getRawValue()
 const std::string ExifTag::getHumanValue()
 {
     return _datum->print(_data);
+}
+
+int ExifTag::getByteOrder()
+{
+    return _byteOrder;
 }
 
 

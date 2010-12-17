@@ -317,24 +317,24 @@ class IptcTag(ListenerInterface):
         :raise IptcValueError: if the conversion fails
         """
         if self.type == 'Short':
-            if type(value) is int:
+            if isinstance(value, int):
                 return str(value)
             else:
                 raise IptcValueError(value, self.type)
 
         elif self.type == 'String':
-            if type(value) is unicode:
+            if isinstance(value, unicode):
                 try:
                     return value.encode('utf-8')
                 except UnicodeEncodeError:
                     raise IptcValueError(value, self.type)
-            elif type(value) is str:
+            elif isinstance(value, str):
                 return value
             else:
                 raise IptcValueError(value, self.type)
 
         elif self.type == 'Date':
-            if type(value) in (datetime.date, datetime.datetime):
+            if isinstance(value, (datetime.date, datetime.datetime)):
                 # ISO 8601 date format.
                 # According to the IPTC specification, the format for a string
                 # field representing a date is '%Y%m%d'. However, the string
@@ -345,7 +345,7 @@ class IptcTag(ListenerInterface):
                 raise IptcValueError(value, self.type)
 
         elif self.type == 'Time':
-            if type(value) in (datetime.time, datetime.datetime):
+            if isinstance(value, (datetime.time, datetime.datetime)):
                 r = value.strftime('%H%M%S')
                 if value.tzinfo is not None:
                     r += value.strftime('%z')
@@ -356,7 +356,7 @@ class IptcTag(ListenerInterface):
                 raise IptcValueError(value, self.type)
 
         elif self.type == 'Undefined':
-            if type(value) is str:
+            if isinstance(value, str):
                 return value
             else:
                 raise IptcValueError(value, self.type)

@@ -42,7 +42,9 @@ class ExifTag
 {
 public:
     // Constructor
-    ExifTag(const std::string& key, Exiv2::Exifdatum* datum=0, Exiv2::ExifData* data=0);
+    ExifTag(const std::string& key,
+            Exiv2::Exifdatum* datum=0, Exiv2::ExifData* data=0,
+            Exiv2::ByteOrder byteOrder=Exiv2::invalidByteOrder);
 
     ~ExifTag();
 
@@ -58,6 +60,7 @@ public:
     const std::string getSectionDescription();
     const std::string getRawValue();
     const std::string getHumanValue();
+    int getByteOrder();
 
 private:
     Exiv2::ExifKey _key;
@@ -69,6 +72,7 @@ private:
     std::string _description;
     std::string _sectionName;
     std::string _sectionDescription;
+    int _byteOrder;
 };
 
 
@@ -249,6 +253,8 @@ public:
     Exiv2::ExifData* getExifData() { return _exifData; };
     Exiv2::IptcData* getIptcData() { return _iptcData; };
     Exiv2::XmpData* getXmpData() { return _xmpData; };
+
+    Exiv2::ByteOrder getByteOrder() const;
 
 private:
     std::string _filename;
