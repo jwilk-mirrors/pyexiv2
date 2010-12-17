@@ -32,6 +32,7 @@ from pyexiv2.utils import FixedOffset, Rational, Fraction
 from pyexiv2.metadata import ImageMetadata
 
 import datetime
+from testutils import EMPTY_JPG_DATA
 
 
 class TestXmpTag(unittest.TestCase):
@@ -329,8 +330,6 @@ class TestXmpTag(unittest.TestCase):
 class TestXmpNamespaces(unittest.TestCase):
 
     def setUp(self):
-        # FIXME: EMPTY_JPG_DATA should go in testutils
-        from metadata import EMPTY_JPG_DATA
         self.metadata = ImageMetadata.from_buffer(EMPTY_JPG_DATA)
         self.metadata.read()
 
