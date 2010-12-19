@@ -518,6 +518,20 @@ void Image::setExifThumbnailFromData(const std::string& data)
     _getExifThumbnail()->setJpegThumbnail(buffer, data.size());
 }
 
+const std::string Image::getIptcCharset() const
+{
+    CHECK_METADATA_READ
+    const char* charset = _iptcData->detectCharset();
+    if (charset != 0)
+    {
+        return std::string(charset);
+    }
+    else
+    {
+        return std::string();
+    }
+}
+
 
 ExifTag::ExifTag(const std::string& key,
                  Exiv2::Exifdatum* datum, Exiv2::ExifData* data,

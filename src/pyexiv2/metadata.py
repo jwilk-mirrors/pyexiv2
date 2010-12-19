@@ -33,6 +33,7 @@ import sys
 from errno import ENOENT
 from collections import MutableMapping
 from itertools import chain
+import codecs
 
 import libexiv2python
 
@@ -405,4 +406,36 @@ class ImageMetadata(MutableMapping):
         if self._exif_thumbnail is None:
             self._exif_thumbnail = ExifThumbnail(self)
         return self._exif_thumbnail
+
+    def _get_iptc_charset(self):
+        value = self._image._getIptcCharset()
+        if value != '':
+            return value.lower()
+        else:
+            return None
+
+    def _set_iptc_charset(self, charset):
+        if charset is None:
+            self._del_iptc_charset()
+            return
+        try:
+            name = codecs.lookup(charset).name
+        except LookupError, error:
+            raise ValueError(*error.args)
+        else:
+            charsets = {'utf-8': '\x1b%G'}
+            try:
+                self['Iptc.Envelope.CharacterSet'] = (charsets[name],)
+            except KeyError:
+                raise ValueError('Unhandled charset: %s' % name)
+
+    def _del_iptc_charset(self):
+        try:
+            del self['Iptc.Envelope.CharacterSet']
+        except KeyError:
+            pass
+
+    iptc_charset = property(fget=_get_iptc_charset, fset=_set_iptc_charset,
+                            fdel=_del_iptc_charset,
+                            doc='An optional character set the IPTC data is encoded in.')
 
