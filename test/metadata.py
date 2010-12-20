@@ -97,6 +97,7 @@ class TestImageMetadata(unittest.TestCase):
         self.assertRaises(IOError, thumb.set_from_file, '/tmp/foobar.jpg')
         self.assertRaises(IOError, thumb.__getattribute__, 'data')
         self.assertRaises(IOError, thumb.__setattr__, 'data', EMPTY_JPG_DATA)
+        self.assertRaises(IOError, self.metadata.__getattribute__, 'iptc_charset')
 
     def test_read(self):
         self.assertRaises(IOError, self.metadata.__getattribute__, '_image')
@@ -772,4 +773,68 @@ class TestImageMetadata(unittest.TestCase):
         self.assertEqual(thumb.mime_type, preview.mime_type)
         self.assertEqual(thumb.extension, preview.extension)
         self.assertEqual(thumb.data, preview.data)
+
+    #########################
+    # Test the IPTC charset #
+    #########################
+
+    def test_guess_iptc_charset(self):
+        # If no charset is defined, exiv2 guesses it from the encoding of the
+        # metadata.
+        self.metadata.read()
+        self.assertEqual(self.metadata.iptc_charset, 'ascii')
+        self.metadata['Iptc.Application2.City'] = [u'Córdoba']
+        self.assertEqual(self.metadata.iptc_charset, 'utf-8')
+
+    def test_set_iptc_charset_utf8(self):
+        self.metadata.read()
+        self.assert_('Iptc.Envelope.CharacterSet' not in self.metadata.iptc_keys)
+        self.assertEqual(self.metadata.iptc_charset, 'ascii')
+        values = ('utf-8', 'utf8', 'u8', 'utf', 'utf_8')
+        for value in values:
+            self.metadata.iptc_charset = value
+            self.assertEqual(self.metadata.iptc_charset, 'utf-8')
+            self.metadata.iptc_charset = value.upper()
+            self.assertEqual(self.metadata.iptc_charset, 'utf-8')
+
+    def test_set_invalid_iptc_charset(self):
+        self.metadata.read()
+        self.assert_('Iptc.Envelope.CharacterSet' not in self.metadata.iptc_keys)
+        values = ('invalid', 'utf-9', '3.14')
+        for value in values:
+            self.assertRaises(ValueError, self.metadata.__setattr__,
+                              'iptc_charset', value)
+
+    def test_set_unhandled_iptc_charset(self):
+        # At the moment, the only charset handled is UTF-8.
+        self.metadata.read()
+        self.assert_('Iptc.Envelope.CharacterSet' not in self.metadata.iptc_keys)
+        values = ('ascii', 'iso8859_15', 'shift_jis')
+        for value in values:
+            self.assertRaises(ValueError, self.metadata.__setattr__,
+                              'iptc_charset', value)
+
+    def test_delete_iptc_charset(self):
+        self.metadata.read()
+        key = 'Iptc.Envelope.CharacterSet'
+
+        self.assertEqual(self.metadata.iptc_charset, 'ascii')
+        self.assert_(key not in self.metadata.iptc_keys)
+        del self.metadata.iptc_charset
+        self.assertEqual(self.metadata.iptc_charset, 'ascii')
+        self.assert_(key not in self.metadata.iptc_keys)
+
+        self.metadata.iptc_charset = 'utf-8'
+        self.assertEqual(self.metadata.iptc_charset, 'utf-8')
+        self.assert_(key in self.metadata.iptc_keys)
+        del self.metadata.iptc_charset
+        self.assertEqual(self.metadata.iptc_charset, 'ascii')
+        self.assert_(key not in self.metadata.iptc_keys)
+
+        self.metadata.iptc_charset = 'utf-8'
+        self.assertEqual(self.metadata.iptc_charset, 'utf-8')
+        self.assert_(key in self.metadata.iptc_keys)
+        self.metadata.iptc_charset = None
+        self.assertEqual(self.metadata.iptc_charset, 'ascii')
+        self.assert_(key not in self.metadata.iptc_keys)
 
