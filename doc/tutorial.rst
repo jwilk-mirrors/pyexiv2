@@ -179,6 +179,23 @@ If the tag was not present, one is created and its values are set::
 
   >>> metadata[key] = values
 
+The IPTC metadata in an image may embed an optional character set for its
+encoding. This is defined by the ``Iptc.Envelope.CharacterSet`` tag.
+The :class:`ImageMetadata` class has an :attr:`iptc_charset` property that
+allows to easily get, set and delete this value::
+
+  >>> metadata.iptc_charset
+  'ascii'
+
+  >>> metadata.iptc_charset = 'utf-8'
+
+  >>> del metadata.iptc_charset
+
+Note that at the moment, the only supported charset that can be assigned to the
+property is ``utf-8``.
+Also note that even if the charset is not explicitly set, its value may be
+inferred from the contents of the image. If not, it will be ``None``.
+
 Reading and writing XMP tags
 ############################
 
