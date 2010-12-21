@@ -256,6 +256,8 @@ public:
 
     Exiv2::ByteOrder getByteOrder() const;
 
+    const std::string getIptcCharset() const;
+
 private:
     std::string _filename;
     Exiv2::byte* _data;

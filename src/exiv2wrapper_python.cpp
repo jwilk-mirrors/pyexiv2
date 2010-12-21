@@ -153,6 +153,8 @@ BOOST_PYTHON_MODULE(libexiv2python)
         .def("_eraseExifThumbnail", &Image::eraseExifThumbnail)
         .def("_setExifThumbnailFromFile", &Image::setExifThumbnailFromFile)
         .def("_setExifThumbnailFromData", &Image::setExifThumbnailFromData)
+
+        .def("_getIptcCharset", &Image::getIptcCharset)
     ;
 
     def("_registerXmpNs", registerXmpNs, args("name", "prefix"));
