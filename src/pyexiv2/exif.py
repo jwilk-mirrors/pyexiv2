@@ -465,6 +465,15 @@ class ExifTag(ListenerInterface):
              right = self._raw_value
         return '<%s = %s>' % (left, right)
 
+    # Support for pickling.
+    def __getstate__(self):
+        return (self.key, self.raw_value)
+
+    def __setstate__(self, state):
+        key, raw_value = state
+        self._tag = libexiv2python._ExifTag(key)
+        self.raw_value = raw_value
+
 
 class ExifThumbnail(object):
 
