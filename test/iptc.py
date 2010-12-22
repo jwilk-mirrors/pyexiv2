@@ -137,25 +137,25 @@ class TestIptcTag(unittest.TestCase):
         tag = IptcTag('Iptc.Envelope.TimeSent')
         self.assertEqual(tag.type, 'Time')
         self.assertEqual(tag._convert_to_string(datetime.time(10, 52, 4)),
-                         '105204+0000')
+                         '10:52:04+00:00')
         self.assertEqual(tag._convert_to_string(datetime.time(10, 52, 4, 574)),
-                         '105204+0000')
+                         '10:52:04+00:00')
         self.assertEqual(tag._convert_to_string(datetime.time(10, 52, 4, tzinfo=FixedOffset())),
-                         '105204+0000')
+                         '10:52:04+00:00')
         self.assertEqual(tag._convert_to_string(datetime.time(10, 52, 4, tzinfo=FixedOffset('+', 5, 30))),
-                         '105204+0530')
+                         '10:52:04+05:30')
         self.assertEqual(tag._convert_to_string(datetime.time(10, 52, 4, tzinfo=FixedOffset('-', 4, 0))),
-                         '105204-0400')
+                         '10:52:04-04:00')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4)),
-                         '105204+0000')
+                         '10:52:04+00:00')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, 478)),
-                         '105204+0000')
+                         '10:52:04+00:00')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset())),
-                         '105204+0000')
+                         '10:52:04+00:00')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset('+', 5, 30))),
-                         '105204+0530')
+                         '10:52:04+05:30')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset('-', 4, 0))),
-                         '105204-0400')
+                         '10:52:04-04:00')
 
         # Invalid values
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, 'invalid')
