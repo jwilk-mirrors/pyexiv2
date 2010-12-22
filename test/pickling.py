@@ -26,6 +26,7 @@
 
 from pyexiv2.exif import ExifTag
 from pyexiv2.iptc import IptcTag
+from pyexiv2.xmp import XmpTag
 from pyexiv2.utils import Rational, FixedOffset
 
 import unittest
@@ -87,6 +88,30 @@ class TestPicklingTags(unittest.TestCase):
             self.assertEqual(t.repeatable, tag.repeatable)
             self.assertEqual(t.record_name, tag.record_name)
             self.assertEqual(t.record_description, tag.record_description)
+            self.assertEqual(t.raw_value, tag.raw_value)
+            self.assertEqual(t.value, tag.value)
+
+    def test_pickle_xmp_tag(self):
+        tags = []
+        tags.append(XmpTag('Xmp.dc.subject', ['foo', 'bar', 'baz']))
+        tags.append(XmpTag('Xmp.xmpRights.Marked', True))
+        tags.append(XmpTag('Xmp.xmp.CreateDate', datetime.date.today()))
+        tags.append(XmpTag('Xmp.xmpMM.SaveID', 34))
+        tags.append(XmpTag('Xmp.dc.format', ('image', 'jpeg')))
+        tags.append(XmpTag('Xmp.photoshop.CaptionWriter', 'John Doe'))
+        tags.append(XmpTag('Xmp.dc.source', 'bleh'))
+        tags.append(XmpTag('Xmp.xmpMM.DocumentID', 'http://example.com'))
+        tags.append(XmpTag('Xmp.xmp.BaseURL', 'http://example.com'))
+        tags.append(XmpTag('Xmp.xmpDM.videoPixelAspectRatio', Rational(5, 3)))
+        for tag in tags:
+            s = pickle.dumps(tag)
+            t = pickle.loads(s)
+            self.assert_(isinstance(t, XmpTag))
+            self.assertEqual(t.key, tag.key)
+            self.assertEqual(t.type, tag.type)
+            self.assertEqual(t.name, tag.name)
+            self.assertEqual(t.title, tag.title)
+            self.assertEqual(t.description, tag.description)
             self.assertEqual(t.raw_value, tag.raw_value)
             self.assertEqual(t.value, tag.value)
 
