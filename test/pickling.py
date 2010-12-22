@@ -25,7 +25,8 @@
 # ******************************************************************************
 
 from pyexiv2.exif import ExifTag
-from pyexiv2.utils import Rational
+from pyexiv2.iptc import IptcTag
+from pyexiv2.utils import Rational, FixedOffset
 
 import unittest
 import pickle
@@ -64,4 +65,28 @@ class TestPicklingTags(unittest.TestCase):
             self.assertEqual(t.raw_value, tag.raw_value)
             self.assertEqual(t.value, tag.value)
             self.assertEqual(t.human_value, tag.human_value)
+
+    def test_pickle_iptc_tag(self):
+        tags = []
+        tags.append(IptcTag('Iptc.Envelope.FileFormat', [23]))
+        tags.append(IptcTag('Iptc.Application2.Subject', ['foo', 'bar', 'baz']))
+        tags.append(IptcTag('Iptc.Envelope.DateSent', [datetime.date.today()]))
+        tags.append(IptcTag('Iptc.Envelope.TimeSent',
+                            [datetime.time(23, 37, 4, tzinfo=FixedOffset('+', 6, 0))]))
+        tags.append(IptcTag('Iptc.Application2.Preview', ['01001101']))
+        for tag in tags:
+            s = pickle.dumps(tag)
+            t = pickle.loads(s)
+            self.assert_(isinstance(t, IptcTag))
+            self.assertEqual(t.key, tag.key)
+            self.assertEqual(t.type, tag.type)
+            self.assertEqual(t.name, tag.name)
+            self.assertEqual(t.title, tag.title)
+            self.assertEqual(t.description, tag.description)
+            self.assertEqual(t.photoshop_name, tag.photoshop_name)
+            self.assertEqual(t.repeatable, tag.repeatable)
+            self.assertEqual(t.record_name, tag.record_name)
+            self.assertEqual(t.record_description, tag.record_description)
+            self.assertEqual(t.raw_value, tag.raw_value)
+            self.assertEqual(t.value, tag.value)
 
