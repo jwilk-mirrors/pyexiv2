@@ -250,6 +250,34 @@ class Rational(object):
         return '%d/%d' % (self._numerator, self._denominator)
 
 
+def is_fraction(obj):
+    """
+    Test whether the object is a valid fraction.
+    """
+    if Fraction is not None and isinstance(obj, Fraction):
+        return True
+    elif isinstance(obj, Rational):
+        return True
+    else:
+        return False
+
+
+def make_fraction(*args):
+    """
+    Make a fraction.
+
+    The type of the returned object depends on the availability of the
+    fractions module in the standard library (Python ≥ 2.6).
+    """
+    if Fraction is not None:
+        return Fraction(*args)
+    else:
+        if len(args) == 1:
+            return Rational.from_string(*args)
+        else:
+            return Rational(*args)
+
+
 class ListenerInterface(object):
 
     """
