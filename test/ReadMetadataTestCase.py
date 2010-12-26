@@ -25,11 +25,18 @@
 #
 # ******************************************************************************
 
-import unittest
-import testutils
-import os.path
 import pyexiv2
+from pyexiv2.utils import is_fraction, make_fraction
+
+import unittest
+import os.path
 import datetime
+
+import testutils
+
+
+FRACTION = 'fraction'
+
 
 class ReadMetadataTestCase(unittest.TestCase):
 
@@ -38,7 +45,10 @@ class ReadMetadataTestCase(unittest.TestCase):
     """
 
     def check_type_and_value(self, tag, etype, evalue):
-        self.assert_(isinstance(tag.value, etype))
+        if etype == FRACTION:
+            self.assert_(is_fraction(tag.value))
+        else:
+            self.assert_(isinstance(tag.value, etype))
         self.assertEqual(tag.value, evalue)
 
     def check_type_and_values(self, tag, etype, evalues):
@@ -68,8 +78,8 @@ class ReadMetadataTestCase(unittest.TestCase):
 
         # Exhaustive tests on the values of EXIF metadata
         exifTags = [('Exif.Image.ImageDescription', str, 'Well it is a smiley that happens to be green'),
-                    ('Exif.Image.XResolution', pyexiv2.Rational, pyexiv2.Rational(72, 1)),
-                    ('Exif.Image.YResolution', pyexiv2.Rational, pyexiv2.Rational(72, 1)),
+                    ('Exif.Image.XResolution', FRACTION, make_fraction(72, 1)),
+                    ('Exif.Image.YResolution', FRACTION, make_fraction(72, 1)),
                     ('Exif.Image.ResolutionUnit', int, 2),
                     ('Exif.Image.Software', str, 'ImageReady'),
                     ('Exif.Image.DateTime', datetime.datetime, datetime.datetime(2004, 7, 13, 21, 23, 44)),
@@ -115,36 +125,22 @@ class ReadMetadataTestCase(unittest.TestCase):
                    ('Xmp.dc.source', unicode, u'FreeFoto.com'),
                    ('Xmp.dc.subject', list, [u'Communications']),
                    ('Xmp.dc.title', dict, {u'x-default': u'Communications'}),
-                   ('Xmp.exif.ApertureValue',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(8, 1)),
-                   ('Xmp.exif.BrightnessValue',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(333, 1280)),
+                   ('Xmp.exif.ApertureValue', FRACTION, make_fraction(8, 1)),
+                   ('Xmp.exif.BrightnessValue', FRACTION, make_fraction(333, 1280)),
                    ('Xmp.exif.ColorSpace', int, 1),
                    ('Xmp.exif.DateTimeOriginal',
                     datetime.datetime,
                     datetime.datetime(2002, 7, 13, 15, 58, 28, tzinfo=pyexiv2.utils.FixedOffset())),
                    ('Xmp.exif.ExifVersion', unicode, u'0200'),
-                   ('Xmp.exif.ExposureBiasValue',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(-13, 20)),
+                   ('Xmp.exif.ExposureBiasValue', FRACTION, make_fraction(-13, 20)),
                    ('Xmp.exif.ExposureProgram', int, 4),
-                   ('Xmp.exif.FNumber',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(3, 5)),
+                   ('Xmp.exif.FNumber', FRACTION, make_fraction(3, 5)),
                    ('Xmp.exif.FileSource', int, 0),
                    ('Xmp.exif.FlashpixVersion', unicode, u'0100'),
-                   ('Xmp.exif.FocalLength',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(0, 1)),
+                   ('Xmp.exif.FocalLength', FRACTION, make_fraction(0, 1)),
                    ('Xmp.exif.FocalPlaneResolutionUnit', int, 2),
-                   ('Xmp.exif.FocalPlaneXResolution',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(3085, 256)),
-                   ('Xmp.exif.FocalPlaneYResolution',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(3085, 256)),
+                   ('Xmp.exif.FocalPlaneXResolution', FRACTION, make_fraction(3085, 256)),
+                   ('Xmp.exif.FocalPlaneYResolution', FRACTION, make_fraction(3085, 256)),
                    ('Xmp.exif.GPSLatitude',
                     pyexiv2.utils.GPSCoordinate,
                     pyexiv2.utils.GPSCoordinate.from_string('54,59.380000N')),
@@ -162,9 +158,7 @@ class ReadMetadataTestCase(unittest.TestCase):
                    ('Xmp.exif.PixelYDimension', int, 1600),
                    ('Xmp.exif.SceneType', int, 0),
                    ('Xmp.exif.SensingMethod', int, 2),
-                   ('Xmp.exif.ShutterSpeedValue',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(30827, 3245)),
+                   ('Xmp.exif.ShutterSpeedValue', FRACTION, make_fraction(30827, 3245)),
                    ('Xmp.pdf.Keywords', unicode, u'Communications'),
                    ('Xmp.photoshop.AuthorsPosition', unicode, u'Photographer'),
                    ('Xmp.photoshop.CaptionWriter', unicode, u'Ian Britton'),
@@ -191,13 +185,9 @@ class ReadMetadataTestCase(unittest.TestCase):
                    ('Xmp.tiff.Orientation', int, 1),
                    ('Xmp.tiff.ResolutionUnit', int, 2),
                    ('Xmp.tiff.Software', unicode, u'Adobe Photoshop 7.0'),
-                   ('Xmp.tiff.XResolution',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(300, 1)),
+                   ('Xmp.tiff.XResolution', FRACTION, make_fraction(300, 1)),
                    ('Xmp.tiff.YCbCrPositioning', int, 2),
-                   ('Xmp.tiff.YResolution',
-                    pyexiv2.utils.Rational,
-                    pyexiv2.utils.Rational(300, 1)),
+                   ('Xmp.tiff.YResolution', FRACTION, make_fraction(300, 1)),
                    ('Xmp.xmp.CreateDate',
                     datetime.datetime,
                     datetime.datetime(2002, 7, 13, 15, 58, 28, tzinfo=pyexiv2.utils.FixedOffset())),
@@ -215,3 +205,4 @@ class ReadMetadataTestCase(unittest.TestCase):
         self.assertEqual(image.xmp_keys, [tag[0] for tag in xmpTags])
         for key, ktype, value in xmpTags:
             self.check_type_and_value(image[key], ktype, value)
+

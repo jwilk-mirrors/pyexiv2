@@ -31,11 +31,10 @@ Utilitary classes and functions.
 import datetime
 import re
 
-# Support for fractions.Fraction as a replacement for the Rational class is not
-# implemented yet as we have to support versions of Python < 2.6
-# (see https://launchpad.net/bugs/514415).
-# However, it doesn’t hurt to accept Fraction objects as values when the module
-# is available (see https://launchpad.net/bugs/683232).
+# pyexiv2 uses fractions.Fraction when available (Python ≥ 2.6), or falls back
+# on the custom Rational class. This should be transparent to the application
+# developer as both classes have a similar API.
+# This module contains convenience functions to ease manipulation of fractions.
 try:
     from fractions import Fraction
 except ImportError:

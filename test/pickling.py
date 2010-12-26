@@ -27,7 +27,7 @@
 from pyexiv2.exif import ExifTag
 from pyexiv2.iptc import IptcTag
 from pyexiv2.xmp import XmpTag
-from pyexiv2.utils import Rational, FixedOffset
+from pyexiv2.utils import make_fraction, FixedOffset
 
 import unittest
 import pickle
@@ -49,8 +49,8 @@ class TestPicklingTags(unittest.TestCase):
         tags.append(ExifTag('Exif.Image.TimeZoneOffset', 7))
         tags.append(ExifTag('Exif.Image.ImageWidth', 7492))
         tags.append(ExifTag('Exif.OlympusCs.ManometerReading', 29))
-        tags.append(ExifTag('Exif.Image.XResolution', Rational(7, 3)))
-        tags.append(ExifTag('Exif.Image.BaselineExposure', Rational(-7, 3)))
+        tags.append(ExifTag('Exif.Image.XResolution', make_fraction(7, 3)))
+        tags.append(ExifTag('Exif.Image.BaselineExposure', make_fraction(-7, 3)))
         tags.append(ExifTag('Exif.Photo.ExifVersion', '0100'))
         for tag in tags:
             s = pickle.dumps(tag)
@@ -102,7 +102,7 @@ class TestPicklingTags(unittest.TestCase):
         tags.append(XmpTag('Xmp.dc.source', 'bleh'))
         tags.append(XmpTag('Xmp.xmpMM.DocumentID', 'http://example.com'))
         tags.append(XmpTag('Xmp.xmp.BaseURL', 'http://example.com'))
-        tags.append(XmpTag('Xmp.xmpDM.videoPixelAspectRatio', Rational(5, 3)))
+        tags.append(XmpTag('Xmp.xmpDM.videoPixelAspectRatio', make_fraction(5, 3)))
         for tag in tags:
             s = pickle.dumps(tag)
             t = pickle.loads(s)

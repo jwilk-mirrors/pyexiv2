@@ -27,7 +27,7 @@
 import unittest
 
 from pyexiv2.exif import ExifTag, ExifValueError
-from pyexiv2.utils import Rational, Fraction
+from pyexiv2.utils import make_fraction
 
 import datetime
 
@@ -260,7 +260,7 @@ class TestExifTag(unittest.TestCase):
         # Valid values
         tag = ExifTag('Exif.Image.XResolution')
         self.assertEqual(tag.type, 'Rational')
-        self.assertEqual(tag._convert_to_python('5/3'), Rational(5, 3))
+        self.assertEqual(tag._convert_to_python('5/3'), make_fraction(5, 3))
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'invalid')
@@ -272,21 +272,19 @@ class TestExifTag(unittest.TestCase):
         # Valid values
         tag = ExifTag('Exif.Image.XResolution')
         self.assertEqual(tag.type, 'Rational')
-        self.assertEqual(tag._convert_to_string(Rational(5, 3)), '5/3')
-        if Fraction is not None:
-            self.assertEqual(tag._convert_to_string(Fraction('1.6')), '8/5')
+        self.assertEqual(tag._convert_to_string(make_fraction(5, 3)), '5/3')
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 'invalid')
         self.failUnlessRaises(ExifValueError,
-                              tag._convert_to_string, Rational(-5, 3))
+                              tag._convert_to_string, make_fraction(-5, 3))
 
     def test_convert_to_python_srational(self):
         # Valid values
         tag = ExifTag('Exif.Image.BaselineExposure')
         self.assertEqual(tag.type, 'SRational')
-        self.assertEqual(tag._convert_to_python('5/3'), Rational(5, 3))
-        self.assertEqual(tag._convert_to_python('-5/3'), Rational(-5, 3))
+        self.assertEqual(tag._convert_to_python('5/3'), make_fraction(5, 3))
+        self.assertEqual(tag._convert_to_python('-5/3'), make_fraction(-5, 3))
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_python, 'invalid')
@@ -297,11 +295,8 @@ class TestExifTag(unittest.TestCase):
         # Valid values
         tag = ExifTag('Exif.Image.BaselineExposure')
         self.assertEqual(tag.type, 'SRational')
-        self.assertEqual(tag._convert_to_string(Rational(5, 3)), '5/3')
-        self.assertEqual(tag._convert_to_string(Rational(-5, 3)), '-5/3')
-        if Fraction is not None:
-            self.assertEqual(tag._convert_to_string(Fraction('1.6')), '8/5')
-            self.assertEqual(tag._convert_to_string(Fraction('-1.6')), '-8/5')
+        self.assertEqual(tag._convert_to_string(make_fraction(5, 3)), '5/3')
+        self.assertEqual(tag._convert_to_string(make_fraction(-5, 3)), '-5/3')
 
         # Invalid values
         self.failUnlessRaises(ExifValueError, tag._convert_to_string, 'invalid')
