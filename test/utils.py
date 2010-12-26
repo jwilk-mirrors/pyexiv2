@@ -27,7 +27,8 @@
 import unittest
 
 from pyexiv2.utils import undefined_to_string, string_to_undefined, \
-                          Rational, Fraction, is_fraction, make_fraction
+                          Rational, Fraction, \
+                          is_fraction, make_fraction, fraction_to_string
 
 
 class TestConversions(unittest.TestCase):
@@ -87,4 +88,11 @@ class TestFractions(unittest.TestCase):
         self.assertRaises(ZeroDivisionError, make_fraction, '3/0')
         self.assertRaises(TypeError, make_fraction, 5, 3, 2)
         self.assertRaises(TypeError, make_fraction, None)
+
+    def test_fraction_to_string(self):
+        self.assertEqual(fraction_to_string(make_fraction(3, 5)), '3/5')
+        self.assertEqual(fraction_to_string(make_fraction(-3, 5)), '-3/5')
+        self.assertEqual(fraction_to_string(make_fraction(0, 1)), '0/1')
+        self.assertRaises(TypeError, fraction_to_string, None)
+        self.assertRaises(TypeError, fraction_to_string, 'invalid')
 

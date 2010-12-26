@@ -277,6 +277,23 @@ def make_fraction(*args):
             return Rational(*args)
 
 
+def fraction_to_string(fraction):
+    """
+    Return a string representation of a fraction, suitable to pass to libexiv2.
+
+    The returned string is always in the form '[numerator]/[denominator]'.
+
+    :raise TypeError: if the argument is not a valid fraction
+    """
+    if Fraction is not None and isinstance(fraction, Fraction):
+        # fractions.Fraction.__str__ returns '0' for a null numerator.
+        return '%s/%s' % (fraction.numerator, fraction.denominator)
+    elif isinstance(fraction, Rational):
+        return str(fraction)
+    else:
+        raise TypeError('Not a fraction')
+
+
 class ListenerInterface(object):
 
     """

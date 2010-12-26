@@ -30,7 +30,7 @@ EXIF specific code.
 
 import libexiv2python
 
-from pyexiv2.utils import is_fraction, make_fraction, \
+from pyexiv2.utils import is_fraction, make_fraction, fraction_to_string, \
                           NotifyingList, ListenerInterface, \
                           undefined_to_string, string_to_undefined
 
@@ -426,25 +426,13 @@ class ExifTag(ListenerInterface):
 
         elif self.type == 'Rational':
             if is_fraction(value) and value.numerator >= 0:
-                r = str(value)
-                if r == '0':
-                    # fractions.Fraction.__str__ returns '0' for a null
-                    # numerator, but libexiv2 always expects a string in the
-                    # form 'numerator/denominator'.
-                    r = '0/1'
-                return r
+                return fraction_to_string(value)
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'SRational':
             if is_fraction(value):
-                r = str(value)
-                if r == '0':
-                    # fractions.Fraction.__str__ returns '0' for a null
-                    # numerator, but libexiv2 always expects a string in the
-                    # form 'numerator/denominator'.
-                    r = '0/1'
-                return r
+                return fraction_to_string(value)
             else:
                 raise ExifValueError(value, self.type)
 
