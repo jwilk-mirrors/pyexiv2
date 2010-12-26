@@ -31,11 +31,10 @@ Utilitary classes and functions.
 import datetime
 import re
 
-# Support for fractions.Fraction as a replacement for the Rational class is not
-# implemented yet as we have to support versions of Python < 2.6
-# (see https://launchpad.net/bugs/514415).
-# However, it doesn’t hurt to accept Fraction objects as values when the module
-# is available (see https://launchpad.net/bugs/683232).
+# pyexiv2 uses fractions.Fraction when available (Python ≥ 2.6), or falls back
+# on the custom Rational class. This should be transparent to the application
+# developer as both classes have a similar API.
+# This module contains convenience functions to ease manipulation of fractions.
 try:
     from fractions import Fraction
 except ImportError:
@@ -248,6 +247,51 @@ class Rational(object):
         :rtype: string
         """
         return '%d/%d' % (self._numerator, self._denominator)
+
+
+def is_fraction(obj):
+    """
+    Test whether the object is a valid fraction.
+    """
+    if Fraction is not None and isinstance(obj, Fraction):
+        return True
+    elif isinstance(obj, Rational):
+        return True
+    else:
+        return False
+
+
+def make_fraction(*args):
+    """
+    Make a fraction.
+
+    The type of the returned object depends on the availability of the
+    fractions module in the standard library (Python ≥ 2.6).
+    """
+    if Fraction is not None:
+        return Fraction(*args)
+    else:
+        if len(args) == 1:
+            return Rational.from_string(*args)
+        else:
+            return Rational(*args)
+
+
+def fraction_to_string(fraction):
+    """
+    Return a string representation of a fraction, suitable to pass to libexiv2.
+
+    The returned string is always in the form '[numerator]/[denominator]'.
+
+    :raise TypeError: if the argument is not a valid fraction
+    """
+    if Fraction is not None and isinstance(fraction, Fraction):
+        # fractions.Fraction.__str__ returns '0' for a null numerator.
+        return '%s/%s' % (fraction.numerator, fraction.denominator)
+    elif isinstance(fraction, Rational):
+        return str(fraction)
+    else:
+        raise TypeError('Not a fraction')
 
 
 class ListenerInterface(object):

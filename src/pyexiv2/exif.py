@@ -30,7 +30,7 @@ EXIF specific code.
 
 import libexiv2python
 
-from pyexiv2.utils import Rational, Fraction, \
+from pyexiv2.utils import is_fraction, make_fraction, fraction_to_string, \
                           NotifyingList, ListenerInterface, \
                           undefined_to_string, string_to_undefined
 
@@ -72,7 +72,8 @@ class ExifTag(ListenerInterface):
     - Comment: string
     - Long, SLong: [list of] long
     - Short, SShort: [list of] int
-    - Rational, SRational: [list of] :class:`pyexiv2.utils.Rational`
+    - Rational, SRational: [list of] :class:`fractions.Fraction` if available
+      (Python ≥ 2.6) or :class:`pyexiv2.utils.Rational`      
     - Undefined: string
     """
 
@@ -316,7 +317,7 @@ class ExifTag(ListenerInterface):
 
         elif self.type in ('Rational', 'SRational'):
             try:
-                r = Rational.from_string(value)
+                r = make_fraction(value)
             except (ValueError, ZeroDivisionError):
                 raise ExifValueError(value, self.type)
             else:
@@ -424,17 +425,14 @@ class ExifTag(ListenerInterface):
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'Rational':
-            if (isinstance(value, Rational) or \
-                (Fraction is not None and isinstance(value, Fraction))) \
-                and value.numerator >= 0:
-                return str(value)
+            if is_fraction(value) and value.numerator >= 0:
+                return fraction_to_string(value)
             else:
                 raise ExifValueError(value, self.type)
 
         elif self.type == 'SRational':
-            if isinstance(value, Rational) or \
-               (Fraction is not None and isinstance(value, Fraction)):
-                return str(value)
+            if is_fraction(value):
+                return fraction_to_string(value)
             else:
                 raise ExifValueError(value, self.type)
 

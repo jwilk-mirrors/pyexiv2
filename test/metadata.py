@@ -28,7 +28,7 @@ from pyexiv2.metadata import ImageMetadata
 from pyexiv2.exif import ExifTag
 from pyexiv2.iptc import IptcTag
 from pyexiv2.xmp import XmpTag
-from pyexiv2.utils import FixedOffset, Rational
+from pyexiv2.utils import FixedOffset, make_fraction
 
 import datetime
 import os
@@ -501,7 +501,7 @@ class TestImageMetadata(unittest.TestCase):
         self.metadata.read()
         # Set new tags
         key = 'Exif.Photo.ExposureBiasValue'
-        tag = ExifTag(key, Rational(0, 3))
+        tag = ExifTag(key, make_fraction(0, 3))
         self.metadata[key] = tag
         self.failUnless(key in self.metadata._tags['exif'])
         self.failUnlessEqual(self.metadata._tags['exif'][key], tag)

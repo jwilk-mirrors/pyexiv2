@@ -38,7 +38,7 @@ from xmp import TestXmpTag, TestXmpNamespaces
 from metadata import TestImageMetadata
 from buffer import TestBuffer
 from encoding import TestEncodings
-from utils import TestConversions
+from utils import TestConversions, TestFractions
 from usercomment import TestUserCommentReadWrite, TestUserCommentAdd
 from pickling import TestPicklingTags
 
@@ -58,6 +58,7 @@ def run_unit_tests():
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestBuffer))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestEncodings))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestConversions))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestFractions))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUserCommentReadWrite))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUserCommentAdd))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestPicklingTags))

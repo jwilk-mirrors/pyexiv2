@@ -30,7 +30,7 @@ XMP specific code.
 
 import libexiv2python
 
-from pyexiv2.utils import FixedOffset, Rational, Fraction, GPSCoordinate
+from pyexiv2.utils import FixedOffset, is_fraction, make_fraction, GPSCoordinate
 
 import datetime
 import re
@@ -74,7 +74,8 @@ class XmpTag(object):
     - Integer: int
     - Locale: *[not implemented yet]*
     - MIMEType: 2-tuple of strings
-    - Rational: :class:`pyexiv2.utils.Rational`
+    - Rational: :class:`fractions.Fraction` if available (Python ≥ 2.6) or
+      :class:`pyexiv2.utils.Rational`
     - Real: *[not implemented yet]*
     - AgentName, ProperName, Text: unicode string
     - Thumbnail: *[not implemented yet]*
@@ -338,7 +339,7 @@ class XmpTag(object):
 
         elif type == 'Rational':
             try:
-                return Rational.from_string(value)
+                return make_fraction(value)
             except (ValueError, ZeroDivisionError):
                 raise XmpValueError(value, type)
 
@@ -435,8 +436,7 @@ class XmpTag(object):
                 raise XmpValueError(value, type)
 
         elif type == 'Rational':
-            if isinstance(value, Rational) or \
-               (Fraction is not None and isinstance(value, Fraction)):
+            if is_fraction(value):
                 return str(value)
             else:
                 raise XmpValueError(value, type)

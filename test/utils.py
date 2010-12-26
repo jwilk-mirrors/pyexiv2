@@ -26,7 +26,9 @@
 
 import unittest
 
-from pyexiv2.utils import undefined_to_string, string_to_undefined
+from pyexiv2.utils import undefined_to_string, string_to_undefined, \
+                          Rational, Fraction, \
+                          is_fraction, make_fraction, fraction_to_string
 
 
 class TestConversions(unittest.TestCase):
@@ -47,4 +49,50 @@ class TestConversions(unittest.TestCase):
         self.assertEqual(undefined_to_string(string_to_undefined(value)), value)
         value = "48 50 50 49"
         self.assertEqual(string_to_undefined(undefined_to_string(value)), value)
+
+
+class TestFractions(unittest.TestCase):
+
+    def test_is_fraction(self):
+        if Fraction is not None:
+            self.failUnless(is_fraction(Fraction()))
+            self.failUnless(is_fraction(Fraction(3, 5)))
+            self.failUnless(is_fraction(Fraction(Fraction(4, 5))))
+            self.failUnless(is_fraction(Fraction('3/2')))
+            self.failUnless(is_fraction(Fraction('-4/5')))
+        self.failUnless(is_fraction(Rational(3, 5)))
+        self.failUnless(is_fraction(Rational(-4, 5)))
+        self.failUnless(is_fraction(Rational.from_string("3/5")))
+        self.failUnless(is_fraction(Rational.from_string("-4/5")))
+
+        self.failIf(is_fraction(3 / 5))
+        self.failIf(is_fraction('3/5'))
+        self.failIf(is_fraction('2.7'))
+        self.failIf(is_fraction(2.7))
+        self.failIf(is_fraction('notafraction'))
+        self.failIf(is_fraction(None))
+
+    def test_make_fraction(self):
+        if Fraction is not None:
+            self.assertEqual(make_fraction(3, 5), Fraction(3, 5))
+            self.assertEqual(make_fraction(-3, 5), Fraction(-3, 5))
+            self.assertEqual(make_fraction('3/2'), Fraction(3, 2))
+            self.assertEqual(make_fraction('-3/4'), Fraction(-3, 4))
+        else:
+            self.assertEqual(make_fraction(3, 5), Rational(3, 5))
+            self.assertEqual(make_fraction(-3, 5), Rational(-3, 5))
+            self.assertEqual(make_fraction('3/2'), Rational(3, 2))
+            self.assertEqual(make_fraction('-3/4'), Rational(-3, 4))
+
+        self.assertRaises(ZeroDivisionError, make_fraction, 3, 0)
+        self.assertRaises(ZeroDivisionError, make_fraction, '3/0')
+        self.assertRaises(TypeError, make_fraction, 5, 3, 2)
+        self.assertRaises(TypeError, make_fraction, None)
+
+    def test_fraction_to_string(self):
+        self.assertEqual(fraction_to_string(make_fraction(3, 5)), '3/5')
+        self.assertEqual(fraction_to_string(make_fraction(-3, 5)), '-3/5')
+        self.assertEqual(fraction_to_string(make_fraction(0, 1)), '0/1')
+        self.assertRaises(TypeError, fraction_to_string, None)
+        self.assertRaises(TypeError, fraction_to_string, 'invalid')
 

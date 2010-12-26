@@ -28,7 +28,7 @@ import unittest
 
 from pyexiv2.xmp import XmpTag, XmpValueError, register_namespace, \
                         unregister_namespace, unregister_namespaces
-from pyexiv2.utils import FixedOffset, Rational, Fraction
+from pyexiv2.utils import FixedOffset, make_fraction
 from pyexiv2.metadata import ImageMetadata
 
 import datetime
@@ -288,8 +288,8 @@ class TestXmpTag(unittest.TestCase):
         # Valid values
         tag = XmpTag('Xmp.xmpDM.videoPixelAspectRatio')
         self.assertEqual(tag.type, 'Rational')
-        self.assertEqual(tag._convert_to_python('5/3', 'Rational'), Rational(5, 3))
-        self.assertEqual(tag._convert_to_python('-5/3', 'Rational'), Rational(-5, 3))
+        self.assertEqual(tag._convert_to_python('5/3', 'Rational'), make_fraction(5, 3))
+        self.assertEqual(tag._convert_to_python('-5/3', 'Rational'), make_fraction(-5, 3))
 
         # Invalid values
         self.failUnlessRaises(XmpValueError, tag._convert_to_python, 'invalid', 'Rational')
@@ -300,11 +300,8 @@ class TestXmpTag(unittest.TestCase):
         # Valid values
         tag = XmpTag('Xmp.xmpDM.videoPixelAspectRatio')
         self.assertEqual(tag.type, 'Rational')
-        self.assertEqual(tag._convert_to_string(Rational(5, 3), 'Rational'), '5/3')
-        self.assertEqual(tag._convert_to_string(Rational(-5, 3), 'Rational'), '-5/3')
-        if Fraction is not None:
-            self.assertEqual(tag._convert_to_string(Fraction('1.6'), 'Rational'), '8/5')
-            self.assertEqual(tag._convert_to_string(Fraction('-1.6'), 'Rational'), '-8/5')
+        self.assertEqual(tag._convert_to_string(make_fraction(5, 3), 'Rational'), '5/3')
+        self.assertEqual(tag._convert_to_string(make_fraction(-5, 3), 'Rational'), '-5/3')
 
         # Invalid values
         self.failUnlessRaises(XmpValueError, tag._convert_to_string, 'invalid', 'Rational')
