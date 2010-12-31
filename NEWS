@@ -1,3 +1,56 @@
+pyexiv2 0.3.0 "A Good Year" - 2010-12-31
+----------------------------------------
+
+Dependencies:
+
+- Python ≥ 2.5
+- libexiv2 ≥ 0.19
+- boost.python ≥ 1.38
+
+Changes:
+
+- Compiles and tested (on linux and windows) against libexiv2 0.19, 0.20, 0.21
+- ImageMetadata implements the collections.MutableMapping interface
+- Consistent API across all types of tags to access the value(s)
+- Read/write access to the EXIF thumbnail
+- Decode and encode EXIF comments according to the specified charset
+- API to (un)register custom XMP namespaces
+- API to get, set and delete the (optional) IPTC charset
+- Added pickling support to tags
+- Use fractions.Fraction when available in the standard library (Python ≥ 2.6)
+
+Bugs fixed:
+
+- 617557: Feature request: consistent getter/setter API for EXIF/IPTC/XMP
+- 618540: Windows build for Python 2.7
+- 644143: Failing to parse a raw value silently fails
+- 677267: Crashes when trying to read Xmp.lr.hierarchicalSubject
+- 684177: FTBFS against exiv2-0.21
+- 559903: Please decode EXIF comments according to charset
+- 587614: Where's the good old setThumbnailData in 0.2.X series ?
+- 622739: Segmentation fault when replacing a tag by itself
+- 624283: Unit tests fail with a non-unicode locale
+- 624999: test_write_dont_preserve_timestamps fails
+- 683232: assignment of fractions.Fraction to Exif.GPSInfo.GPSAltitude leads to
+  backtrace
+- 687373: Misleading exception raised when metadata not read
+- 688209: test_write_exif_thumbnail_to_file fails on windows
+- 461847: feature request: convenience function to set IPTC encoding to UTF-8
+- 507620: Investigate the ability to catch stderr from libexiv2 in pyexiv
+- 514415: Replace the Rational class by fractions.Fraction
+- 549496: Feature request: Custom XMP namespaces
+- 628735: Pickling an {Exif,Iptc,Xmp}Tag itself
+- 648624: Feature request: inherit ImageMetadata from collections.MutableMapping
+
+Contributors:
+
+- Alexandre Rossi
+- Antti Siira
+- Matěj Cepl
+- Olivier Tilloy
+- Rob Healey
+
+
 pyexiv2 0.2.2 "Holiday" - 2010-05-27
 ------------------------------------
 
