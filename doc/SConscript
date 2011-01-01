@@ -20,7 +20,7 @@ output = [os.path.join(outdir, doc + '.html')
           for doc in sphinx.builder.get_outdated_docs()]
 
 def build_doc(target, source, env):
-    sphinx.build(all_files=False, filenames=[])
+    sphinx.build(False, [])
     return sphinx.statuscode
 
 env = Environment()
