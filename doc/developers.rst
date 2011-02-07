@@ -37,7 +37,7 @@ Dependencies
 You will need the following dependencies installed on your system to build and
 use pyexiv2:
 
-* `Python <http://python.org/download/>`_ ≥ 2.5
+* `Python <http://python.org/download/>`_ ≥ 2.6
 * `boost.python <http://www.boost.org/libs/python/doc/>`_ ≥ 1.35
 * `libexiv2 <http://exiv2.org/>`_ ≥ 0.19
 * `SCons <http://scons.org/>`_

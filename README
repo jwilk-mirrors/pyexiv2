@@ -27,7 +27,7 @@ those are optional dependencies.
 
 This is a typical list of build dependencies for a Debian/Ubuntu system:
 
- * python-all-dev (≥ 2.5)
+ * python-all-dev (≥ 2.6)
  * scons
  * libexiv2-dev (≥ 0.19)
  * libboost-python-dev (≥ 1.35)

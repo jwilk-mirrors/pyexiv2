@@ -3,7 +3,7 @@ pyexiv2 0.3.0 "A Good Year" - 2010-12-31
 
 Dependencies:
 
-- Python ≥ 2.5
+- Python ≥ 2.6
 - libexiv2 ≥ 0.19
 - boost.python ≥ 1.38
 
