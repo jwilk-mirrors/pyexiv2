@@ -30,6 +30,10 @@ command::
   release-0.1.1        73
   release-0.1.2        99
   release-0.1.3        99.1.6
+  release-0.2.0        296
+  release-0.2.1        306
+  release-0.2.2        318
+  release-0.3.0        349
 
 Dependencies
 ############
