@@ -2,14 +2,5 @@ todo list
 
 - Unit test the C++ wrapper (in python, if possible)
 - Use logging to log, among other things, decoding and type conversion errors
-- Tag getters/setters should support unicode strings as well as regular strings (see bug #146313).
-- What about forcing all strings encoding to UTF in tag values? (see Marc's mail)
 - Rewrite the exiv2 command-line tool and the test binaries in Python and (Python) scripts to run the same tests that are run to test exiv2
 - Consider upgrading the license to GPL v3
-
-
-
-
-Bugs:
-
-- Unicode encoding problem when writing to an EXIF Ascii tag with non ASCII characters (e.g. "é")
