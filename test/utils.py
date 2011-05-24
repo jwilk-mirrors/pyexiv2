@@ -78,11 +78,13 @@ class TestFractions(unittest.TestCase):
             self.assertEqual(make_fraction(-3, 5), Fraction(-3, 5))
             self.assertEqual(make_fraction('3/2'), Fraction(3, 2))
             self.assertEqual(make_fraction('-3/4'), Fraction(-3, 4))
+            self.assertEqual(make_fraction('0/0'), Fraction(0, 1))
         else:
             self.assertEqual(make_fraction(3, 5), Rational(3, 5))
             self.assertEqual(make_fraction(-3, 5), Rational(-3, 5))
             self.assertEqual(make_fraction('3/2'), Rational(3, 2))
             self.assertEqual(make_fraction('-3/4'), Rational(-3, 4))
+            self.assertEqual(make_fraction('0/0'), Rational(0, 1))
 
         self.assertRaises(ZeroDivisionError, make_fraction, 3, 0)
         self.assertRaises(ZeroDivisionError, make_fraction, '3/0')

@@ -52,6 +52,16 @@ class TestRational(unittest.TestCase):
         else:
             self.fail('Denominator is not read-only.')
 
+    def test_match_string(self):
+        self.assertEqual(Rational.match_string('4/3'), (4, 3))
+        self.assertEqual(Rational.match_string('-4/3'), (-4, 3))
+        self.assertEqual(Rational.match_string('0/3'), (0, 3))
+        self.assertEqual(Rational.match_string('0/0'), (0, 0))
+        self.assertRaises(ValueError, Rational.match_string, '+3/5')
+        self.assertRaises(ValueError, Rational.match_string, '3 / 5')
+        self.assertRaises(ValueError, Rational.match_string, '3/-5')
+        self.assertRaises(ValueError, Rational.match_string, 'invalid')
+
     def test_from_string(self):
         self.assertEqual(Rational.from_string('4/3'), Rational(4, 3))
         self.assertEqual(Rational.from_string('-4/3'), Rational(-4, 3))
@@ -59,6 +69,8 @@ class TestRational(unittest.TestCase):
         self.assertRaises(ValueError, Rational.from_string, '3 / 5')
         self.assertRaises(ValueError, Rational.from_string, '3/-5')
         self.assertRaises(ValueError, Rational.from_string, 'invalid')
+        self.assertRaises(ZeroDivisionError, Rational.from_string, '1/0')
+        self.assertRaises(ZeroDivisionError, Rational.from_string, '0/0')
 
     def test_to_string(self):
         self.assertEqual(str(Rational(3, 5)), '3/5')
