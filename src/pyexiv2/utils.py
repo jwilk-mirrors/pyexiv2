@@ -170,6 +170,9 @@ class Rational(object):
     A class representing a rational number.
 
     Its numerator and denominator are read-only properties.
+
+    Do not use this class directly to instantiate a rational number.
+    Instead, use :func:`make_fraction`.
     """
 
     _format_re = re.compile(r'(?P<numerator>-?\d+)/(?P<denominator>\d+)')

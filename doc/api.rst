@@ -64,6 +64,7 @@ pyexiv2.utils
 .. module:: pyexiv2.utils
 .. autofunction:: undefined_to_string
 .. autofunction:: string_to_undefined
+.. autofunction:: make_fraction
 
 .. autoclass:: Rational
    :members: numerator, denominator, from_string, to_float, __eq__
