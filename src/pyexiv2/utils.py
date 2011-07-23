@@ -274,7 +274,7 @@ class Rational(object):
         :return: the official string representation of the object
         :rtype: string
         """
-        return '%s(%d,%d)' % (self.__class__.__name__,self._numerator,self._denominator)
+        return '%s(%d, %d)' % (self.__class__.__name__, self._numerator, self._denominator)
 
 
 
