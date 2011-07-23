@@ -271,10 +271,7 @@ class Rational(object):
 
     def __repr__(self):
         """
-        Representation used when object is ouput to string for debug or array
-        content display, e.g. print([Rational(1,2),Rational(3,4)]).
-        
-        :return: string representation of the object (class instance) for debugging
+        :return: the official string representation of the object
         :rtype: string
         """
         return '%s(%d,%d)' % (self.__class__.__name__,self._numerator,self._denominator)
