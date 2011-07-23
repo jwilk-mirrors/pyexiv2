@@ -269,6 +269,14 @@ class Rational(object):
         """
         return '%d/%d' % (self._numerator, self._denominator)
 
+    def __repr__(self):
+        """
+        :return: the official string representation of the object
+        :rtype: string
+        """
+        return '%s(%d, %d)' % (self.__class__.__name__, self._numerator, self._denominator)
+
+
 
 def is_fraction(obj):
     """

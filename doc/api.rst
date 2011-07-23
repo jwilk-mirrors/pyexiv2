@@ -67,7 +67,7 @@ pyexiv2.utils
 .. autofunction:: make_fraction
 
 .. autoclass:: Rational
-   :members: numerator, denominator, from_string, to_float, __eq__
+   :members: numerator, denominator, from_string, to_float, __eq__, __str__, __repr__
 .. autoclass:: GPSCoordinate
    :members: degrees, minutes, seconds, direction, from_string, __eq__, __str__
 
