@@ -1066,7 +1066,7 @@ Preview::Preview(const Exiv2::PreviewImage& previewImage)
 void Preview::writeToFile(const std::string& path) const
 {
     std::string filename = path + _extension;
-    std::ofstream fd(filename.c_str(), std::ios::out);
+    std::ofstream fd(filename.c_str(), std::ios::out | std::ios::binary);
     fd << _data;
     fd.close();
 }
