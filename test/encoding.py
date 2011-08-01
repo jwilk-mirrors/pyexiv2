@@ -91,18 +91,24 @@ class TestEncodings(unittest.TestCase):
         m.read()
         os.remove(filename)
 
-    def test_ascii_str(self):
+    def test_ascii(self):
         self._test_filename('test.jpg')
 
-    def test_ascii_unicode(self):
+    def test_latin1(self):
+        self._test_filename('tést.jpg')
+
+    def test_latin1_escaped(self):
+        self._test_filename('t\xc3\xa9st.jpg')
+
+    def test_unicode_ascii(self):
         if self.encoding is not None:
             self._test_filename(u'test.jpg')
 
-    def test_nonascii_unicode(self):
+    def test_unicode_latin1(self):
         if self.encoding is not None:
             self._test_filename(u'tést.jpg')
 
-    def test_nonascii_unicode_escaped(self):
+    def test_unicode_latin1_escaped(self):
         if self.encoding is not None:
             self._test_filename(u't\xe9st.jpg')
 
