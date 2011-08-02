@@ -34,6 +34,12 @@ from pyexiv2.metadata import ImageMetadata
 import datetime
 from testutils import EMPTY_JPG_DATA
 
+# Optional dependency on python-tz, more tests can be run if it is installed
+try:
+    import pytz
+except ImportError:
+    pytz = None
+
 
 class TestXmpTag(unittest.TestCase):
 
@@ -130,18 +136,24 @@ class TestXmpTag(unittest.TestCase):
                          '2009-02-04')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13), 'Date'),
                          '1999-10-13')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3), 'Date'),
+                         '1999-10-13T05:03Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, tzinfo=FixedOffset()), 'Date'),
                          '1999-10-13T05:03Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, tzinfo=FixedOffset('+', 5, 30)), 'Date'),
                          '1999-10-13T05:03+05:30')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, tzinfo=FixedOffset('-', 11, 30)), 'Date'),
                          '1999-10-13T05:03-11:30')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27), 'Date'),
+                         '1999-10-13T05:03:27Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, tzinfo=FixedOffset()), 'Date'),
                          '1999-10-13T05:03:27Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, tzinfo=FixedOffset('+', 5, 30)), 'Date'),
                          '1999-10-13T05:03:27+05:30')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, tzinfo=FixedOffset('-', 11, 30)), 'Date'),
                          '1999-10-13T05:03:27-11:30')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300), 'Date'),
+                         '1999-10-13T05:03:27.1243Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300, tzinfo=FixedOffset()), 'Date'),
                          '1999-10-13T05:03:27.1243Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300, tzinfo=FixedOffset('+', 5, 30)), 'Date'),
@@ -151,6 +163,15 @@ class TestXmpTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(XmpValueError, tag._convert_to_string, 'invalid', 'Date')
         self.failUnlessRaises(XmpValueError, tag._convert_to_string, None, 'Date')
+
+    @unittest.skipIf(pytz is None, 'install python-tz to run this test')
+    def test_convert_to_string_date_with_real_timezones(self):
+        tag = XmpTag('Xmp.xmp.CreateDate')
+        self.assertEqual(tag.type, 'Date')
+        t = pytz.timezone('UTC').localize(datetime.datetime(2011, 2, 2, 10, 52, 4))
+        self.assertEqual(tag._convert_to_string(t, 'Date'), '2011-02-02T10:52:04Z')
+        t = pytz.timezone('CET').localize(datetime.datetime(2011, 2, 2, 10, 52, 4))
+        self.assertEqual(tag._convert_to_string(t, 'Date'), '2011-02-02T10:52:04+01:00')
 
     def test_convert_to_python_integer(self):
         # Valid values

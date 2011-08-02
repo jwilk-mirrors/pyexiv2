@@ -388,18 +388,23 @@ class XmpTag(object):
 
         elif type == 'Date':
             if isinstance(value, datetime.datetime):
+                if value.tzinfo is None or value.utcoffset() == datetime.timedelta(0):
+                    tz = 'Z'
+                else:
+                    tz = value.strftime('%z') # of the form ±%H%M
+                    tz = tz[:3] + ':' + tz[3:]
                 if value.hour == 0 and value.minute == 0 and \
                     value.second == 0 and value.microsecond == 0 and \
-                    (value.tzinfo is None or value.tzinfo == FixedOffset()):
+                    (value.tzinfo is None or value.utcoffset() == datetime.timedelta(0)):
                     return value.strftime('%Y-%m-%d')
                 elif value.second == 0 and value.microsecond == 0:
-                    return value.strftime('%Y-%m-%dT%H:%M%Z')
+                    return value.strftime('%Y-%m-%dT%H:%M') + tz
                 elif value.microsecond == 0:
-                    return value.strftime('%Y-%m-%dT%H:%M:%S%Z')
+                    return value.strftime('%Y-%m-%dT%H:%M:%S') + tz
                 else:
                     r = value.strftime('%Y-%m-%dT%H:%M:%S.')
                     r += str(int(value.microsecond) / 1E6)[2:]
-                    r += value.strftime('%Z')
+                    r += tz
                     return r
             elif isinstance(value, datetime.date):
                 return value.isoformat()
