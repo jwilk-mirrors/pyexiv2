@@ -32,6 +32,12 @@ from pyexiv2.utils import FixedOffset
 import datetime
 import warnings
 
+# Optional dependency on python-tz, more tests can be run if it is installed
+try:
+    import pytz
+except ImportError:
+    pytz = None
+
 
 class TestIptcTag(unittest.TestCase):
 
@@ -159,6 +165,15 @@ class TestIptcTag(unittest.TestCase):
 
         # Invalid values
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, 'invalid')
+
+    @unittest.skipIf(pytz is None, 'install python-tz to run this test')
+    def test_convert_to_string_time_with_real_timezones(self):
+        tag = IptcTag('Iptc.Envelope.TimeSent')
+        self.assertEqual(tag.type, 'Time')
+        t = pytz.timezone('UTC').localize(datetime.datetime(2011, 2, 2, 10, 52, 4))
+        self.assertEqual(tag._convert_to_string(t), '10:52:04+00:00')
+        t = pytz.timezone('CET').localize(datetime.datetime(2011, 2, 2, 10, 52, 4))
+        self.assertEqual(tag._convert_to_string(t), '10:52:04+01:00')
 
     def test_convert_to_python_undefined(self):
         # Valid values
