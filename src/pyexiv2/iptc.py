@@ -351,9 +351,9 @@ class IptcTag(ListenerInterface):
                 # string expected by exiv2's TimeValue::read(string) should be
                 # formatted using pattern '%H:%M:%S±%H:%M'.
                 r = value.strftime('%H:%M:%S')
-                if value.tzinfo is not None and \
-                    not (value.tzinfo.hours == 0 and value.tzinfo.minutes == 0):
-                    r += value.strftime('%Z')
+                if value.tzinfo is not None:
+                    s = value.strftime('%z') # of the form ±%H%M
+                    r += s[:3] + ':' + s[3:]
                 else:
                     r += '+00:00'
                 return r

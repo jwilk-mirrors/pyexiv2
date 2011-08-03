@@ -52,6 +52,11 @@ A typical list of packages to install on a Debian/Ubuntu system is::
 
   python-all-dev libboost-python-dev libexiv2-dev scons
 
+Some unit tests have a dependency on
+`python-tz <http://pytz.sourceforge.net/>`_.
+This dependency is optional: the corresponding tests will be skipped if it is
+not present on the system.
+
 Additionally, if you want to cross-compile pyexiv2 for Windows and generate a
 Windows installer, you will need the following dependencies:
 
