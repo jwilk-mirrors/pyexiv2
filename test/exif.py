@@ -79,7 +79,7 @@ class TestExifTag(unittest.TestCase):
                          '2009:03:01 12:54:28')
         self.assertEqual(tag._convert_to_string(datetime.date(2009, 03, 01)),
                          '2009:03:01 00:00:00')
-        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 29)),
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59)),
                          '1899:12:31 23:59:59')
         self.assertEqual(tag._convert_to_string(datetime.date(1899, 12, 31)),
                          '1899:12:31 00:00:00')
