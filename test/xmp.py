@@ -134,32 +134,52 @@ class TestXmpTag(unittest.TestCase):
         self.assertEqual(tag.type, 'Date')
         self.assertEqual(tag._convert_to_string(datetime.date(2009, 2, 4), 'Date'),
                          '2009-02-04')
+        self.assertEqual(tag._convert_to_string(datetime.date(1899, 12, 31), 'Date'),
+                         '1899-12-31')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13), 'Date'),
                          '1999-10-13')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3), 'Date'),
                          '1999-10-13T05:03Z')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59), 'Date'),
+                         '1899-12-31T23:59Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, tzinfo=FixedOffset()), 'Date'),
                          '1999-10-13T05:03Z')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, tzinfo=FixedOffset()), 'Date'),
+                         '1899-12-31T23:59Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, tzinfo=FixedOffset('+', 5, 30)), 'Date'),
                          '1999-10-13T05:03+05:30')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, tzinfo=FixedOffset('-', 11, 30)), 'Date'),
                          '1999-10-13T05:03-11:30')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, tzinfo=FixedOffset('+', 5, 30)), 'Date'),
+                         '1899-12-31T23:59+05:30')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27), 'Date'),
                          '1999-10-13T05:03:27Z')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59), 'Date'),
+                         '1899-12-31T23:59:59Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, tzinfo=FixedOffset()), 'Date'),
                          '1999-10-13T05:03:27Z')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=FixedOffset()), 'Date'),
+                         '1899-12-31T23:59:59Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, tzinfo=FixedOffset('+', 5, 30)), 'Date'),
                          '1999-10-13T05:03:27+05:30')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, tzinfo=FixedOffset('-', 11, 30)), 'Date'),
                          '1999-10-13T05:03:27-11:30')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=FixedOffset('+', 5, 30)), 'Date'),
+                         '1899-12-31T23:59:59+05:30')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300), 'Date'),
                          '1999-10-13T05:03:27.1243Z')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59, 124300), 'Date'),
+                         '1899-12-31T23:59:59.1243Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300, tzinfo=FixedOffset()), 'Date'),
                          '1999-10-13T05:03:27.1243Z')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59, 124300, tzinfo=FixedOffset()), 'Date'),
+                         '1899-12-31T23:59:59.1243Z')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300, tzinfo=FixedOffset('+', 5, 30)), 'Date'),
                          '1999-10-13T05:03:27.1243+05:30')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13, 5, 3, 27, 124300, tzinfo=FixedOffset('-', 11, 30)), 'Date'),
                          '1999-10-13T05:03:27.1243-11:30')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59, 124300, tzinfo=FixedOffset('+', 5, 30)), 'Date'),
+                         '1899-12-31T23:59:59.1243+05:30')
         # Invalid values
         self.failUnlessRaises(XmpValueError, tag._convert_to_string, 'invalid', 'Date')
         self.failUnlessRaises(XmpValueError, tag._convert_to_string, None, 'Date')
