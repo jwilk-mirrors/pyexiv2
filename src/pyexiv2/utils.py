@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2006-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2006-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -572,4 +572,158 @@ class GPSCoordinate(object):
         """
         return '%d,%d,%d%s' % (self._degrees, self._minutes, self._seconds,
                                self._direction)
+
+
+class DateTimeFormatter(object):
+
+    """
+    Convenience object that exposes static methods to convert a date, time or
+    datetime object to a string representation suitable for various metadata
+    standards.
+
+    This is needed because python’s
+    `strftime() <http://docs.python.org/library/datetime.html#strftime-strptime-behavior>`_
+    doesn’t work for years before 1900.
+
+    This class mostly exists for internal usage only. Clients should never need
+    to use it.
+    """
+
+    @staticmethod
+    def timedelta_to_offset(t):
+        """
+        Convert a time delta to a string representation in the form ``±%H:%M``.
+
+        :param t: a time delta
+        :type t: :class:`datetime.timedelta`
+
+        :return: a string representation of the time delta in the form
+                 ``±%H:%M``
+        :rtype: string
+        """
+        seconds = t.total_seconds()
+        hours = int(seconds / 3600)
+        minutes = abs(int((seconds - hours * 3600) / 60))
+        return '%+03d:%02d' % (hours, minutes)
+
+    @staticmethod
+    def exif(d):
+        """
+        Convert a date/time object to a string representation conforming to
+        libexiv2’s internal representation for the EXIF standard.
+
+        :param d: a datetime or date object
+        :type d: :class:`datetime.datetime` or :class:`datetime.date`
+
+        :return: a string representation conforming to the EXIF standard
+        :rtype: string
+
+        :raise TypeError: if the parameter is not a datetime or a date object
+        """
+        if isinstance(d, datetime.datetime):
+            return '%04d:%02d:%02d %02d:%02d:%02d' % \
+                (d.year, d.month, d.day, d.hour, d.minute, d.second)
+        elif isinstance(d, datetime.date):
+            return '%04d:%02d:%02d' % (d.year, d.month, d.day)
+        else:
+            raise TypeError('expecting an object of type '
+                            'datetime.datetime or datetime.date')
+
+    @staticmethod
+    def iptc_date(d):
+        """
+        Convert a date object to a string representation conforming to
+        libexiv2’s internal representation for the IPTC standard.
+
+        :param d: a datetime or date object
+        :type d: :class:`datetime.datetime` or :class:`datetime.date`
+
+        :return: a string representation conforming to the IPTC standard
+        :rtype: string
+
+        :raise TypeError: if the parameter is not a datetime or a date object
+        """
+        if isinstance(d, (datetime.date, datetime.datetime)):
+            # ISO 8601 date format.
+            # According to the IPTC specification, the format for a string
+            # field representing a date is '%Y%m%d'. However, the string
+            # expected by exiv2's DateValue::read(string) should be
+            # formatted using pattern '%Y-%m-%d'.
+            return '%04d-%02d-%02d' % (d.year, d.month, d.day)
+        else:
+            raise TypeError('expecting an object of type '
+                            'datetime.datetime or datetime.date')
+
+    @staticmethod
+    def iptc_time(d):
+        """
+        Convert a time object to a string representation conforming to
+        libexiv2’s internal representation for the IPTC standard.
+
+        :param d: a datetime or time object
+        :type d: :class:`datetime.datetime` or :class:`datetime.time`
+
+        :return: a string representation conforming to the IPTC standard
+        :rtype: string
+
+        :raise TypeError: if the parameter is not a datetime or a time object
+        """
+        if isinstance(d, (datetime.time, datetime.datetime)):
+            # According to the IPTC specification, the format for a string
+            # field representing a time is '%H%M%S±%H%M'. However, the
+            # string expected by exiv2's TimeValue::read(string) should be
+            # formatted using pattern '%H:%M:%S±%H:%M'.
+            r = '%02d:%02d:%02d' % (d.hour, d.minute, d.second)
+            if d.tzinfo is not None:
+                t = d.utcoffset()
+                if t is not None:
+                    r += DateTimeFormatter.timedelta_to_offset(t)
+            else:
+                r += '+00:00'
+            return r
+        else:
+            raise TypeError('expecting an object of type '
+                            'datetime.datetime or datetime.time')
+
+    @staticmethod
+    def xmp(d):
+        """
+        Convert a date/time object to a string representation conforming to
+        libexiv2’s internal representation for the XMP standard.
+
+        :param d: a datetime or date object
+        :type d: :class:`datetime.datetime` or :class:`datetime.date`
+
+        :return: a string representation conforming to the XMP standard
+        :rtype: string
+
+        :raise TypeError: if the parameter is not a datetime or a date object
+        """
+        if isinstance(d, datetime.datetime):
+            t = d.utcoffset()
+            if d.tzinfo is None or t is None or t == datetime.timedelta(0):
+                tz = 'Z'
+            else:
+                tz = DateTimeFormatter.timedelta_to_offset(t)
+            if d.hour == 0 and d.minute == 0 and \
+                d.second == 0 and d.microsecond == 0 and \
+                (d.tzinfo is None or d.utcoffset() == datetime.timedelta(0)):
+                return '%04d-%02d-%02d' % (d.year, d.month, d.day)
+            elif d.second == 0 and d.microsecond == 0:
+                return '%04d-%02d-%02dT%02d:%02d%s' % \
+                    (d.year, d.month, d.day, d.hour, d.minute, tz)
+            elif d.microsecond == 0:
+                return '%04d-%02d-%02dT%02d:%02d:%02d%s' % \
+                    (d.year, d.month, d.day, d.hour, d.minute, d.second, tz)
+            else:
+                r = '%04d-%02d-%02dT%02d:%02d:%02d.' % \
+                    (d.year, d.month, d.day, d.hour, d.minute, d.second)
+                r += str(int(d.microsecond) / 1E6)[2:]
+                r += tz
+                return r
+        elif isinstance(d, datetime.date):
+            return '%04d-%02d-%02d' % (d.year, d.month, d.day)
+        else:
+            raise TypeError('expecting an object of type '
+                            'datetime.datetime or datetime.date')
 

@@ -108,12 +108,18 @@ class TestIptcTag(unittest.TestCase):
         self.assertEqual(tag.type, 'Date')
         self.assertEqual(tag._convert_to_string(datetime.date(2009, 2, 4)),
                          '2009-02-04')
+        self.assertEqual(tag._convert_to_string(datetime.date(1899, 12, 31)),
+                         '1899-12-31')
         self.assertEqual(tag._convert_to_string(datetime.datetime(1999, 10, 13)),
                          '1999-10-13')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2009, 2, 4)),
                          '2009-02-04')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31)),
+                         '1899-12-31')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2009, 2, 4, 10, 52, 37)),
                          '2009-02-04')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59)),
+                         '1899-12-31')
 
         # Invalid values
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, 'invalid')
@@ -152,14 +158,24 @@ class TestIptcTag(unittest.TestCase):
                          '10:52:04+05:30')
         self.assertEqual(tag._convert_to_string(datetime.time(10, 52, 4, tzinfo=FixedOffset('-', 4, 0))),
                          '10:52:04-04:00')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59)),
+                         '23:59:59+00:00')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4)),
                          '10:52:04+00:00')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59, 999)),
+                         '23:59:59+00:00')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, 478)),
                          '10:52:04+00:00')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=FixedOffset())),
+                         '23:59:59+00:00')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset())),
                          '10:52:04+00:00')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=FixedOffset('+', 5, 30))),
+                         '23:59:59+05:30')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset('+', 5, 30))),
                          '10:52:04+05:30')
+        self.assertEqual(tag._convert_to_string(datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=FixedOffset('-', 4, 0))),
+                         '23:59:59-04:00')
         self.assertEqual(tag._convert_to_string(datetime.datetime(2007, 2, 7, 10, 52, 4, tzinfo=FixedOffset('-', 4, 0))),
                          '10:52:04-04:00')
 
