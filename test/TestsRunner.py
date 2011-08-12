@@ -3,7 +3,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2008-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2008-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -41,6 +41,7 @@ from encoding import TestEncodings
 from utils import TestConversions, TestFractions
 from usercomment import TestUserCommentReadWrite, TestUserCommentAdd
 from pickling import TestPicklingTags
+from datetimeformatter import TestDateTimeFormatter
 
 
 def run_unit_tests():
@@ -62,6 +63,7 @@ def run_unit_tests():
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUserCommentReadWrite))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestUserCommentAdd))
     suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestPicklingTags))
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(TestDateTimeFormatter))
     # Run the test suite
     return unittest.TextTestRunner(verbosity=2).run(suite)
 

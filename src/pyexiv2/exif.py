@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2006-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2006-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -32,7 +32,8 @@ import libexiv2python
 
 from pyexiv2.utils import is_fraction, make_fraction, fraction_to_string, \
                           NotifyingList, ListenerInterface, \
-                          undefined_to_string, string_to_undefined
+                          undefined_to_string, string_to_undefined, \
+                          DateTimeFormatter
 
 import time
 import datetime
@@ -347,13 +348,13 @@ class ExifTag(ListenerInterface):
         """
         if self.type == 'Ascii':
             if isinstance(value, datetime.datetime):
-                return value.strftime(self._datetime_formats[0])
+                return DateTimeFormatter.exif(value)
             elif isinstance(value, datetime.date):
                 if self.key == 'Exif.GPSInfo.GPSDateStamp':
                     # Special case
-                    return value.strftime(self._date_formats[0])
+                    return DateTimeFormatter.exif(value)
                 else:
-                    return value.strftime('%s 00:00:00' % self._date_formats[0])
+                    return '%s 00:00:00' % DateTimeFormatter.exif(value)
             elif isinstance(value, unicode):
                 try:
                     return value.encode('utf-8')

@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2006-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2006-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -30,7 +30,8 @@ XMP specific code.
 
 import libexiv2python
 
-from pyexiv2.utils import FixedOffset, is_fraction, make_fraction, GPSCoordinate
+from pyexiv2.utils import FixedOffset, is_fraction, make_fraction, \
+                          GPSCoordinate, DateTimeFormatter
 
 import datetime
 import re
@@ -387,27 +388,8 @@ class XmpTag(object):
                 raise XmpValueError(value, type)
 
         elif type == 'Date':
-            if isinstance(value, datetime.datetime):
-                if value.tzinfo is None or value.utcoffset() == datetime.timedelta(0):
-                    tz = 'Z'
-                else:
-                    tz = value.strftime('%z') # of the form ±%H%M
-                    tz = tz[:3] + ':' + tz[3:]
-                if value.hour == 0 and value.minute == 0 and \
-                    value.second == 0 and value.microsecond == 0 and \
-                    (value.tzinfo is None or value.utcoffset() == datetime.timedelta(0)):
-                    return value.strftime('%Y-%m-%d')
-                elif value.second == 0 and value.microsecond == 0:
-                    return value.strftime('%Y-%m-%dT%H:%M') + tz
-                elif value.microsecond == 0:
-                    return value.strftime('%Y-%m-%dT%H:%M:%S') + tz
-                else:
-                    r = value.strftime('%Y-%m-%dT%H:%M:%S.')
-                    r += str(int(value.microsecond) / 1E6)[2:]
-                    r += tz
-                    return r
-            elif isinstance(value, datetime.date):
-                return value.isoformat()
+            if isinstance(value, (datetime.date, datetime.datetime)):
+                return DateTimeFormatter.xmp(value)
             else:
                 raise XmpValueError(value, type)
 

@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2006-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2006-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -30,7 +30,8 @@ IPTC specific code.
 
 import libexiv2python
 
-from pyexiv2.utils import ListenerInterface, NotifyingList, FixedOffset
+from pyexiv2.utils import ListenerInterface, NotifyingList, \
+                          FixedOffset, DateTimeFormatter
 
 import time
 import datetime
@@ -335,28 +336,13 @@ class IptcTag(ListenerInterface):
 
         elif self.type == 'Date':
             if isinstance(value, (datetime.date, datetime.datetime)):
-                # ISO 8601 date format.
-                # According to the IPTC specification, the format for a string
-                # field representing a date is '%Y%m%d'. However, the string
-                # expected by exiv2's DateValue::read(string) should be
-                # formatted using pattern '%Y-%m-%d'.
-                return value.strftime('%Y-%m-%d')
+                return DateTimeFormatter.iptc_date(value)
             else:
                 raise IptcValueError(value, self.type)
 
         elif self.type == 'Time':
             if isinstance(value, (datetime.time, datetime.datetime)):
-                # According to the IPTC specification, the format for a string
-                # field representing a time is '%H%M%S±%H%M'. However, the
-                # string expected by exiv2's TimeValue::read(string) should be
-                # formatted using pattern '%H:%M:%S±%H:%M'.
-                r = value.strftime('%H:%M:%S')
-                if value.tzinfo is not None:
-                    s = value.strftime('%z') # of the form ±%H%M
-                    r += s[:3] + ':' + s[3:]
-                else:
-                    r += '+00:00'
-                return r
+                return DateTimeFormatter.iptc_time(value)
             else:
                 raise IptcValueError(value, self.type)
 
