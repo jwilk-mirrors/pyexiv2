@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2006-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2006-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
