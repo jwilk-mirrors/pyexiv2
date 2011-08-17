@@ -205,9 +205,9 @@ class ImageMetadata(MutableMapping):
         :raise KeyError: if the tag doesn't exist
         """
         family = key.split('.')[0].lower()
-        try:
+        if family in ('exif', 'iptc', 'xmp'):
             return getattr(self, '_get_%s_tag' % family)(key)
-        except AttributeError:
+        else:
             raise KeyError(key)
 
     def _set_exif_tag(self, key, tag_or_value):
@@ -267,9 +267,9 @@ class ImageMetadata(MutableMapping):
         :raise KeyError: if the key is invalid
         """
         family = key.split('.')[0].lower()
-        try:
+        if family in ('exif', 'iptc', 'xmp'):
             return getattr(self, '_set_%s_tag' % family)(key, tag_or_value)
-        except AttributeError:
+        else:
             raise KeyError(key)
 
     def _delete_exif_tag(self, key):
@@ -326,9 +326,9 @@ class ImageMetadata(MutableMapping):
         :raise KeyError: if the tag with the given key doesn't exist
         """
         family = key.split('.')[0].lower()
-        try:
+        if family in ('exif', 'iptc', 'xmp'):
             return getattr(self, '_delete_%s_tag' % family)(key)
-        except AttributeError:
+        else:
             raise KeyError(key)
 
     def __iter__(self):
