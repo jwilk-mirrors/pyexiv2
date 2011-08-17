@@ -218,11 +218,15 @@ class XmpTag(object):
                 stype = stype[17:]
             self.raw_value = self._convert_to_string(value, stype)
         elif type in ('XmpAlt', 'XmpBag', 'XmpSeq'):
+            if not isinstance(value, (list, tuple)):
+                raise TypeError('Expecting a list of values')
             stype = self.type[4:]
             if stype.lower().startswith('closed choice of'):
                 stype = stype[17:]
             self.raw_value = map(lambda x: self._convert_to_string(x, stype), value)
         elif type == 'LangAlt':
+            if not isinstance(value, dict):
+                raise TypeError('Expecting a dictionary mapping language codes to values')
             raw_value = {}
             for k, v in value.iteritems():
                 try:
