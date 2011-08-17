@@ -225,6 +225,8 @@ class XmpTag(object):
                 stype = stype[17:]
             self.raw_value = map(lambda x: self._convert_to_string(x, stype), value)
         elif type == 'LangAlt':
+            if isinstance(value, basestring):
+                value = {'x-default': value}
             if not isinstance(value, dict):
                 raise TypeError('Expecting a dictionary mapping language codes to values')
             raw_value = {}
