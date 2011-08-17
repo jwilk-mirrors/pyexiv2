@@ -367,10 +367,12 @@ class TestXmpTag(unittest.TestCase):
     def test_set_value_incorrect_type(self):
         # Expecting a list of values
         tag = XmpTag('Xmp.dc.publisher')
+        self.failUnlessEqual(tag.type, 'bag ProperName')
         self.failUnlessRaises(TypeError, tag._set_value, None)
         self.failUnlessRaises(TypeError, tag._set_value, 'bleh')
         # Expecting a dictionary mapping language codes to values
         tag = XmpTag('Xmp.dc.description')
+        self.failUnlessEqual(tag.type, 'Lang Alt')
         self.failUnlessRaises(TypeError, tag._set_value, None)
         self.failUnlessRaises(TypeError, tag._set_value, 'bleh')
 
