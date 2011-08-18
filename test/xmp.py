@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2009-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2009-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -363,6 +363,24 @@ class TestXmpTag(unittest.TestCase):
         tag = XmpTag('Xmp.dc.title')
         self.failUnlessEqual(tag.type, 'Lang Alt')
         self.failUnlessRaises(ValueError, tag._set_value, {})
+
+    def test_set_value_incorrect_type(self):
+        # Expecting a list of values
+        tag = XmpTag('Xmp.dc.publisher')
+        self.failUnlessEqual(tag.type, 'bag ProperName')
+        self.failUnlessRaises(TypeError, tag._set_value, None)
+        self.failUnlessRaises(TypeError, tag._set_value, 'bleh')
+        # Expecting a dictionary mapping language codes to values
+        tag = XmpTag('Xmp.dc.description')
+        self.failUnlessEqual(tag.type, 'Lang Alt')
+        self.failUnlessRaises(TypeError, tag._set_value, None)
+        self.failUnlessRaises(TypeError, tag._set_value, ['bleh'])
+
+    def test_set_value_basestring_for_langalt(self):
+        tag = XmpTag('Xmp.dc.description')
+        self.failUnlessEqual(tag.type, 'Lang Alt')
+        tag.value = 'bleh'
+        self.failUnlessEqual(tag.value, {'x-default': 'bleh'})
 
 
 class TestXmpNamespaces(unittest.TestCase):

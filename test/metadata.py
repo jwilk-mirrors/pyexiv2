@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2009-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2009-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -563,6 +563,13 @@ class TestImageMetadata(unittest.TestCase):
                self.metadata.xmp_keys
         for key in keys:
             self.metadata[key] = self.metadata[key]        
+
+    def test_nonexistent_tag_family(self):
+        self.metadata.read()
+        key = 'Bleh.Image.DateTime'
+        self.failUnlessRaises(KeyError, self.metadata.__getitem__, key)
+        self.failUnlessRaises(KeyError, self.metadata.__setitem__, key, datetime.date.today())
+        self.failUnlessRaises(KeyError, self.metadata.__delitem__, key)
 
     ##########################
     # Test the image comment #
