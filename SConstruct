@@ -29,6 +29,9 @@ def run_tests():
     _fiddle_with_pythonpath()
     SConscript('test/SConscript')
 
+if sys.version_info < (2, 6):
+    sys.exit('ERROR: pyexiv2 requires Python ≥ 2.6. Exiting.')
+
 if not BUILD_TARGETS:
     # Default target: lib
     build_lib()
