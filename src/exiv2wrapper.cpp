@@ -573,6 +573,13 @@ ExifTag::ExifTag(const std::string& key,
     const uint16_t tag = _datum->tag();
     const Exiv2::IfdId ifd = _datum->ifdId();
     _type = Exiv2::TypeInfo::typeName(Exiv2::ExifTags::tagType(tag, ifd));
+    // Where available, extract the type from the metadata, it is more reliable
+    // than static type information. The exception is for user comments, for
+    // which we’d rather keep the 'Comment' type instead of 'Undefined'.
+    if ((_data != 0) && (_type != "Comment"))
+    {
+        _type = _datum->typeName();
+    }
     _name = Exiv2::ExifTags::tagName(tag, ifd);
     _label = Exiv2::ExifTags::tagLabel(tag, ifd);
     _description = Exiv2::ExifTags::tagDesc(tag, ifd);
