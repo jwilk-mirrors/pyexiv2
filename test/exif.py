@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2009-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2009-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -332,5 +332,5 @@ class TestExifTag(unittest.TestCase):
     def test_set_raw_value_invalid(self):
         tag = ExifTag('Exif.GPSInfo.GPSVersionID')
         value = '2 0 0 foo'
-        self.failUnlessRaises(ValueError, tag._set_raw_value, value)
+        self.failUnlessRaises(ValueError, setattr, tag, 'raw_value', value)
 

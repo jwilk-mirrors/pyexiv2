@@ -359,22 +359,22 @@ class TestXmpTag(unittest.TestCase):
     def test_set_value_empty(self):
         tag = XmpTag('Xmp.dc.creator')
         self.failUnlessEqual(tag.type, 'seq ProperName')
-        self.failUnlessRaises(ValueError, tag._set_value, [])
+        self.failUnlessRaises(ValueError, setattr, tag, 'value', [])
         tag = XmpTag('Xmp.dc.title')
         self.failUnlessEqual(tag.type, 'Lang Alt')
-        self.failUnlessRaises(ValueError, tag._set_value, {})
+        self.failUnlessRaises(ValueError, setattr, tag, 'value', {})
 
     def test_set_value_incorrect_type(self):
         # Expecting a list of values
         tag = XmpTag('Xmp.dc.publisher')
         self.failUnlessEqual(tag.type, 'bag ProperName')
-        self.failUnlessRaises(TypeError, tag._set_value, None)
-        self.failUnlessRaises(TypeError, tag._set_value, 'bleh')
+        self.failUnlessRaises(TypeError, setattr, tag, 'value', None)
+        self.failUnlessRaises(TypeError, setattr, tag, 'value', 'bleh')
         # Expecting a dictionary mapping language codes to values
         tag = XmpTag('Xmp.dc.description')
         self.failUnlessEqual(tag.type, 'Lang Alt')
-        self.failUnlessRaises(TypeError, tag._set_value, None)
-        self.failUnlessRaises(TypeError, tag._set_value, ['bleh'])
+        self.failUnlessRaises(TypeError, setattr, tag, 'value', None)
+        self.failUnlessRaises(TypeError, setattr, tag, 'value', ['bleh'])
 
     def test_set_value_basestring_for_langalt(self):
         tag = XmpTag('Xmp.dc.description')

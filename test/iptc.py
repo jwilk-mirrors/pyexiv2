@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2009-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2009-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -214,7 +214,7 @@ class TestIptcTag(unittest.TestCase):
 
     def test_set_single_value_raises(self):
         tag = IptcTag('Iptc.Application2.City', ['Seattle'])
-        self.failUnlessRaises(TypeError, tag._set_values, 'Barcelona')
+        self.failUnlessRaises(TypeError, setattr, tag, 'values', 'Barcelona')
 
     def test_set_values(self):
         tag = IptcTag('Iptc.Application2.City', ['Seattle'])
@@ -225,12 +225,12 @@ class TestIptcTag(unittest.TestCase):
     def test_set_raw_values_invalid(self):
         tag = IptcTag('Iptc.Envelope.DateSent')
         values = ['foo']
-        self.failUnlessRaises(ValueError, tag._set_raw_values, values)
+        self.failUnlessRaises(ValueError, setattr, tag, 'raw_values', values)
 
     def test_set_values_non_repeatable(self):
         tag = IptcTag('Iptc.Application2.ReleaseDate')
         values = [datetime.date.today(), datetime.date.today()]
-        self.failUnlessRaises(KeyError, tag._set_values, values)
+        self.failUnlessRaises(KeyError, setattr, tag, 'values', values)
 
     def test_deprecated_properties(self):
         # The .raw_values and .values properties are deprecated in favour of
