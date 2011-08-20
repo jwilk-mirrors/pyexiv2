@@ -553,13 +553,13 @@ ExifTag::ExifTag(const std::string& key,
 // (see https://bugs.launchpad.net/pyexiv2/+bug/684177).
 #if EXIV2_TEST_VERSION(0,21,0)
     Exiv2::ExifKey exifKey(key);
-    if (_data != 0)
+    _type = Exiv2::TypeInfo::typeName(exifKey.defaultTypeId());
+    // Where available, extract the type from the metadata, it is more reliable
+    // than static type information. The exception is for user comments, for
+    // which we’d rather keep the 'Comment' type instead of 'Undefined'.
+    if ((_data != 0) && (_type != "Comment"))
     {
         _type = _datum->typeName();
-    }
-    else
-    {
-        _type = Exiv2::TypeInfo::typeName(exifKey.defaultTypeId());
     }
     _name = exifKey.tagName();
     _label = exifKey.tagLabel();
