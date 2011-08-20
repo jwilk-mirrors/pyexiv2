@@ -1,9 +1,8 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # ******************************************************************************
 #
-# Copyright (C) 2008-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2008-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -21,9 +20,7 @@
 # along with pyexiv2; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
 #
-#
-# File:      testutils.py
-# Author(s): Olivier Tilloy <olivier@tilloy.net>
+# Author: Olivier Tilloy <olivier@tilloy.net>
 #
 # ******************************************************************************
 
