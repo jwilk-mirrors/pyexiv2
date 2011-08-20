@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2009-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2009-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -27,6 +27,7 @@
 import unittest
 
 from pyexiv2.exif import ExifTag, ExifValueError
+from pyexiv2.metadata import ImageMetadata
 from pyexiv2.utils import make_fraction
 
 import datetime
@@ -333,4 +334,26 @@ class TestExifTag(unittest.TestCase):
         tag = ExifTag('Exif.GPSInfo.GPSVersionID')
         value = '2 0 0 foo'
         self.failUnlessRaises(ValueError, tag._set_raw_value, value)
+
+    def test_makernote_types(self):
+        # Makernote tags not attached to an image have an Undefined type by
+        # default. When read from an existing image though, their type should be
+        # correctly set (see https://bugs.launchpad.net/pyexiv2/+bug/781464).
+        tag1 = ExifTag('Exif.Pentax.PreviewResolution')
+        tag1.raw_value = '640 480'
+        self.assertEqual(tag1.type, 'Undefined')
+        self.failUnlessRaises(ValueError, getattr, tag1, 'value')
+        tag2 = ExifTag('Exif.Pentax.CameraInfo')
+        tag2.raw_value = '76830 20070527 2 1 4228109'
+        self.assertEqual(tag2.type, 'Undefined')
+        self.failUnlessRaises(ValueError, getattr, tag2, 'value')
+
+        metadata = ImageMetadata('test/data/pentax-makernote.jpg')
+        metadata.read()
+        tag1 = metadata[tag1.key]
+        self.assertEqual(tag1.type, 'Short')
+        self.assertEqual(tag1.value, [640, 480])
+        tag2 = metadata[tag2.key]
+        self.assertEqual(tag2.type, 'Long')
+        self.assertEqual(tag2.value, [76830L, 20070527L, 2L, 1L, 4228109L])
 
