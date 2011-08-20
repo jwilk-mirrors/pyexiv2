@@ -30,6 +30,8 @@ from pyexiv2.exif import ExifTag, ExifValueError
 from pyexiv2.metadata import ImageMetadata
 from pyexiv2.utils import make_fraction
 
+from testutils import CheckFileSum
+
 import datetime
 
 
@@ -348,6 +350,9 @@ class TestExifTag(unittest.TestCase):
         self.assertEqual(tag2.type, 'Undefined')
         self.failUnlessRaises(ValueError, getattr, tag2, 'value')
 
+        filename = 'test/data/pentax-makernote.jpg'
+        checksum = '646804b309a4a2d31feafe9bffc5d7f0'
+        self.assert_(CheckFileSum(filename, checksum))
         metadata = ImageMetadata('test/data/pentax-makernote.jpg')
         metadata.read()
         tag1 = metadata[tag1.key]
