@@ -1,6 +1,6 @@
 // *****************************************************************************
 /*
- * Copyright (C) 2006-2010 Olivier Tilloy <olivier@tilloy.net>
+ * Copyright (C) 2006-2011 Olivier Tilloy <olivier@tilloy.net>
  *
  * This file is part of the pyexiv2 distribution.
  *
@@ -554,6 +554,13 @@ ExifTag::ExifTag(const std::string& key,
 #if EXIV2_TEST_VERSION(0,21,0)
     Exiv2::ExifKey exifKey(key);
     _type = Exiv2::TypeInfo::typeName(exifKey.defaultTypeId());
+    // Where available, extract the type from the metadata, it is more reliable
+    // than static type information. The exception is for user comments, for
+    // which we’d rather keep the 'Comment' type instead of 'Undefined'.
+    if ((_data != 0) && (_type != "Comment"))
+    {
+        _type = _datum->typeName();
+    }
     _name = exifKey.tagName();
     _label = exifKey.tagLabel();
     _description = exifKey.tagDesc();
@@ -566,6 +573,13 @@ ExifTag::ExifTag(const std::string& key,
     const uint16_t tag = _datum->tag();
     const Exiv2::IfdId ifd = _datum->ifdId();
     _type = Exiv2::TypeInfo::typeName(Exiv2::ExifTags::tagType(tag, ifd));
+    // Where available, extract the type from the metadata, it is more reliable
+    // than static type information. The exception is for user comments, for
+    // which we’d rather keep the 'Comment' type instead of 'Undefined'.
+    if ((_data != 0) && (_type != "Comment"))
+    {
+        _type = _datum->typeName();
+    }
     _name = Exiv2::ExifTags::tagName(tag, ifd);
     _label = Exiv2::ExifTags::tagLabel(tag, ifd);
     _description = Exiv2::ExifTags::tagDesc(tag, ifd);

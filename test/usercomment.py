@@ -59,24 +59,28 @@ class TestUserCommentReadWrite(unittest.TestCase):
     def test_read_ascii(self):
         m = self._read_image('usercomment-ascii.jpg')
         tag = m['Exif.Photo.UserComment']
+        self.assertEqual(tag.type, 'Comment')
         self.assertEqual(tag.raw_value, 'charset="Ascii" deja vu')
         self.assertEqual(tag.value, u'deja vu')
 
     def test_read_unicode_little_endian(self):
         m = self._read_image('usercomment-unicode-ii.jpg')
         tag = m['Exif.Photo.UserComment']
+        self.assertEqual(tag.type, 'Comment')
         self.assertEqual(tag.raw_value, 'charset="Unicode" %s' % self._expected_raw_value('ii', 'déjà vu'))
         self.assertEqual(tag.value, u'déjà vu')
 
     def test_read_unicode_big_endian(self):
         m = self._read_image('usercomment-unicode-mm.jpg')
         tag = m['Exif.Photo.UserComment']
+        self.assertEqual(tag.type, 'Comment')
         self.assertEqual(tag.raw_value, 'charset="Unicode" %s' % self._expected_raw_value('mm', 'déjà vu'))
         self.assertEqual(tag.value, u'déjà vu')
 
     def test_write_ascii(self):
         m = self._read_image('usercomment-ascii.jpg')
         tag = m['Exif.Photo.UserComment']
+        self.assertEqual(tag.type, 'Comment')
         tag.value = 'foo bar'
         self.assertEqual(tag.raw_value, 'charset="Ascii" foo bar')
         self.assertEqual(tag.value, u'foo bar')
@@ -84,6 +88,7 @@ class TestUserCommentReadWrite(unittest.TestCase):
     def test_write_unicode_over_ascii(self):
         m = self._read_image('usercomment-ascii.jpg')
         tag = m['Exif.Photo.UserComment']
+        self.assertEqual(tag.type, 'Comment')
         tag.value = u'déjà vu'
         self.assertEqual(tag.raw_value, 'déjà vu')
         self.assertEqual(tag.value, u'déjà vu')
@@ -91,6 +96,7 @@ class TestUserCommentReadWrite(unittest.TestCase):
     def test_write_unicode_little_endian(self):
         m = self._read_image('usercomment-unicode-ii.jpg')
         tag = m['Exif.Photo.UserComment']
+        self.assertEqual(tag.type, 'Comment')
         tag.value = u'DÉJÀ VU'
         self.assertEqual(tag.raw_value, 'charset="Unicode" %s' % self._expected_raw_value('ii', 'DÉJÀ VU'))
         self.assertEqual(tag.value, u'DÉJÀ VU')
@@ -98,6 +104,7 @@ class TestUserCommentReadWrite(unittest.TestCase):
     def test_write_unicode_big_endian(self):
         m = self._read_image('usercomment-unicode-mm.jpg')
         tag = m['Exif.Photo.UserComment']
+        self.assertEqual(tag.type, 'Comment')
         tag.value = u'DÉJÀ VU'
         self.assertEqual(tag.raw_value, 'charset="Unicode" %s' % self._expected_raw_value('mm', 'DÉJÀ VU'))
         self.assertEqual(tag.value, u'DÉJÀ VU')
@@ -125,6 +132,7 @@ class TestUserCommentAdd(unittest.TestCase):
         metadata.read()
         self.assert_(key in metadata.exif_keys)
         tag = metadata[key]
+        self.assertEqual(tag.type, 'Comment')
         self.assertEqual(tag.value, value)
 
     def test_add_comment_ascii(self):
