@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2010-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,9 +48,9 @@ wget --trust-server-names=on http://gnuwin32.sourceforge.net/downlinks/zlib-lib-
 unzip -d zlib zlib-*.zip
 
 # iconv (for exiv2)
-wget ftp://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz
-tar xf libiconv-1.13.1.tar.gz
-cd libiconv-1.13.1
+wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.14.tar.gz
+tar xf libiconv-1.14.tar.gz
+cd libiconv-1.14
 ./configure --enable-static --disable-visibility --target=$PLATFORM --host=$PLATFORM --build=$BUILD --prefix=$BASE/libiconv
 make -j3 install
 cd ..
@@ -64,22 +64,22 @@ make -j3 install
 cd ..
 
 # exiv2
-wget http://exiv2.org/exiv2-0.21.tar.gz
-tar xf exiv2-0.21.tar.gz
-cd exiv2-0.21
+wget http://www.exiv2.org/exiv2-0.21.1.tar.gz
+tar xf exiv2-0.21.1.tar.gz
+cd exiv2-0.21.1
 ./configure --disable-shared --disable-visibility --target=$PLATFORM --host=$PLATFORM --build=$BUILD --disable-nls --with-zlib=$BASE/zlib --with-libiconv-prefix=$BASE/libiconv --with-expat=$BASE/expat --prefix=$BASE/exiv2
 make -j3 install
 cd ..
 
 # python
-wget http://python.org/ftp/python/2.7.1/python-2.7.1.msi
-7z x python-2.7.1.msi -opython
+wget http://python.org/ftp/python/2.7.2/python-2.7.2.msi
+7z x python-2.7.2.msi -opython
 7z x python/python -opython
 
 # boost-python
-wget --trust-server-names=on http://sourceforge.net/projects/boost/files/boost/1.45.0/boost_1_45_0.tar.bz2/download
-tar xf boost_1_45_0.tar.bz2
-cd boost_1_45_0
+wget --trust-server-names=on http://sourceforge.net/projects/boost/files/boost/1.47.0/boost_1_47_0.tar.bz2/download
+tar xf boost_1_47_0.tar.bz2
+cd boost_1_47_0
 echo "using gcc : : $COMPILER : <compileflags>-I$BASE/python <archiver>$ARCHIVER ;" >> tools/build/v2/user-config.jam
 bjam install -j 3 --prefix=$BASE/boost --with-python toolset=gcc link=static
 cd ..
