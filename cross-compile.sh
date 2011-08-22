@@ -20,7 +20,7 @@
 # pyexiv2 for windows on a linux host.
 #
 # Typical dependencies (of this script) on an Ubuntu system:
-#  wget unzip tar build-essential mingw32 p7zip-full bjam
+#  wget unzip tar build-essential mingw32 p7zip-full
 #
 # After execution is complete, copy the following file and folder to the
 # site-packages directory of a Python 2.6 windows setup:
@@ -81,7 +81,8 @@ wget --trust-server-names=on http://sourceforge.net/projects/boost/files/boost/1
 tar xf boost_1_47_0.tar.bz2
 cd boost_1_47_0
 echo "using gcc : : $COMPILER : <compileflags>-I$BASE/python <archiver>$ARCHIVER ;" >> tools/build/v2/user-config.jam
-bjam install -j 3 --prefix=$BASE/boost --with-python toolset=gcc link=static
+./bootstrap.sh
+./bjam install -j 3 --prefix=$BASE/boost --with-python toolset=gcc link=static
 cd ..
 
 # pyexiv2
