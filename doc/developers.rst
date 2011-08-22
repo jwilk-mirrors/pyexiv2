@@ -62,12 +62,11 @@ Windows installer, you will need the following dependencies:
 
 * `MinGW <http://www.mingw.org/>`_
 * `7-Zip <http://7-zip.org/>`_
-* `BJam <http://boost.org/boost-build2/doc/html/index.html>`_
 * `NSIS <http://nsis.sourceforge.net/>`_
 
 A typical list of packages to install on a Debian/Ubuntu system is::
 
-  mingw32 p7zip-full bjam nsis
+  mingw32 p7zip-full nsis
 
 Building and installing
 #######################
