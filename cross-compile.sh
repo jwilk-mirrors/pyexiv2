@@ -23,7 +23,7 @@
 #  wget unzip tar build-essential mingw32 p7zip-full
 #
 # After execution is complete, copy the following file and folder to the
-# site-packages directory of a Python 2.6 windows setup:
+# site-packages directory of a Python 2.7 windows setup:
 #  - $BASE/pyexiv2/build/libexiv2python.pyd
 #  - $BASE/pyexiv2/src/pyexiv2
 #

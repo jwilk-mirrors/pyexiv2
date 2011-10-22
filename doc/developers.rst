@@ -71,8 +71,8 @@ Building pyexiv2 is as simple as invoking ``scons`` in the top-level directory::
   scons: Reading SConscript files ...
   scons: done reading SConscript files.
   scons: Building targets ...
-  g++ -o build/exiv2wrapper.os -c -fPIC -I/usr/include/python2.6 src/exiv2wrapper.cpp
-  g++ -o build/exiv2wrapper_python.os -c -fPIC -I/usr/include/python2.6 src/exiv2wrapper_python.cpp
+  g++ -o build/exiv2wrapper.os -c -fPIC -I/usr/include/python2.7 src/exiv2wrapper.cpp
+  g++ -o build/exiv2wrapper_python.os -c -fPIC -I/usr/include/python2.7 src/exiv2wrapper_python.cpp
   g++ -o build/libexiv2python.so -shared build/exiv2wrapper.os build/exiv2wrapper_python.os -lboost_python -lexiv2
   scons: done building targets.
 
@@ -114,7 +114,7 @@ From the top-level directory of the branch, run the following command::
   makensis win32-installer.nsi
 
 This will generate a ready-to-distribute installer executable named
-``pyexiv2-0.2-setup.exe``.
+``pyexiv2-0.3-setup.exe``.
 
 Documentation
 #############
