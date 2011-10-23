@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2006-2010 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2006-2011 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -75,7 +75,7 @@ def _make_version(version_info):
 
 
 #: A tuple containing the three components of the version number: major, minor, micro.
-version_info = (0, 3, 0)
+version_info = (0, 3, 1)
 
 #: The version of the module as a string (major.minor.micro).
 __version__ = _make_version(version_info)

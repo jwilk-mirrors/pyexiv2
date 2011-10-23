@@ -1,4 +1,4 @@
-; Copyright (C) 2010 Olivier Tilloy <olivier@tilloy.net>
+; Copyright (C) 2011 Olivier Tilloy <olivier@tilloy.net>
 ;
 ; This program is free software: you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 !include nsDialogs.nsh
 !include LogicLib.nsh
 
-!define PYEXIV2_VERSION "0.3.0"
+!define PYEXIV2_VERSION "0.3.1"
 
 Name "pyexiv2 ${PYEXIV2_VERSION}"
 OutFile "pyexiv2-${PYEXIV2_VERSION}-setup.exe"
