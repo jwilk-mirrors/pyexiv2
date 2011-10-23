@@ -1,3 +1,50 @@
+pyexiv2 0.3.1 "Challenges" - 2011-10-23
+---------------------------------------
+
+Dependencies:
+
+- Python ≥ 2.6
+- libexiv2 ≥ 0.19
+- boost.python ≥ 1.38
+
+Changes:
+
+- Compiles and tested against the latest libexiv2 (0.22)
+- Updated windows dependencies (iconv 1.14, libexiv2 0.22, python 2.7.2,
+  boost 1.47.0)
+
+Bugs fixed:
+
+- 802176: UnicodeDecodeError when opening a file with unicode characters in the
+  path
+- 815430: [win32] Saving previews to disk produces bogus JPEG files
+- 781464: Pentax MakerNote tags advertised with the wrong type, decoding their
+  value raises a ValueError
+- 786253: Exif headers with zero-denominator rational (fraction) types raise
+  DivideByZero exception unnecessarily
+- 797626: Cannot assign dates earlier than the year 1900
+- 797644: Timezone info is not correctly passed to libexiv2 when writing IPTC
+  and XMP tags
+- 823104: Setting an XMP tag from a value with incorrect type results in a
+  confusing KeyError being raised
+- 696240: pyexiv2-0.3.0 docs fail to build with sphinx-1.0.5
+- 736143: scons error
+- 813224: String representation of Rational not implemented
+
+Contributors:
+
+- Alex A. Naanou
+- Bob Swithers
+- Chris Mayo
+- Franz Buchinger
+- Hobson Lane
+- János Illés
+- Joe Borg
+- Olivier Tilloy
+- Petri Damstén
+- Rob Healey
+
+
 pyexiv2 0.3.0 "A Good Year" - 2010-12-31
 ----------------------------------------
 
