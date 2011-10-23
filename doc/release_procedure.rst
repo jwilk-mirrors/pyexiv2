@@ -8,7 +8,7 @@ Release branch
 
 Set the version number to release::
 
-  export VERSION=0.2.0
+  export VERSION=0.3.1
   export D=pyexiv2-$VERSION
 
 Branch to release::
@@ -69,15 +69,15 @@ Cross-compile::
 Build the installer and sign it::
 
   makensis win32-installer.nsi
-  gpg --armor --sign --detach-sig pyexiv2-0.2-setup.exe
+  gpg --armor --sign --detach-sig pyexiv2-$VERSION-setup.exe
 
 Publication
 ###########
 
 * Create a release for the milestone
-  (e.g. at https://launchpad.net/pyexiv2/+milestone/0.2/+addrelease)
+  (e.g. at https://launchpad.net/pyexiv2/+milestone/0.3.1/+addrelease)
 * Upload the source tarball and the windows installer
-  e.g. at https://launchpad.net/pyexiv2/0.2.x/0.2/+adddownloadfile
+  e.g. at https://launchpad.net/pyexiv2/0.3.x/0.3.1/+adddownloadfile
 * Change the status of all the bugs marked as "Fix Committed" in the milestone
   to "Fix Released"
 
