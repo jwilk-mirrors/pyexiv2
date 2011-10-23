@@ -23,7 +23,7 @@
 #  wget unzip tar build-essential mingw32 p7zip-full
 #
 # After execution is complete, copy the following file and folder to the
-# site-packages directory of a Python 2.6 windows setup:
+# site-packages directory of a Python 2.7 windows setup:
 #  - $BASE/pyexiv2/build/libexiv2python.pyd
 #  - $BASE/pyexiv2/src/pyexiv2
 #
@@ -64,9 +64,9 @@ make -j3 install
 cd ..
 
 # exiv2
-wget http://www.exiv2.org/exiv2-0.21.1.tar.gz
-tar xf exiv2-0.21.1.tar.gz
-cd exiv2-0.21.1
+wget http://www.exiv2.org/exiv2-0.22.tar.gz
+tar xf exiv2-0.22.tar.gz
+cd exiv2-0.22
 ./configure --disable-shared --disable-visibility --target=$PLATFORM --host=$PLATFORM --build=$BUILD --disable-nls --with-zlib=$BASE/zlib --with-libiconv-prefix=$BASE/libiconv --with-expat=$BASE/expat --prefix=$BASE/exiv2
 make -j3 install
 cd ..
