@@ -182,8 +182,13 @@ class TestIptcTag(unittest.TestCase):
         # Invalid values
         self.failUnlessRaises(IptcValueError, tag._convert_to_string, 'invalid')
 
-    @unittest.skipIf(pytz is None, 'install python-tz to run this test')
     def test_convert_to_string_time_with_real_timezones(self):
+        if pytz is None:
+            # Poor man’s test skipping. Starting with Python 2.7, decorators are
+            # available to implement this in a cleaner fashion
+            # (http://docs.python.org/library/unittest.html#unittest-skipping).
+            print 'Install python-tz to run this test. Skipping.'
+            return
         tag = IptcTag('Iptc.Envelope.TimeSent')
         self.assertEqual(tag.type, 'Time')
         t = pytz.timezone('UTC').localize(datetime.datetime(2011, 2, 2, 10, 52, 4))
