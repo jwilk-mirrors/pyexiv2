@@ -28,6 +28,9 @@
 Utilitary classes and functions.
 """
 
+# Enable true division.
+from __future__ import division
+
 import datetime
 import re
 
@@ -601,7 +604,10 @@ class DateTimeFormatter(object):
                  ``±%H:%M``
         :rtype: string
         """
-        seconds = t.total_seconds()
+        # timedelta.total_seconds() is only available starting with Python 2.7
+        # (http://docs.python.org/library/datetime.html#datetime.timedelta.total_seconds)
+        #seconds = t.total_seconds()
+        seconds = (t.microseconds + (t.seconds + t.days * 24 * 3600) * 10**6) / 10**6
         hours = int(seconds / 3600)
         minutes = abs(int((seconds - hours * 3600) / 60))
         return '%+03d:%02d' % (hours, minutes)
