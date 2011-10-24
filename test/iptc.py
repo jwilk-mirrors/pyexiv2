@@ -219,23 +219,23 @@ class TestIptcTag(unittest.TestCase):
 
     def test_set_single_value_raises(self):
         tag = IptcTag('Iptc.Application2.City', ['Seattle'])
-        self.failUnlessRaises(TypeError, setattr, tag, 'values', 'Barcelona')
+        self.failUnlessRaises(TypeError, setattr, tag, 'value', 'Barcelona')
 
-    def test_set_values(self):
+    def test_set_value(self):
         tag = IptcTag('Iptc.Application2.City', ['Seattle'])
-        old_values = tag.value
+        old_value = tag.value
         tag.value = ['Barcelona']
-        self.failIfEqual(tag.value, old_values)
+        self.failIfEqual(tag.value, old_value)
 
-    def test_set_raw_values_invalid(self):
+    def test_set_raw_value_invalid(self):
         tag = IptcTag('Iptc.Envelope.DateSent')
-        values = ['foo']
-        self.failUnlessRaises(ValueError, setattr, tag, 'raw_values', values)
+        value = ['foo']
+        self.failUnlessRaises(ValueError, setattr, tag, 'raw_value', value)
 
-    def test_set_values_non_repeatable(self):
+    def test_set_value_non_repeatable(self):
         tag = IptcTag('Iptc.Application2.ReleaseDate')
-        values = [datetime.date.today(), datetime.date.today()]
-        self.failUnlessRaises(KeyError, setattr, tag, 'values', values)
+        value = [datetime.date.today(), datetime.date.today()]
+        self.failUnlessRaises(KeyError, setattr, tag, 'value', value)
 
     def test_deprecated_properties(self):
         # The .raw_values and .values properties are deprecated in favour of
