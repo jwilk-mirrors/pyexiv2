@@ -19,7 +19,7 @@
 !include nsDialogs.nsh
 !include LogicLib.nsh
 
-!define PYEXIV2_VERSION "0.3.1"
+!define PYEXIV2_VERSION "0.3.2"
 
 Name "pyexiv2 ${PYEXIV2_VERSION}"
 OutFile "pyexiv2-${PYEXIV2_VERSION}-setup.exe"

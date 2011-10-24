@@ -1,3 +1,21 @@
+pyexiv2 0.3.2 "Travelling" - 2011-10-24
+---------------------------------------
+
+Dependencies:
+
+- Python ≥ 2.6
+- libexiv2 ≥ 0.19
+- boost.python ≥ 1.38
+
+Bugs fixed:
+
+- 880659: Regression: pyexiv2 0.3.1 doesn’t work with Python 2.6
+
+Contributors:
+
+- Olivier Tilloy
+
+
 pyexiv2 0.3.1 "Challenges" - 2011-10-23
 ---------------------------------------
 
