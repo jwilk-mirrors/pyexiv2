@@ -1,6 +1,6 @@
 // *****************************************************************************
 /*
- * Copyright (C) 2006-2011 Olivier Tilloy <olivier@tilloy.net>
+ * Copyright (C) 2006-2012 Olivier Tilloy <olivier@tilloy.net>
  *
  * This file is part of the pyexiv2 distribution.
  *
@@ -616,10 +616,10 @@ void ExifTag::setParentImage(Image& image)
         return;
     }
     _data = data;
-    std::string value = _datum->toString();
+    Exiv2::Value::AutoPtr value = _datum->getValue();
     delete _datum;
     _datum = &(*_data)[_key.key()];
-    _datum->setValue(value);
+    _datum->setValue(value.get());
 
     _byteOrder = image.getByteOrder();
 }
@@ -955,42 +955,11 @@ void XmpTag::setParentImage(Image& image)
         // anything (see https://bugs.launchpad.net/pyexiv2/+bug/622739).
         return;
     }
-    switch (Exiv2::XmpProperties::propertyType(_key))
-    {
-        case Exiv2::xmpText:
-        {
-            const std::string value = getTextValue();
-            delete _datum;
-            _from_datum = true;
-            _datum = &(*image.getXmpData())[_key.key()];
-            setTextValue(value);
-            break;
-        }
-        case Exiv2::xmpAlt:
-        case Exiv2::xmpBag:
-        case Exiv2::xmpSeq:
-        {
-            const boost::python::list value = getArrayValue();
-            delete _datum;
-            _from_datum = true;
-            _datum = &(*image.getXmpData())[_key.key()];
-            setArrayValue(value);
-            break;
-        }
-        case Exiv2::langAlt:
-        {
-            const boost::python::dict value = getLangAltValue();
-            delete _datum;
-            _from_datum = true;
-            _datum = &(*image.getXmpData())[_key.key()];
-            setLangAltValue(value);
-            break;
-        }
-        default:
-            // Should not happen, this case is here for the sake
-            // of completeness and to avoid compiler warnings.
-            assert(0);
-    }
+    Exiv2::Value::AutoPtr value = _datum->getValue();
+    delete _datum;
+    _from_datum = true;
+    _datum = &(*image.getXmpData())[_key.key()];
+    _datum->setValue(value.get());
 }
 
 const std::string XmpTag::getKey()
