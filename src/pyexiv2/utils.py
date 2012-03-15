@@ -2,7 +2,7 @@
 
 # ******************************************************************************
 #
-# Copyright (C) 2006-2011 Olivier Tilloy <olivier@tilloy.net>
+# Copyright (C) 2006-2012 Olivier Tilloy <olivier@tilloy.net>
 #
 # This file is part of the pyexiv2 distribution.
 #
@@ -148,6 +148,8 @@ def undefined_to_string(undefined):
     :return: the corresponding decoded string
     :rtype: string
     """
+    if undefined == '':
+        return ''
     return ''.join(map(lambda x: chr(int(x)), undefined.rstrip().split(' ')))
 
 
